@@ -24,6 +24,6 @@ fun ManagePolls(navController: NavController){
     ){
         MyAppBarTop(title = "criar votação")
         //Rows -> corpo do app
-        MyAppBarBottom(navController = navController, student = false)
+        MyAppBarBottom(navController = navController)
     }
 }

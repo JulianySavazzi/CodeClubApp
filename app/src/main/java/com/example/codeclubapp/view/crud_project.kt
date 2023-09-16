@@ -24,6 +24,6 @@ fun ManageProjects(navController: NavController){
     ){
         MyAppBarTop(title = "cadastrar projetos")
         //Rows -> corpo do app
-        MyAppBarBottom(navController = navController, student = false)
+        MyAppBarBottom(navController = navController)
     }
 }

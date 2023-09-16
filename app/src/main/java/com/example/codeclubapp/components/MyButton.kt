@@ -37,9 +37,10 @@ fun MyButton(
             color = WHITE,
             fontSize = 18.sp
             )
+        /*
         Modifier
             .fillMaxWidth()
             .padding(0.dp)
-            .height(56.dp)
+            .height(56.dp) */
     }
 }

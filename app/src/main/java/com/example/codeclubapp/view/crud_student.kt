@@ -24,6 +24,6 @@ fun ManageStudents(navController: NavController){
     ){
         MyAppBarTop(title = "cadastrar alunos")
         //Rows -> corpo do app
-        MyAppBarBottom(navController = navController, student = false)
+        MyAppBarBottom(navController = navController)
     }
 }

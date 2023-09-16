@@ -98,7 +98,7 @@ fun Teacher(navController: NavController){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom
         ){
-            MyAppBarBottom(navController = navController, student = false)
+            MyAppBarBottom(navController = navController)
         }
     }
 }

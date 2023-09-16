@@ -29,6 +29,10 @@ fun Notifications(navController: NavController){
         mutableStateOf(true)
     }
 
+    if(navController.popBackStack("teacher", true)){
+        isStudent = false
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -61,7 +65,7 @@ fun Notifications(navController: NavController){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom
         ){
-            MyAppBarBottom(navController = navController, student = isStudent)
+            MyAppBarBottom(navController = navController)
         }
     }
 

@@ -11,14 +11,15 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavController
 import com.example.codeclubapp.data.model.Student
 import com.example.codeclubapp.ui.theme.RedCode
 import com.example.codeclubapp.ui.theme.WHITE
 
-
 @Composable
-fun MyAppBarBottom(navController: NavController, student: Boolean){
+fun MyAppBarBottom(navController: NavController){
+
     BottomAppBar (
         containerColor = RedCode,
     ){
@@ -45,11 +46,9 @@ fun MyAppBarBottom(navController: NavController, student: Boolean){
                             //se o usuario logado for professor -> abrir Teacher()
                             //se o usuario logado for aluno -> abrir Student()
                             selectedItem.value = item
-                            if(student == false){
-                                navController.navigate(route = "teacher")
-                            }else{
-                                navController.navigate(route = "student")
-                            } },
+                            navController.navigate(route = "teacher")
+
+                                  },
                     )
                 }
                 if(index == 1){
@@ -83,7 +82,6 @@ fun MyAppBarBottom(navController: NavController, student: Boolean){
                         selected = selectedItem.value == item,
                         onClick = {
                             //passar variavel com a rota para mudar de tela
-
                             selectedItem.value = item
                             navController.navigate(route = "notifications")
 
@@ -95,4 +93,3 @@ fun MyAppBarBottom(navController: NavController, student: Boolean){
     }
 
 }
-

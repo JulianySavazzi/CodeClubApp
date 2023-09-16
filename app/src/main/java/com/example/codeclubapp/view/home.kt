@@ -45,11 +45,10 @@ import com.example.codeclubapp.components.MyCodeClubImage
 import com.example.codeclubapp.ui.theme.BLACK
 
 //tela inicial do app
-
+class Home(var Student:Boolean)
 @ExperimentalMaterial3Api
 @Composable
 fun Home(navController: NavController){
-    var student = false
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -106,22 +105,12 @@ fun Home(navController: NavController){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ){
-             student = verifyStudent(true)
-            if(student == true){
                 MyButton(
                     text = "sou aluno(a)",
                     route = "user_student",
                     navController = navController,
                     modifier = Modifier.fillMaxWidth().padding(20.dp)
                 )
-            } else {
-                MyButton(
-                    text = "sou professor(a)",
-                    route = "login",
-                    navController = navController,
-                    modifier = Modifier.fillMaxWidth().padding(20.dp)
-                )
-            }
         }
         Row(
             modifier = Modifier

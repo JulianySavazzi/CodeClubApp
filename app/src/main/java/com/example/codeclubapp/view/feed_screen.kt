@@ -33,8 +33,6 @@ fun Feed(navController: NavController){
         mutableStateOf(true)
     }
 
-
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -67,7 +65,7 @@ fun Feed(navController: NavController){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom
         ){
-            MyAppBarBottom(navController = navController, student = isStudent)
+            MyAppBarBottom(navController = navController)
         }
     }
 }

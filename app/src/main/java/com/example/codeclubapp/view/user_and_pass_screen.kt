@@ -26,6 +26,7 @@ import com.example.codeclubapp.components.MyAppBarTop
 import com.example.codeclubapp.components.MyButton
 import com.example.codeclubapp.components.MyCodeClubImage
 import com.example.codeclubapp.components.MyTextBoxInput
+import com.example.codeclubapp.components.MyTextPasswordInput
 
 //aluno entrar com usuario e senha
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,10 +37,19 @@ fun UserAndPassStudent(navController: NavController){
         //iniciar como uma string vazia
         mutableStateOf("")
     }
-    var passwordState by remember {
-        //iniciar como uma string vazia
+
+    //estado do input -> se digitou a senha
+    val password = remember {
+        //a senha começa como uma string vazia
         mutableStateOf("")
     }
+
+    //estado da senha -> se ela esta visivel ou nao
+    val passwordVisible = remember {
+        //a senha fica invisiível
+        mutableStateOf(false)
+    }
+
 
     Column(
         modifier = Modifier
@@ -66,6 +76,7 @@ fun UserAndPassStudent(navController: NavController){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ){
+            //inserir usuario
             MyTextBoxInput(
                 value = userState,
                 onValueChange = {
@@ -85,18 +96,19 @@ fun UserAndPassStudent(navController: NavController){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            MyTextBoxInput(
-                value = passwordState,
+            //inserir senha
+            MyTextPasswordInput(
+                value = password.value,
                 onValueChange = {
-                    //atribuir o valor digitado ao estado -> pegar valor da caixa de texto
-                                passwordState = it
+                    password.value = it
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(20.dp),
                 label = "senha",
-                maxLines = 1
-                )
+                maxLines = 1,
+                passwordVisible = passwordVisible
+            )
         }
         Row (
             modifier = Modifier
@@ -117,14 +129,23 @@ fun UserAndPassStudent(navController: NavController){
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserAndPassTeacher(navController: NavController){
+
     //criar estado para as caixas de texto:
     var userState by remember {
         //iniciar como uma string vazia
         mutableStateOf("")
     }
-    var passwordState by remember {
-        //iniciar como uma string vazia
+
+    //estado do input -> se digitou a senha
+    val password = remember {
+        //a senha começa como uma string vazia
         mutableStateOf("")
+    }
+
+    //estado da senha -> se ela esta visivel ou nao
+    val passwordVisible = remember {
+        //a senha fica invisiível
+        mutableStateOf(false)
     }
 
     Column(
@@ -152,6 +173,7 @@ fun UserAndPassTeacher(navController: NavController){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ){
+            //inserir usuario
             MyTextBoxInput(value = userState,
                 onValueChange = {
                                 userState = it
@@ -170,15 +192,18 @@ fun UserAndPassTeacher(navController: NavController){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            MyTextBoxInput(value = passwordState,
+            //inserir senha
+            MyTextPasswordInput(
+                value = password.value,
                 onValueChange = {
-                                passwordState = it
+                    password.value = it
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(20.dp),
                 label = "senha",
-                maxLines = 1
+                maxLines = 1,
+                passwordVisible = passwordVisible
             )
         }
         Row (

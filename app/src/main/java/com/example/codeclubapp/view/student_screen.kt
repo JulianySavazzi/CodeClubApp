@@ -32,7 +32,7 @@ fun Student(navController: NavController){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom
         ){
-            MyAppBarBottom(navController = navController, student = true)
+            MyAppBarBottom(navController = navController)
         }
     }
 }

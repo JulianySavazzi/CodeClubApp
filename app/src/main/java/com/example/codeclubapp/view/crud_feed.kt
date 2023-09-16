@@ -168,6 +168,6 @@ fun ManageFeed(navController: NavController){
                 .fillMaxWidth()
                 .padding(10.dp))
         }
-        MyAppBarBottom(navController = navController, student = false)
+        MyAppBarBottom(navController = navController)
     }
 }
