@@ -11,12 +11,14 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.navigation.NavController
+import com.example.codeclubapp.data.model.Student
 import com.example.codeclubapp.ui.theme.RedCode
 import com.example.codeclubapp.ui.theme.WHITE
 
 
 @Composable
-fun MyAppBarBottom(){
+fun MyAppBarBottom(navController: NavController, student: Boolean){
     BottomAppBar (
         containerColor = RedCode,
     ){
@@ -39,12 +41,19 @@ fun MyAppBarBottom(){
                             ) },
                         //label = { Text(item, color = WHITE) },
                         selected = selectedItem.value == item,
-                        onClick = { selectedItem.value = item },
+                        onClick = {
+                            //se o usuario logado for professor -> abrir Teacher()
+                            //se o usuario logado for aluno -> abrir Student()
+                            selectedItem.value = item
+                            if(student == false){
+                                navController.navigate(route = "teacher")
+                            }else{
+                                navController.navigate(route = "student")
+                            } },
                     )
-                    //se o usuario logado for professor -> abrir Teacher()
-                    //se o usuario logado for aluno -> abrir Student()
                 }
                 if(index == 1){
+
                     NavigationBarItem(
                         icon = {
                             Icon(
@@ -54,7 +63,11 @@ fun MyAppBarBottom(){
                             ) },
                         //label = { Text(item, color = WHITE) },
                         selected = selectedItem.value == item,
-                        onClick = { selectedItem.value = item }
+                        onClick = {
+                            selectedItem.value = item
+                            navController.navigate(route = "feed")
+
+                        }
                     )
                 }
                 if(index == 2){
@@ -65,9 +78,16 @@ fun MyAppBarBottom(){
                                 contentDescription = item[2].toString(),
                                 tint = WHITE
                             ) },
+
                         //label = { Text(item, color = WHITE) },
                         selected = selectedItem.value == item,
-                        onClick = { selectedItem.value = item }
+                        onClick = {
+                            //passar variavel com a rota para mudar de tela
+
+                            selectedItem.value = item
+                            navController.navigate(route = "notifications")
+
+                        }
                     )
                 }
             }
@@ -75,3 +95,4 @@ fun MyAppBarBottom(){
     }
 
 }
+

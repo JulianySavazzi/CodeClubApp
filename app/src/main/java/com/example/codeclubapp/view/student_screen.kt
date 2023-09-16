@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -19,6 +20,7 @@ fun Student(navController: NavController){
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .fillMaxHeight()
             .background(MaterialTheme.colorScheme.background)
     ){
         MyAppBarTop(title = "aluno(a)")
@@ -30,7 +32,7 @@ fun Student(navController: NavController){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom
         ){
-            MyAppBarBottom()
+            MyAppBarBottom(navController = navController, student = true)
         }
     }
 }

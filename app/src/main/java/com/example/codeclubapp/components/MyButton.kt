@@ -22,11 +22,13 @@ fun MyButton(
     //variaveis que serao passadas para o botao
     text: String,
     route: String,
-    navController: NavController
+    navController: NavController,
+    modifier: Modifier
 ) {
     Button(onClick = {
         //passar variavel com a rota para mudar de tela
         navController.navigate(route = route)
+        modifier
     }) {
         Text(
             text = text,
@@ -37,7 +39,7 @@ fun MyButton(
             )
         Modifier
             .fillMaxWidth()
-            .padding(5.dp)
+            .padding(0.dp)
             .height(56.dp)
     }
 }

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement.Horizontal
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -35,6 +36,7 @@ import com.example.codeclubapp.ui.theme.RedCode
 import com.example.codeclubapp.ui.theme.WHITE
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.codeclubapp.components.MyAppBarBottom
 import com.example.codeclubapp.components.MyAppBarTop
@@ -43,20 +45,22 @@ import com.example.codeclubapp.components.MyCodeClubImage
 import com.example.codeclubapp.ui.theme.BLACK
 
 //tela inicial do app
+
 @ExperimentalMaterial3Api
 @Composable
 fun Home(navController: NavController){
-
+    var student = false
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .fillMaxHeight()
             .background(MaterialTheme.colorScheme.background)
     ) {
         MyAppBarTop(title = "code club")
         Row (
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(56.dp),
+                .padding(56.dp, 56.dp, 56.dp, 0.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ){
@@ -65,7 +69,8 @@ fun Home(navController: NavController){
                 text = "bem vindo(a) ao code club app!",
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 18.sp
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold
 
             )
 
@@ -73,11 +78,10 @@ fun Home(navController: NavController){
         Row (
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp),
+                .padding(56.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ){
-
             MyCodeClubImage()
         }
         Row (
@@ -91,7 +95,8 @@ fun Home(navController: NavController){
             MyButton(
                 text = "votar no game challenge",
                 route = "poll",
-                navController = navController
+                navController = navController,
+                modifier = Modifier.fillMaxWidth().padding(20.dp)
             )
         }
         Row(
@@ -101,11 +106,22 @@ fun Home(navController: NavController){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ){
-            MyButton(
-                text = "sou aluno(a)",
-                route = "login",
-                navController = navController
-            )
+             student = verifyStudent(true)
+            if(student == true){
+                MyButton(
+                    text = "sou aluno(a)",
+                    route = "user_student",
+                    navController = navController,
+                    modifier = Modifier.fillMaxWidth().padding(20.dp)
+                )
+            } else {
+                MyButton(
+                    text = "sou professor(a)",
+                    route = "login",
+                    navController = navController,
+                    modifier = Modifier.fillMaxWidth().padding(20.dp)
+                )
+            }
         }
         Row(
             modifier = Modifier
@@ -117,7 +133,8 @@ fun Home(navController: NavController){
             MyButton(
                 text = "sou professor(a)",
                 route = "login",
-                navController = navController
+                navController = navController,
+                modifier = Modifier.fillMaxWidth().padding(20.dp)
             )
         }
         Row (
@@ -133,6 +150,6 @@ fun Home(navController: NavController){
     //Text(text = "bem vindo ao code club!")
 }
 
-
-
-
+fun verifyStudent( student: Boolean ): Boolean {
+    return student
+}

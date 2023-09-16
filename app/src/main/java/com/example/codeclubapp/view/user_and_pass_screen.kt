@@ -6,13 +6,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,24 +20,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.codeclubapp.components.MyAppBarBottom
 import com.example.codeclubapp.components.MyAppBarTop
 import com.example.codeclubapp.components.MyButton
+import com.example.codeclubapp.components.MyCodeClubImage
 import com.example.codeclubapp.components.MyTextBoxInput
 
-//cadastrar noticias
+//aluno entrar com usuario e senha
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ManageFeed(navController: NavController){
-    //criar estado para as caixas de texto -> titulo e conteudo
-    var titleState by remember {
+fun UserAndPassStudent(navController: NavController){
+    //criar estado para as caixas de texto:
+    var userState by remember {
+        //iniciar como uma string vazia
         mutableStateOf("")
     }
-    var contentState by remember {
+    var passwordState by remember {
+        //iniciar como uma string vazia
         mutableStateOf("")
     }
 
@@ -48,23 +48,17 @@ fun ManageFeed(navController: NavController){
             .verticalScroll(rememberScrollState()) //barra de rolagem
             .background(MaterialTheme.colorScheme.background)
     ){
-        MyAppBarTop(title = "publicações")
-        //Rows -> corpo do app
+        MyAppBarTop(title = "entrar no app")
         Row (
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp, 30.dp, 20.dp, 20.dp),
+                .fillMaxWidth(2f)
+                .padding(5.dp),
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom
+            verticalAlignment = Alignment.CenterVertically
         ){
-            Text(
-                text = "criar publicação: ",
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 18.sp
-
-            )
+            MyCodeClubImage()
         }
+        //Rows -> corpo do app
         Row (
             modifier = Modifier
                 .fillMaxWidth()
@@ -73,14 +67,14 @@ fun ManageFeed(navController: NavController){
             verticalAlignment = Alignment.CenterVertically
         ){
             MyTextBoxInput(
-                value = titleState,
+                value = userState,
                 onValueChange = {
-                                titleState = it
+                                userState = it
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp),
-                label = "título",
+                    .padding(20.dp),
+                label = "usuário",
                 maxLines = 1
             )
         }
@@ -90,18 +84,19 @@ fun ManageFeed(navController: NavController){
                 .padding(0.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
-        ){
+        ) {
             MyTextBoxInput(
-                value = contentState,
+                value = passwordState,
                 onValueChange = {
-                                contentState = it
+                    //atribuir o valor digitado ao estado -> pegar valor da caixa de texto
+                                passwordState = it
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp),
-                label = "conteúdo",
-                maxLines = 10
-            )
+                    .padding(20.dp),
+                label = "senha",
+                maxLines = 1
+                )
         }
         Row (
             modifier = Modifier
@@ -110,64 +105,98 @@ fun ManageFeed(navController: NavController){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ){
-            MyButton(text = "salvar publicação", route = "manageFeed", navController = navController, modifier = Modifier
+            MyButton(text = "entrar", route = "student", navController = navController, modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp))
         }
-        Divider(
-            thickness = 1.dp,
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.onBackground
-        )
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp, 30.dp, 20.dp, 20.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom
-        ){
-            Text(
-                text = "alterar publicação: ",
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 18.sp
-
-            )
-        }
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            //trocar botao por caixa de seleção
-            MyButton(text = "selecionar publicação", route = "manageFeed", navController = navController, modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp))
-        }
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            MyButton(text = "editar publicação", route = "manageFeed", navController = navController, modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp))
-        }
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            MyButton(text = "excluir publicação", route = "manageFeed", navController = navController, modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp))
-        }
-        MyAppBarBottom(navController = navController, student = false)
     }
+
+}
+
+//professor entrar com usuario e senha
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun UserAndPassTeacher(navController: NavController){
+    //criar estado para as caixas de texto:
+    var userState by remember {
+        //iniciar como uma string vazia
+        mutableStateOf("")
+    }
+    var passwordState by remember {
+        //iniciar como uma string vazia
+        mutableStateOf("")
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .verticalScroll(rememberScrollState()) //barra de rolagem
+            .background(MaterialTheme.colorScheme.background)
+    ){
+        MyAppBarTop(title = "entrar no app")
+        //Rows -> corpo do app
+        Row (
+            modifier = Modifier
+                .fillMaxWidth(2f)
+                .padding(5.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            MyCodeClubImage()
+        }
+        Row (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(0.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            MyTextBoxInput(value = userState,
+                onValueChange = {
+                                userState = it
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                label = "usuário",
+                maxLines = 1
+                )
+        }
+        Row (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(0.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            MyTextBoxInput(value = passwordState,
+                onValueChange = {
+                                passwordState = it
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                label = "senha",
+                maxLines = 1
+            )
+        }
+        Row (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            MyButton(text = "entrar", route = "teacher", navController = navController, modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp))
+        }
+    }
+
+}
+
+//*********************** VERIFY AUTH ***********************
+fun verifyLogin( login_ok: Boolean): Boolean{
+    return login_ok
 }

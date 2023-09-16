@@ -72,5 +72,6 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:$nav_version")
     implementation("androidx.compose.material3:material3:1.0.1")
     implementation("androidx.compose.material3:material3-window-size-class:1.0.1")
+    implementation("androidx.compose.runtime:runtime-livedata:1.3.2")
 
 }

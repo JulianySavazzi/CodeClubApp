@@ -16,9 +16,12 @@ import com.example.codeclubapp.view.ManagePolls
 import com.example.codeclubapp.view.ManageProjects
 import com.example.codeclubapp.view.ManageStudents
 import com.example.codeclubapp.view.ManageTeams
+import com.example.codeclubapp.view.Notifications
 import com.example.codeclubapp.view.Poll
 import com.example.codeclubapp.view.Student
 import com.example.codeclubapp.view.Teacher
+import com.example.codeclubapp.view.UserAndPassStudent
+import com.example.codeclubapp.view.UserAndPassTeacher
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -44,6 +47,18 @@ class MainActivity : ComponentActivity() {
                         route = "login"
                     ){
                         Login(navController)
+                    }
+                    composable(
+                        //tela de login -> login
+                        route = "user_student"
+                    ){
+                        UserAndPassStudent(navController)
+                    }
+                    composable(
+                        //tela de login -> login
+                        route = "user_teacher"
+                    ){
+                        UserAndPassTeacher(navController)
                     }
                     composable(
                         //perfil professor -> teacher_screen
@@ -98,6 +113,13 @@ class MainActivity : ComponentActivity() {
                         route = "feed"
                     ){
                         Feed(navController)
+                    }
+                    //route = "notifications"
+                    composable(
+                        //notificacoes -> notification_screen
+                        route = "notifications"
+                    ){
+                        Notifications(navController)
                     }
                 } //NaviHost -> navegacao
 

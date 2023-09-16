@@ -4,8 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +27,8 @@ fun Poll(navController: NavController){
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .fillMaxHeight()
+            .verticalScroll(rememberScrollState()) //barra de rolagem
             .background(MaterialTheme.colorScheme.background)
     ){
         MyAppBarTop(title = "votação")
@@ -56,7 +61,8 @@ fun Poll(navController: NavController){
             MyButton(
                 text = "", //nome do projeto
                 route = "home", //voto concluido
-                navController = navController
+                navController = navController,
+                modifier = Modifier.fillMaxWidth().padding(10.dp)
             )
         }
     }
