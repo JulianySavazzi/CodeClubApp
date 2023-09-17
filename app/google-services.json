@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "721414530062",
+    "project_id": "code-club-app-665c5",
+    "storage_bucket": "code-club-app-665c5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:721414530062:android:02dc13fa325245cc6c485f",
+        "android_client_info": {
+          "package_name": "com.example.codeclubapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "721414530062-tfgu3hie3hdo335ghivo87s04klcf0ee.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.codeclubapp",
+            "certificate_hash": "a81f13b80238a49e68483933295272e0f58bb445"
+          }
+        },
+        {
+          "client_id": "721414530062-vag49gonhim7qpen3l4g0skn43bj508b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUFJvh542mxz_sDhcI4oWtpFFmXxQw8Lk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "721414530062-vag49gonhim7qpen3l4g0skn43bj508b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

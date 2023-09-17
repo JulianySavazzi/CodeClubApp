@@ -45,10 +45,22 @@ import com.example.codeclubapp.components.MyCodeClubImage
 import com.example.codeclubapp.ui.theme.BLACK
 
 //tela inicial do app
-class Home(var Student:Boolean)
+
 @ExperimentalMaterial3Api
 @Composable
 fun Home(navController: NavController){
+    //estado do usuario -> se ele é estudante ou professor
+
+    val loginTeacher = remember {
+        //a senha fica invisiível
+        mutableStateOf(false)
+    }
+
+    val loginStudent = remember {
+        //a senha fica invisiível
+        mutableStateOf(false)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -95,7 +107,10 @@ fun Home(navController: NavController){
                 text = "votar no game challenge",
                 route = "poll",
                 navController = navController,
-                modifier = Modifier.fillMaxWidth().padding(20.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                onValueChange = {}
             )
         }
         Row(
@@ -109,7 +124,10 @@ fun Home(navController: NavController){
                     text = "sou aluno(a)",
                     route = "user_student",
                     navController = navController,
-                    modifier = Modifier.fillMaxWidth().padding(20.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
+                    onValueChange = { loginStudent.value = true }
                 )
         }
         Row(
@@ -123,7 +141,10 @@ fun Home(navController: NavController){
                 text = "sou professor(a)",
                 route = "login",
                 navController = navController,
-                modifier = Modifier.fillMaxWidth().padding(20.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                onValueChange = { loginTeacher.value = true }
             )
         }
         Row (
@@ -139,6 +160,4 @@ fun Home(navController: NavController){
     //Text(text = "bem vindo ao code club!")
 }
 
-fun verifyStudent( student: Boolean ): Boolean {
-    return student
-}
+

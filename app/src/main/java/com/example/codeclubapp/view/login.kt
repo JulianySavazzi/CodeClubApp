@@ -24,6 +24,7 @@ import androidx.navigation.NavController
 import com.example.codeclubapp.components.MyAppBarTop
 import com.example.codeclubapp.components.MyButton
 import com.example.codeclubapp.components.MyCodeClubImage
+import com.example.codeclubapp.components.MyLoginButton
 import com.example.codeclubapp.ui.theme.BLACK
 
 //tela de login
@@ -73,7 +74,7 @@ fun Login(navController: NavController){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ){
-            MyButton(text = "entrar com usuário e senha", route = "user_teacher", navController = navController, modifier = Modifier.fillMaxWidth().padding(10.dp))
+            MyButton(text = "entrar com usuário e senha", route = "user_teacher", navController = navController, modifier = Modifier.fillMaxWidth().padding(10.dp), onValueChange = {})
         }
         Row (
             modifier = Modifier
@@ -82,7 +83,7 @@ fun Login(navController: NavController){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ){
-            MyButton(text = "entrar com o Google", route = "teacher", navController = navController,modifier = Modifier.fillMaxWidth().padding(10.dp))
+            MyLoginButton(text = "entrar com o Google", /*route = "teacher", navController = navController,*/modifier = Modifier.fillMaxWidth().padding(10.dp), /*onValueChange = {}, isLoginGoogle = true,*/ onClick = {})
         }
     }
 }

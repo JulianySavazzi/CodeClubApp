@@ -28,11 +28,24 @@ import com.example.codeclubapp.components.MyAppBarBottom
 import com.example.codeclubapp.components.MyAppBarTop
 import com.example.codeclubapp.components.MyButton
 import com.example.codeclubapp.components.MyTextBoxInput
+import com.google.firebase.ktx.Firebase
 
 //cadastrar noticias
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManageFeed(navController: NavController){
+
+    //apenas o usuario do tipo professor tem acesso a essa tela
+    val loginTeacher = remember {
+        //a senha fica invisiível
+        mutableStateOf(true)
+    }
+
+    val loginStudent = remember {
+        //a senha fica invisiível
+        mutableStateOf(false)
+    }
+
     //criar estado para as caixas de texto -> titulo e conteudo
     var titleState by remember {
         mutableStateOf("")
@@ -112,7 +125,11 @@ fun ManageFeed(navController: NavController){
         ){
             MyButton(text = "salvar publicação", route = "manageFeed", navController = navController, modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp))
+                .padding(10.dp),
+                onValueChange = {
+                    loginStudent
+                    loginTeacher
+                })
         }
         Divider(
             thickness = 1.dp,
@@ -144,7 +161,11 @@ fun ManageFeed(navController: NavController){
             //trocar botao por caixa de seleção
             MyButton(text = "selecionar publicação", route = "manageFeed", navController = navController, modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp))
+                .padding(10.dp),
+                onValueChange = {
+                    loginStudent
+                    loginTeacher
+                })
         }
         Row (
             modifier = Modifier
@@ -155,7 +176,11 @@ fun ManageFeed(navController: NavController){
         ){
             MyButton(text = "editar publicação", route = "manageFeed", navController = navController, modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp))
+                .padding(10.dp),
+                onValueChange = {
+                    loginStudent
+                    loginTeacher
+                })
         }
         Row (
             modifier = Modifier
@@ -166,8 +191,12 @@ fun ManageFeed(navController: NavController){
         ){
             MyButton(text = "excluir publicação", route = "manageFeed", navController = navController, modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp))
+                .padding(10.dp),
+                onValueChange = {
+                    loginStudent
+                    loginTeacher
+                })
         }
-        MyAppBarBottom(navController = navController)
+        MyAppBarBottom(navController = navController, loginStudent=loginStudent, loginTeacher=loginTeacher)
     }
 }

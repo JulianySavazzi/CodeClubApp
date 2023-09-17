@@ -12,6 +12,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -24,6 +26,18 @@ import com.example.codeclubapp.ui.theme.BLACK
 
 @Composable
 fun Poll(navController: NavController){
+    //o usuario nao precisa estar logado, so precisa ter o codigo de autenticacao
+    //entao nao sera nem aluno nem professor
+    val loginTeacher = remember {
+        //a senha fica invisiível
+        mutableStateOf(false)
+    }
+
+    val loginStudent = remember {
+        //a senha fica invisiível
+        mutableStateOf(false)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -62,7 +76,11 @@ fun Poll(navController: NavController){
                 text = "", //nome do projeto
                 route = "home", //voto concluido
                 navController = navController,
-                modifier = Modifier.fillMaxWidth().padding(10.dp)
+                modifier = Modifier.fillMaxWidth().padding(10.dp),
+                onValueChange = {
+                    loginStudent
+                    loginTeacher
+                }
             )
         }
     }

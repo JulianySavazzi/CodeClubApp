@@ -29,7 +29,13 @@ import okhttp3.internal.notify
 
 @Composable
 fun Feed(navController: NavController){
-    var isStudent by remember {
+    //apenas ler as publicações
+
+    val loginTeacher = remember {
+        mutableStateOf(false)
+    }
+
+    val loginStudent = remember {
         mutableStateOf(true)
     }
 
@@ -65,9 +71,55 @@ fun Feed(navController: NavController){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom
         ){
-            MyAppBarBottom(navController = navController)
+            MyAppBarBottom(navController = navController, loginStudent = loginStudent, loginTeacher = loginTeacher)
         }
     }
 }
 
+//Feed do professor permite que ele edite ou exclua a publicação que ele selecionar
+@Composable
+fun FeedTeacher(navController: NavController){
+    val loginTeacher = remember {
+        mutableStateOf(true)
+    }
 
+    val loginStudent = remember {
+        mutableStateOf(false)
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .verticalScroll(rememberScrollState()) //barra de rolagem
+            .background(MaterialTheme.colorScheme.background)
+    ){
+        MyAppBarTop(title = "feed de notícias")
+        //Rows -> corpo do app
+        Row (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.Bottom
+        ){
+            Text(
+                text = "últimas notícias:",
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold
+
+            )
+        }
+        Row (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.Bottom
+        ){
+            MyAppBarBottom(navController = navController, loginStudent = loginStudent, loginTeacher = loginTeacher)
+        }
+    }
+}
