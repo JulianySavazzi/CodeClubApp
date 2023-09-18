@@ -22,9 +22,7 @@ import com.example.codeclubapp.components.MyAppBarBottom
 import com.example.codeclubapp.components.MyAppBarTop
 import com.example.codeclubapp.components.MyButton
 import com.example.codeclubapp.components.MyLoginButton
-import com.example.codeclubapp.ui.theme.BLACK
 import com.example.codeclubapp.ui.theme.GreenLightCode
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 

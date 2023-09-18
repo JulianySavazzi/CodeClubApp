@@ -1,7 +1,7 @@
 package com.example.codeclubapp.model
 
 class Student (
-    var user: String? = null,
+    var name: String? = null,
     var password: String? = null,
     var email: String? = null,
     var projects: List<Project>? = null,

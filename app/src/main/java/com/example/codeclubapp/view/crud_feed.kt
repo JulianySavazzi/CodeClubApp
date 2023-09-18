@@ -50,6 +50,7 @@ fun ManageFeed(navController: NavController){
     var titleState by remember {
         mutableStateOf("")
     }
+
     var contentState by remember {
         mutableStateOf("")
     }

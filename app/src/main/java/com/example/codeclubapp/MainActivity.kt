@@ -1,16 +1,10 @@
 package com.example.codeclubapp
 
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.core.content.ContextCompat
-import androidx.navigation.NavController
-import androidx.navigation.NavHost
-import androidx.navigation.Navigation
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -33,8 +27,6 @@ import com.example.codeclubapp.view.Teacher
 import com.example.codeclubapp.view.UserAndPassStudent
 import com.example.codeclubapp.view.UserAndPassTeacher
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)

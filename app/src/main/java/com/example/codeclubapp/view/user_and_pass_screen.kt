@@ -7,9 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,15 +23,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.codeclubapp.EmailPasswordActivity
 import com.example.codeclubapp.components.MyAppBarTop
-import com.example.codeclubapp.components.MyButton
 import com.example.codeclubapp.components.MyCodeClubImage
 import com.example.codeclubapp.components.MyLoginButton
 import com.example.codeclubapp.components.MyTextBoxInput
 import com.example.codeclubapp.components.MyTextPasswordInput
 import com.example.codeclubapp.repository.TeacherRepository
-import com.example.codeclubapp.ui.theme.GreenLightCode
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthEmailException
@@ -292,8 +287,7 @@ fun UserAndPassTeacher(navController: NavController){
                 */
                 onClick = {
 
-
-                    //verificações do login usando coroutines scope
+                    //verificações do login usando coroutines scope -> criar novo usuario
                     scope.launch(Dispatchers.IO){
                         //verificar o estado dos campos
                         if(userState.isEmpty() || password.value.isEmpty()){
