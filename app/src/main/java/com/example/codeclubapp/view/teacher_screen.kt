@@ -21,7 +21,12 @@ import androidx.navigation.NavController
 import com.example.codeclubapp.components.MyAppBarBottom
 import com.example.codeclubapp.components.MyAppBarTop
 import com.example.codeclubapp.components.MyButton
+import com.example.codeclubapp.components.MyLoginButton
 import com.example.codeclubapp.ui.theme.BLACK
+import com.example.codeclubapp.ui.theme.GreenLightCode
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 @Composable
 fun Teacher(navController: NavController){
@@ -52,7 +57,7 @@ fun Teacher(navController: NavController){
             verticalAlignment = Alignment.Bottom
         ){
             Text(
-                text = "olá ",
+                text = "olá",
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 18.sp
@@ -70,7 +75,9 @@ fun Teacher(navController: NavController){
                 text = "gerenciar alunos(as)",
                 route = "manageStudents",
                 navController = navController,
-                modifier = Modifier.fillMaxWidth().padding(10.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
                 onValueChange = {
                     loginTeacher.value = true
                 }
@@ -86,7 +93,9 @@ fun Teacher(navController: NavController){
             MyButton(text = "gerenciar projetos",
                 route = "manageProjects",
                 navController = navController,
-                modifier = Modifier.fillMaxWidth().padding(10.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
                 onValueChange = {
                     loginTeacher.value = true
                 }
@@ -102,7 +111,9 @@ fun Teacher(navController: NavController){
             MyButton(text = "gerenciar equipes",
                 route = "manageTeams",
                 navController = navController,
-                modifier = Modifier.fillMaxWidth().padding(10.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
                 onValueChange = {
                     loginTeacher.value = true
                 }
@@ -119,7 +130,9 @@ fun Teacher(navController: NavController){
                 text = "cgerenciar votações",
                 route = "managePolls",
                 navController = navController,
-                modifier = Modifier.fillMaxWidth().padding(10.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
                 onValueChange = {
                     loginTeacher.value = true
                 }
@@ -136,11 +149,32 @@ fun Teacher(navController: NavController){
                 text = "gerenciar publicações",
                 route = "manageFeed",
                 navController = navController,
-                modifier = Modifier.fillMaxWidth().padding(10.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
                 onValueChange = {
                     loginTeacher.value = true
                 }
             )
+        }
+        Row (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.Bottom
+        ){
+            MyLoginButton(text = "sair do app",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+                    .background(GreenLightCode),
+                onClick = {
+                //fazer logout
+                    Firebase.auth.signOut()
+                    print("sing out")
+                    navController.navigate("home")
+            })
         }
         Row (
             modifier = Modifier

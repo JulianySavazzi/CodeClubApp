@@ -1,6 +1,7 @@
 package com.example.codeclubapp.view
 
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,8 +16,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,12 +28,31 @@ import com.example.codeclubapp.components.MyAppBarTop
 import com.example.codeclubapp.components.MyButton
 import com.example.codeclubapp.components.MyCodeClubImage
 import com.example.codeclubapp.components.MyLoginButton
+import com.example.codeclubapp.repository.TeacherRepository
 import com.example.codeclubapp.ui.theme.BLACK
+import com.example.codeclubapp.ui.theme.GreenCode
+import com.example.codeclubapp.ui.theme.GreenLightCode
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 //tela de login
 
 @Composable
 fun Login(navController: NavController){
+
+    //utilizar firebase auth
+    val auth = FirebaseAuth.getInstance()
+
+    //coroutines trabalham com threads
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    //iniciar repositorio para salvar os dados no bd
+    val teacherRepository = TeacherRepository()
+
+    //se salvou ou nao
+    var save = false
 
     Column(
         modifier = Modifier
@@ -74,7 +96,11 @@ fun Login(navController: NavController){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ){
-            MyButton(text = "entrar com usuário e senha", route = "user_teacher", navController = navController, modifier = Modifier.fillMaxWidth().padding(10.dp), onValueChange = {})
+            MyButton(text = "criar conta",
+                route = "user_teacher",
+                navController = navController,
+                modifier = Modifier.fillMaxWidth().padding(10.dp),
+                onValueChange = {})
         }
         Row (
             modifier = Modifier
@@ -83,7 +109,56 @@ fun Login(navController: NavController){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ){
-            MyLoginButton(text = "entrar com o Google", /*route = "teacher", navController = navController,*/modifier = Modifier.fillMaxWidth().padding(10.dp), /*onValueChange = {}, isLoginGoogle = true,*/ onClick = {})
+            MyButton(text = "entrar com email e senha",
+                route = "login_teacher",
+                navController = navController,
+                modifier = Modifier.fillMaxWidth().padding(10.dp),
+                onValueChange = {})
+            print("tentando ir para login_teacher")
+        }
+        Row (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            MyLoginButton(text = "entrar com o Google", /*route = "teacher", navController = navController,*/
+                modifier = Modifier.fillMaxWidth().padding(10.dp), /*onValueChange = {}, isLoginGoogle = true,*/
+                onClick = {
+
+                    /*
+                    //verificações do login usando coroutines scope
+                    scope.launch(Dispatchers.IO){
+                        auth.signInWithCredential().addOnCompleteListener{
+                            //resultado do cadastro
+                                crud ->
+                            if(crud.isSuccessful){
+                                save = true
+                                var name = auth.currentUser!!.displayName.toString()
+                                var email = auth.currentUser!!.email.toString()
+                                var pass = ""
+                                teacherRepository.saveTeacher( name = name, email =  email, pass = pass, true, false)
+                            } else {
+                                save = false
+                            }
+                        }
+                    }
+                     */
+
+                    //mostrar mensagem usando o escopo do app -> context Main
+                    scope.launch(Dispatchers.Main){
+                        if(save == true){
+                            println("\nsalvo com sucesso \n")
+                            navController.navigate("teacher")
+                            Toast.makeText(context, "cadastrado com sucesso", Toast.LENGTH_SHORT).show()
+                        } else {
+                            println("\nalgo deu errado \n")
+                            Toast.makeText(context, "algo deu errado ao fazer login com o Google", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+                })
         }
     }
 }

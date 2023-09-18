@@ -19,9 +19,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.codeclubapp.datasource.DataSource
+import com.example.codeclubapp.repository.TeacherRepository
 import com.example.codeclubapp.ui.theme.WHITE
 import com.example.codeclubapp.view.Teacher
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import okhttp3.internal.notify
 
@@ -40,7 +42,7 @@ fun MyButton(
         //passar variavel com a rota para mudar de tela
         goRoutesNoAuth(route, navController)
         //navController.navigate(route = route)
-        modifier
+        //modifier
         onValueChange
     }) {
         Text(
@@ -50,6 +52,7 @@ fun MyButton(
             color = WHITE,
             fontSize = 18.sp
             )
+        modifier
         /*
         Modifier
             .fillMaxWidth()
@@ -92,7 +95,8 @@ fun goRoutesNoAuth(route: String, navController: NavController){
     //verificar se usuario tem permissao para acessar a pagina antes de chamar o navigate
     var loged = verifyLogin()
     if(route == "login" || route == "poll" ||
-        route == "user_teacher" || route == "user_student"){
+        route == "user_teacher" || route == "user_student"
+        || route == "login_teacher"){
         navController.navigate(route = route)
     } else {
         if(loged == true){
@@ -105,25 +109,35 @@ fun goRoutesNoAuth(route: String, navController: NavController){
 
 }
 fun ckeckRoutes(route: String, navController: NavController):Boolean{
+    //val db = FirebaseFirestore.getInstance()
+    //var teacher = db.collection("teacher").id.toString()
+    //var presentUser = Firebase.auth.currentUser!!.uid.toString()
     if(route == "feed" || route == "notifications" ||
-        route == "feed_teacher" || route == "notifications_teacher"
+        route == "feed_teacher" || route == "notifications_teacher" ||
+        route == "teacher" || route == "manageStudents" ||
+        route == "manageProjects" || route == "manageTeams" ||
+        route == "managePolls" || route == "manageFeed" ||
+        route == "student"
         && Firebase.auth.currentUser != null) {
         navController.navigate(route = route)
         return true
     }
     else return false
+    /*
     if (route == "teacher" || route == "manageStudents" ||
         route == "manageProjects" || route == "manageTeams" ||
         route == "managePolls" || route == "manageFeed"
-        /*&& Firebase.auth.currentUser!!.email == */) {
+        && teacher == presentUser) {
         //verificar se o user é professor
         navController.navigate(route = route)
+        println("tentando ir para a rota -> $presentUser = $teacher" )
         return true
     } else return false
-    if (route == "student"
-        /*&& Firebase.auth.currentUser!!.email == StudentModel.email*/) {
+    if (route == "student" /*&& db.collection("student").id ==
+        Firebase.auth.currentUser!!.uid*/) {
         //verificar se o user é aluno
         navController.navigate(route = route)
         return true
     } else return false
+     */
 }

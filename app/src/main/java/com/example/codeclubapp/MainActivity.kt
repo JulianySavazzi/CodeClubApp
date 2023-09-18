@@ -8,6 +8,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavController
+import androidx.navigation.NavHost
+import androidx.navigation.Navigation
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -16,6 +19,7 @@ import com.example.codeclubapp.view.Feed
 import com.example.codeclubapp.view.FeedTeacher
 import com.example.codeclubapp.view.Home
 import com.example.codeclubapp.view.Login
+import com.example.codeclubapp.view.LoginFormTeacher
 import com.example.codeclubapp.view.ManageFeed
 import com.example.codeclubapp.view.ManagePolls
 import com.example.codeclubapp.view.ManageProjects
@@ -43,6 +47,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 NavHost(navController = navController, startDestination = "home"){
                     //tela inicial -> home
+
                     composable(
                         //configurar as telas pelo uiid
                         //cada composable configura uma rota com seu uiid
@@ -56,6 +61,12 @@ class MainActivity : ComponentActivity() {
                         route = "login"
                     ){
                         Login(navController)
+                    }
+                    composable(
+                        //login user and pass -> teacher
+                        route = "login_teacher"
+                    ){
+                        LoginFormTeacher(navController)
                     }
                     composable(
                         //tela de login -> login
@@ -73,7 +84,6 @@ class MainActivity : ComponentActivity() {
                         //perfil professor -> teacher_screen
                         route = "teacher"
                     ){
-
                         Teacher(navController)
                     }
                     composable(
@@ -146,6 +156,14 @@ class MainActivity : ComponentActivity() {
                 } //NaviHost -> navegacao
 
             }
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val userIsPresent = FirebaseAuth.getInstance().currentUser
+        if(userIsPresent == null) {
+            print(" $userIsPresent ")
         }
     }
 

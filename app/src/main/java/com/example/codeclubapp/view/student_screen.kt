@@ -13,9 +13,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.codeclubapp.components.MyAppBarBottom
 import com.example.codeclubapp.components.MyAppBarTop
+import com.example.codeclubapp.components.MyLoginButton
+import com.example.codeclubapp.ui.theme.GreenLightCode
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 @Composable
 fun Student(navController: NavController){
@@ -38,6 +43,25 @@ fun Student(navController: NavController){
     ){
         MyAppBarTop(title = "aluno(a)")
         //Rows -> corpo do app
+        Row (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.Bottom
+        ){
+            MyLoginButton(text = "sair do app",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+                    .background(GreenLightCode),
+                onClick = {
+                    //fazer logout
+                    Firebase.auth.signOut()
+                    print("sing out")
+                    navController.navigate("home")
+                })
+        }
         Row (
             modifier = Modifier
                 .fillMaxWidth()
