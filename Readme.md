@@ -6,7 +6,7 @@ Code Club App
 
 http://codeclube.inf.br
 
-* O desenvolvimento do aplicativo para dispositivos Android, esta utilizando as tecnologias Kotlin e Jetpack Compose (para desenvolvimento nativo);
+* O desenvolvimento do aplicativo para dispositivos Android, esta utilizando as tecnologias Kotlin, Jetpack Compose (para desenvolvimento nativo) e Firebase (autenticação de usuários e banco de dados);
 
 * Futuramente, pretende-se criar uma versao do App para iOS (tambem com desenvolvimento nativo);
 
