@@ -4,7 +4,7 @@ import com.example.codeclubapp.datasource.DataSource
 import com.example.codeclubapp.model.Teacher
 import kotlinx.coroutines.flow.Flow
 
-class TeacherRepository (){
+class TeacherRepository(){
     private val dataSource = DataSource()
     fun saveTeacher(
         name: String,
