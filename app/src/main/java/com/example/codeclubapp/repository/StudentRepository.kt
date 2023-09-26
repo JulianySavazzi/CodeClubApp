@@ -8,21 +8,36 @@ import kotlinx.coroutines.flow.Flow
 
 class StudentRepository() {
     private val dataSource = DataSource()
+    //var identifier = 0
 
     fun saveStudent(
+        id: Int ,
         name: String,
         email: String,
         pass: String,
-        projects: MutableList<Project>,
-        teams: MutableList<Team>,
+        //projects: MutableList<Project>,
+        //teams: MutableList<Team>,
         isTeacher: Boolean = false,
         isStudent: Boolean = true
     ){
         //vamos receber os atributos da view a enviar ao banco de dados
-        dataSource.saveStudent(name, email, pass, projects, teams, isTeacher, isStudent)
+        dataSource.saveStudent(id, name, email, pass, isTeacher, isStudent)
     }
 
     fun getStudent(): Flow<MutableList<Student>> {
         return dataSource.getSudent()
     }
+
+    fun getSudentByName(name: String){
+        return dataSource.getSudentByName(name)
+    }
+
+    fun getSudentByEmail(email: String){
+        return dataSource.getSudentByEmail(email)
+    }
+
+    fun verifyStudent(email: String, pass: String){
+        return dataSource.verifyStudent(email, pass)
+    }
+
 }

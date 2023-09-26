@@ -8,15 +8,16 @@ import kotlinx.coroutines.flow.Flow
 
 class ProjectRepository() {
     private val dataSource = DataSource()
-
+    //var identifier = 0
     fun saveProject(
+        id: Int ,
         name: String,
         description: String,
-        members: MutableList<Student>,
-        team: MutableList<Team>
+        //members: MutableList<Student>,
+        //team: MutableList<Team>
     ){
         //vamos receber os atributos da view a enviar ao banco de dados
-        dataSource.saveProject(name, description, members, team)
+        dataSource.saveProject(id, name, description)
     }
 
     fun getProject(): Flow<MutableList<Project>> {

@@ -8,17 +8,31 @@ import kotlinx.coroutines.flow.Flow
 
 class TeamRepository() {
     private val dataSource = DataSource()
+    //var identifier = 0
 
     fun saveTeam(
+        id: Int ,
         name: String,
         members: MutableList<Student>,
         projects: MutableList<Project>
     ){
         //vamos receber os atributos da view a enviar ao banco de dados
-        dataSource.saveTeam(name, members, projects)
+        dataSource.saveTeam(id, name, members, projects)
     }
 
     fun getTeam(): Flow<MutableList<Team>> {
         return dataSource.getTeam()
+    }
+
+    fun getTeamByName(name: String): String{
+        return dataSource.getTeamByName(name)
+    }
+
+    fun updateTeamByName(
+        name: String,
+        members: MutableList<Student>,
+        projects: MutableList<Project>
+    ){
+        dataSource.updateTeamByName(name, members, projects)
     }
 }

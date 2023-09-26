@@ -36,20 +36,32 @@ import com.example.codeclubapp.ui.theme.RedCode
 import com.example.codeclubapp.ui.theme.WHITE
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.codeclubapp.components.MyAppBarBottom
 import com.example.codeclubapp.components.MyAppBarTop
 import com.example.codeclubapp.components.MyButton
 import com.example.codeclubapp.components.MyCodeClubImage
+import com.example.codeclubapp.components.MyLoginButton
 import com.example.codeclubapp.ui.theme.BLACK
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 //tela inicial do app
 
 @ExperimentalMaterial3Api
 @Composable
 fun Home(navController: NavController){
-    //estado do usuario -> se ele é estudante ou professor
+    //utilizar firebase auth
+    val auth = FirebaseAuth.getInstance()
+
+    //coroutines trabalham com threads
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     val loginTeacher = remember {
         //a senha fica invisiível
@@ -103,14 +115,27 @@ fun Home(navController: NavController){
             verticalAlignment = Alignment.CenterVertically
         ){
 
-            MyButton(
+            MyLoginButton(
                 text = "votar no game challenge",
-                route = "poll",
-                navController = navController,
+                //route = "poll",
+                //navController = navController,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(20.dp),
-                onValueChange = {}
+                //onValueChange = {}
+                onClick = {
+                    //verificações do login usando coroutines scope
+                        scope.launch(Dispatchers.IO){
+                            //verificar codigo de autenticacao antes de entrar como anonimo
+                            auth.signInAnonymously()
+                        }
+
+                    //escopo do app -> context Main
+                    scope.launch(Dispatchers.Main){
+                        println("\nlogin anonimo \n")
+                        navController.navigate("poll")
+                    }
+                }
             )
         }
         Row(

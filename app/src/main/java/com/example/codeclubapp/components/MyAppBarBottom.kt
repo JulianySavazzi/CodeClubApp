@@ -4,7 +4,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.StickyNote2
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -29,6 +31,11 @@ fun MyAppBarBottom(navController: NavController,
         val items = listOf("perfil", "feed", "notificações")
         val selectedItem = remember { mutableStateOf(items[0]) }
 
+        //FloatingActionButton(
+        //    onClick = { /*TODO*/ },
+        //    containerColor = RedCode,
+        //    contentColor = WHITE
+        //    ) {
         NavigationBar (
             containerColor = RedCode,
             contentColor = WHITE
@@ -60,7 +67,7 @@ fun MyAppBarBottom(navController: NavController,
                     NavigationBarItem(
                         icon = {
                             Icon(
-                                Icons.Filled.List,
+                                Icons.Filled.StickyNote2,
                                 contentDescription = item[1].toString(),
                                 tint = WHITE
                             ) },
@@ -96,6 +103,7 @@ fun MyAppBarBottom(navController: NavController,
                 }
             }
         }
+        //}
     }
 
 }

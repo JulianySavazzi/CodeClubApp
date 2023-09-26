@@ -32,6 +32,8 @@ import com.example.codeclubapp.repository.TeacherRepository
 import com.example.codeclubapp.ui.theme.BLACK
 import com.example.codeclubapp.ui.theme.GreenCode
 import com.example.codeclubapp.ui.theme.GreenLightCode
+import com.google.android.gms.auth.api.identity.SignInClient
+import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -127,24 +129,10 @@ fun Login(navController: NavController){
                 modifier = Modifier.fillMaxWidth().padding(10.dp), /*onValueChange = {}, isLoginGoogle = true,*/
                 onClick = {
 
-                    /*
                     //verificações do login usando coroutines scope
                     scope.launch(Dispatchers.IO){
-                        auth.signInWithCredential().addOnCompleteListener{
-                            //resultado do cadastro
-                                crud ->
-                            if(crud.isSuccessful){
-                                save = true
-                                var name = auth.currentUser!!.displayName.toString()
-                                var email = auth.currentUser!!.email.toString()
-                                var pass = ""
-                                teacherRepository.saveTeacher( name = name, email =  email, pass = pass, true, false)
-                            } else {
-                                save = false
-                            }
-                        }
+
                     }
-                     */
 
                     //mostrar mensagem usando o escopo do app -> context Main
                     scope.launch(Dispatchers.Main){

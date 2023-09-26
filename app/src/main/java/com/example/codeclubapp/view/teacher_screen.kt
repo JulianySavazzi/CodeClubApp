@@ -7,6 +7,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,129 +54,163 @@ fun Teacher(navController: NavController){
         Row (
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(),
+                .padding(20.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom
         ){
             Text(
-                text = "olá",
+                text = "gerenciar cadastros",
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 18.sp
 
             )
         }
-        Row (
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom
+                .fillMaxHeight(0.85f)
+                .padding(10.dp)
+                .verticalScroll(rememberScrollState()) //barra de rolagem
         ){
-            MyButton(
-                text = "gerenciar alunos(as)",
-                route = "manageStudents",
-                navController = navController,
+            Row (
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp),
-                onValueChange = {
-                    loginTeacher.value = true
-                }
+                    .padding(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Bottom
+            ){
+                MyButton(
+                    text = "gerenciar alunos(as)",
+                    route = "manageStudents",
+                    navController = navController,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    onValueChange = {
+                        loginTeacher.value = true
+                    }
+                )
+            }
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Bottom
+            ){
+                MyButton(text = "gerenciar projetos",
+                    route = "manageProjects",
+                    navController = navController,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    onValueChange = {
+                        loginTeacher.value = true
+                    }
+                )
+            }
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Bottom
+            ){
+                MyButton(text = "gerenciar equipes",
+                    route = "manageTeams",
+                    navController = navController,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    onValueChange = {
+                        loginTeacher.value = true
+                    }
+                )
+            }
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Bottom
+            ){
+                MyButton(
+                    text = "gerenciar votações",
+                    route = "managePolls",
+                    navController = navController,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    onValueChange = {
+                        loginTeacher.value = true
+                    }
+                )
+            }
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Bottom
+            ){
+                MyButton(
+                    text = "cadastrar publicações",
+                    route = "manageFeed",
+                    navController = navController,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    onValueChange = {
+                        loginTeacher.value = true
+                    }
+                )
+            }
+            Divider(
+                thickness = 1.dp,
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.onBackground
             )
-        }
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom
-        ){
-            MyButton(text = "gerenciar projetos",
-                route = "manageProjects",
-                navController = navController,
+            Row (
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp),
-                onValueChange = {
-                    loginTeacher.value = true
-                }
-            )
-        }
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom
-        ){
-            MyButton(text = "gerenciar equipes",
-                route = "manageTeams",
-                navController = navController,
+                    .padding(20.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Bottom
+            ){
+                Text(
+                    text = "perfil",
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 18.sp
+
+                )
+            }
+            Row (
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp),
-                onValueChange = {
-                    loginTeacher.value = true
-                }
-            )
-        }
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom
-        ){
-            MyButton(
-                text = "cgerenciar votações",
-                route = "managePolls",
-                navController = navController,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                onValueChange = {
-                    loginTeacher.value = true
-                }
-            )
-        }
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom
-        ){
-            MyButton(
-                text = "gerenciar publicações",
-                route = "manageFeed",
-                navController = navController,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                onValueChange = {
-                    loginTeacher.value = true
-                }
-            )
-        }
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom
-        ){
-            MyLoginButton(text = "sair do app",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-                    .background(GreenLightCode),
-                onClick = {
-                //fazer logout
-                    Firebase.auth.signOut()
-                    print("sing out")
-                    navController.navigate("home")
-            })
+                    .padding(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Bottom
+            ){
+                MyLoginButton(text = "sair do app",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                        .background(GreenLightCode),
+                    onClick = {
+                        //fazer logout
+                        Firebase.auth.signOut()
+                        if(Firebase.auth.currentUser == null){
+                            print("sing out")
+                            navController.navigate("home")
+                        } else {
+                            Firebase.auth.signOut()
+                        }
+                        //print("sing out")
+                        //navController.navigate("home")
+                    })
+            }
         }
         Row (
             modifier = Modifier

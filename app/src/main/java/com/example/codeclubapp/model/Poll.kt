@@ -1,6 +1,9 @@
 package com.example.codeclubapp.model
 
+private var identifier = 1
+//salvar resultado da votacao do bd -> qtd votos, ganhadores
 class Poll (
+    var id: Int= identifier++,
     var code_val: Float? = null,
     var qtd_total_votes: Int? = null,
     var teams_votes: MutableList<Team>? = null,

@@ -1,11 +1,17 @@
 package com.example.codeclubapp.datasource
 
+import android.service.controls.ControlsProviderService.TAG
+import android.util.Log
+import com.example.codeclubapp.model.Feed
 import com.example.codeclubapp.model.Project
 import com.example.codeclubapp.model.Student
 import com.example.codeclubapp.model.Teacher
 import com.example.codeclubapp.model.Team
+import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.Filter
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -39,27 +45,46 @@ class DataSource {
     //allTeams -> observa todos os dados que foram atribuidos para ela
     private val allTeams: StateFlow<MutableList<Team>> = _allTeams
 
+    //flow -> recuperar todo fluxo de tarefas FEED
+    //_allFeeds -> estado de fluxo assincrono
+    private val _allFeeds = MutableStateFlow<MutableList<Feed>>(mutableListOf())
+    //allFeeds -> observa todos os dados que foram atribuidos para ela
+    private val allFeeds: StateFlow<MutableList<Feed>> = _allFeeds
 
-    //save student -> name: String, password: String, email: String, projects: List<Project>, teams: List<Team>, isTeacher: Boolean = false, isStudent: Boolean = true
+    //utilizar firebase auth
+    val auth = FirebaseAuth.getInstance()
+
+    //var identifier = 0
+
+    var isTrue = false
+    //criar estado para a variável:
+    //private var isTrue by remember {mutableStateOf(false)}
+
+    //*************************************************** STUDENT ***************************************************
+    //save student -> name: String, password: String, email: String,isTeacher: Boolean = false, isStudent: Boolean = true
+    //projects: List<Project>, teams: List<Team>
     //MutableList permite alterações -> adicionar ou remover items
     //List é imutavel, nao permite alterações na lista
+    @JvmOverloads
     fun saveStudent(
+        id: Int,
         name: String,
         email: String,
         pass: String,
-        projects: MutableList<Project>,
-        teams: MutableList<Team>,
+        //projects: MutableList<Project>,
+        //teams: MutableList<Team>,
         isTeacher: Boolean = false,
         isStudent: Boolean = true
 
     ){
         //mapeamento dos campos do documento (tabela)
         val studentMap = hashMapOf(
+            "id" to id,
             "name" to name,
             "email" to email,
             "pass" to pass,
-            "projects" to projects,
-            "teams" to teams,
+            //"projects" to projects,
+            //"teams" to teams,
             "isTeacher" to isTeacher,
             "isStudent" to isStudent
         )
@@ -76,7 +101,7 @@ class DataSource {
     fun getSudent(): Flow<MutableList<Student>>{
         val listStudent: MutableList<Student> = mutableListOf()
         //listar todos os alunos cadastrados
-        db.collection("student").get().addOnCompleteListener{
+        db.collection("student").whereIn("isStudent", listOf(true)).get().addOnCompleteListener{
                 querySnapshot ->
             if(querySnapshot.isSuccessful){
                 for(document in querySnapshot.result){
@@ -92,8 +117,144 @@ class DataSource {
         return allStudents
     }
 
+    //exemplo:
+    /*
+        val docRef = db.collection("cities").document("SF")
+        docRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.w(TAG, "Listen failed.", e)
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                Log.d(TAG, "Current data: ${snapshot.data}")
+            } else {
+                Log.d(TAG, "Current data: null")
+            }
+        }
+
+
+
+
+        val docRef = db.collection("cities").document("SF")
+        docRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.w(TAG, "Listen failed.", e)
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                Log.d(TAG, "Current data: ${snapshot.data}")
+            } else {
+                Log.d(TAG, "Current data: null")
+            }
+        }
+
+    * */
+
+
+    fun getSudentByName(name: String){
+        val docRef = db.collection("student").document(name)
+        docRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.w(TAG, "Listen failed.", e)
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                Log.d(TAG, "Current data: ${snapshot.data}")
+            } else {
+                Log.d(TAG, "Current data: null")
+            }
+        }
+    }
+
+    fun getSudentByEmail(email: String){
+        val docRef = db.collection("student").document(email)
+        docRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.w(TAG, "Listen failed. e ", e)
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                Log.d(TAG, "Current data: ${snapshot.data}")
+            } else {
+                Log.d(TAG, "Current data: null")
+            }
+        }
+    }
+
+    fun verifyStudent(email: String, pass: String){
+        db.collection("student")
+            .whereIn("isStudent", listOf(true))
+            .whereIn("email", listOf(email))
+            .whereIn("pass", listOf(pass))
+            .get().addOnCompleteListener{
+                    querySnapshot ->
+                if(querySnapshot.isSuccessful){
+                    for(document in querySnapshot.result){
+                        auth.signInWithEmailAndPassword(email, pass)
+                        Log.d(TAG, "auth ok student, current user: ${auth.currentUser}")
+                    }
+                }
+            }
+    }
+
+    /*
+    private fun sigInStudent(email: String, pass: String){
+        auth.signInWithEmailAndPassword(email, pass).addOnCompleteListener { crud ->
+            if (crud.isSuccessful) {
+                // Sign in success, update UI with the signed-in user's information
+                Log.d(TAG, "signInStudentWithEmail:success")
+            }
+        }.addOnFailureListener {
+            println("erro ao acessar estudante -> ${auth.currentUser.toString()}")
+        }
+    }
+
+    private fun verifyStudent(email: String, pass: String
+    ): Task<QuerySnapshot> {
+        val collection = db.collection("student")
+        //val table = db.collection("student").document(email)
+        // [START or_query]
+        val query = collection.where(
+            Filter.and(
+                Filter.equalTo("email", email),
+                Filter.equalTo("pass", pass),
+                Filter.equalTo("isStudent", true),
+                Filter.or(
+                    Filter.equalTo("isTeacher", false)
+                )
+            )
+        )
+        Log.d(TAG, "query data: ${query.get()}")
+        query.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                return@addSnapshotListener
+            }
+            if (snapshot != null && !snapshot.documents.isEmpty()) {
+                //se a query nao for vazia
+                Log.d(TAG, "Current data: ${snapshot.query}, Query data ${query.get()}")
+                sigInStudent(email, pass)
+            } else {
+                Log.d(TAG, "Current data: null")
+            }
+        }
+        return query.firestore.collection(email).whereEqualTo("isStudent", true).get()
+    }
+
+    fun isStudent(email: String, pass: String): Boolean {
+        verifyStudent(email, pass)
+        return true
+    }
+
+     */
+
+    //*************************************************** TEATCHER ***************************************************
     //save techer -> name: String, email: String, pass: String, isTeacher: Boolean = true, isStudent: Boolean = false
     fun saveTeacher(
+        id: Int,
         name: String,
         email: String,
         pass: String,
@@ -102,6 +263,7 @@ class DataSource {
     ){
         //mapeamento para salvar todos os campos
         val teacherMap = hashMapOf(
+            "id" to id,
             "name" to name,
             "email" to email,
             "pass" to pass,
@@ -123,7 +285,7 @@ class DataSource {
     fun getTeacher(): Flow<MutableList<Teacher>>{
         val listTeacher: MutableList<Teacher> = mutableListOf()
         //listar todos os professores cadastrados
-        db.collection("teacher").get().addOnCompleteListener{
+        db.collection("teacher").whereIn("isTeacher", listOf(true)).get().addOnCompleteListener{
             querySnapshot ->
             if(querySnapshot.isSuccessful){
                 for(document in querySnapshot.result){
@@ -139,24 +301,94 @@ class DataSource {
         return allTeachers
     }
 
-    //save publication -> crud_feed
+    //  query example:
+    // Create a reference to the cities collection
+    // val citiesRef = db.collection("cities")
+    // val notCapitalQuery = citiesRef.whereNotEqualTo("capital", false)
+    // citiesRef.whereIn("country", listOf("USA", "Japan"))
+    fun verifyTeacherLogin(email: String, pass: String){
+        db.collection("teacher")
+            .whereIn("isTeacher", listOf(true))
+            .whereIn("email", listOf(email))
+            .whereIn("pass", listOf(pass))
+            .get().addOnCompleteListener{
+                querySnapshot ->
+                if(querySnapshot.isSuccessful){
+                    for(document in querySnapshot.result){
+                        auth.signInWithEmailAndPassword(email, pass)
+                        Log.d(TAG, "auth ok teacher, current user: ${auth.currentUser}")
+                    }
+                }
+            }
+    }
 
-    //save poll
-
-    //save project ->  name: String, description: String, members: MutableList<Student>, team: MutableList<Team>
-    fun saveProject(
+    //*************************************************** FEED ***************************************************
+    //save publication -> crud_feed -> name: String, description: String
+    fun saveFeed(
+        id: Int,
         name: String,
-        description: String,
-        members: MutableList<Student>,
-        team: MutableList<Team>
+        description: String
+    ){
+        //mapeamento para salvar todos os campos
+        val feedMap = hashMapOf(
+            "id" to id,
+            "name" to name,
+            "description" to description
+        )
+
+        db.collection("feed").document(name).set(feedMap).addOnCompleteListener {
+            //salvo com sucesso
+            print("success save feed")
+        }.addOnFailureListener {
+            //erro ao salvar
+            print("fail save feed")
+        }
+
+    }
+
+    //get feed -> recuperar dados da publicacao
+    fun getFeed(): Flow<MutableList<Feed>>{
+        val listFeed: MutableList<Feed> = mutableListOf()
+        //listar todos as publicacoes cadastrados
+        db.collection("feed").get().addOnCompleteListener{
+                querySnapshot ->
+            if(querySnapshot.isSuccessful){
+                for(document in querySnapshot.result){
+                    //se a colecao existe e tem documentos
+                    //vamos recuperar cada documento e adicionar no nosso objeto da model
+                    val project = document.toObject(Feed::class.java)
+                    listFeed.add(project)
+                    _allFeeds.value = listFeed
+
+                }
+            }
+        }
+        return allFeeds
+    }
+
+    //delete feed -> deletar publicacao
+    fun deleteFeed(title: String, description: String){
+        db.collection("feed").document(title)
+
+    }
+
+    //*************************************************** PROJECT ***************************************************
+    //save project ->  name: String, description: String
+    //members: MutableList<Student>, team: MutableList<Team>
+    fun saveProject(
+        id: Int,
+        name: String,
+        description: String
+        //members: MutableList<Student>,
+        //team: MutableList<Team>
     ){
         //mapeamento para salvar todos os campos
         val projectMap = hashMapOf(
+            "id" to id,
             "name" to name,
             "description" to description,
-            "members" to members,
-            "team" to team
-
+            //"members" to members,
+            //"team" to team
         )
 
         //salvar colecao de project em um documento -> como se fosse a tabela teacher
@@ -189,8 +421,10 @@ class DataSource {
         return allProjects
     }
 
+    //*************************************************** TEAM ***************************************************
     //save team -> name: String, members: MutableList<Student>, projects: MutableList<Project>
     fun saveTeam(
+        id: Int,
         name: String,
         members: MutableList<Student>,
         projects: MutableList<Project>
@@ -198,6 +432,7 @@ class DataSource {
     ){
         //mapeamento para salvar todos os campos
         val teamMap = hashMapOf(
+            "id" to id,
             "name" to name,
             "members" to members,
             "projects" to projects
@@ -234,4 +469,45 @@ class DataSource {
         return allTeams
     }
 
+    fun getTeamByName(name: String): String{
+        db.collection("team").document(name).addSnapshotListener { document, error ->
+            var name: String
+            if(document != null){
+                name = document.getString("name").toString()
+            } else {
+                name = ""
+            }
+        }
+        return name
+    }
+
+    fun updateTeamByName(
+        name: String,
+        members: MutableList<Student>,
+        projects: MutableList<Project>
+    ){
+        //mapeamento para salvar todos os campos
+        val teamUpMap = hashMapOf(
+            "name" to name,
+            "members" to members,
+            "projects" to projects
+
+        )
+
+        if(members != null){
+            db.collection("team").document(name).update( "members", members)
+        }
+        if(projects != null){
+            db.collection("team").document(name).update( "projects", projects)
+        }
+        if(name != null && members != null && projects != null){
+            db.collection("team").document(name).update(teamUpMap)
+        }
+
+    }
+
+    //*************************************************** POLL ***************************************************
+    //save poll
+
 }
+

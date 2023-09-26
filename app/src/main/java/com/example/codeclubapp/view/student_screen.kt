@@ -7,18 +7,25 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.codeclubapp.components.MyAppBarBottom
 import com.example.codeclubapp.components.MyAppBarTop
 import com.example.codeclubapp.components.MyLoginButton
 import com.example.codeclubapp.ui.theme.GreenLightCode
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
@@ -35,6 +42,9 @@ fun Student(navController: NavController){
         mutableStateOf(true)
     }
 
+    //utilizar firebase auth
+    val auth = FirebaseAuth.getInstance()
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -42,34 +52,107 @@ fun Student(navController: NavController){
             .background(MaterialTheme.colorScheme.background)
     ){
         MyAppBarTop(title = "aluno(a)")
-        //Rows -> corpo do app
-        Row (
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom
-        ){
-            MyLoginButton(text = "sair do app",
+                .fillMaxHeight(0.85f)
+                .padding(10.dp)
+                .verticalScroll(rememberScrollState()) //barra de rolagem
+        ) {
+            //Rows -> corpo do app
+            Row (
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp)
-                    .background(GreenLightCode),
-                onClick = {
-                    //fazer logout
-                    Firebase.auth.signOut()
-                    print("sing out")
-                    navController.navigate("home")
-                })
-        }
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom
-        ){
-            MyAppBarBottom(navController = navController, loginStudent = loginStudent, loginTeacher = loginTeacher)
+                    .padding(20.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Bottom
+            ){
+                Text(
+                    text = "meus projetos: ",
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 18.sp
+
+                )
+            }
+            Divider(
+                thickness = 1.dp,
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Bottom
+            ){
+                Text(
+                    text = "minhas equipes: ",
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 18.sp
+
+                )
+            }
+            Divider(
+                thickness = 1.dp,
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Bottom
+            ){
+                Text(
+                    text = "meu perfil: ${auth.currentUser}",
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 18.sp
+
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                MyLoginButton(text = "sair do app",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                        .background(GreenLightCode),
+                    onClick = {
+                        //fazer logout
+                        Firebase.auth.signOut()
+                        if(Firebase.auth.currentUser == null){
+                            print("sing out")
+                            navController.navigate("home")
+                        } else {
+                            Firebase.auth.signOut()
+                        }
+                        //print("sing out")
+                        //navController.navigate("home")
+                    })
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                MyAppBarBottom(
+                    navController = navController,
+                    loginStudent = loginStudent,
+                    loginTeacher = loginTeacher
+                )
+            }
         }
     }
 }

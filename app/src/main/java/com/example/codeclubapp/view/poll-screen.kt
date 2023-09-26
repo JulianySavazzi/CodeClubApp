@@ -22,7 +22,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.codeclubapp.components.MyAppBarTop
 import com.example.codeclubapp.components.MyButton
+import com.example.codeclubapp.components.MyLoginButton
 import com.example.codeclubapp.ui.theme.BLACK
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 @Composable
 fun Poll(navController: NavController){
@@ -71,7 +74,7 @@ fun Poll(navController: NavController){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ){
-
+            /*
             MyButton(
                 text = "", //nome do projeto
                 route = "home", //voto concluido
@@ -82,6 +85,25 @@ fun Poll(navController: NavController){
                     loginTeacher
                 }
             )
+             */
+            MyLoginButton(
+                text = "votar",
+                modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp)
+                .background(MaterialTheme.colorScheme.secondary),
+                onClick = {
+                    //salvar voto
+                    //logout
+                    Firebase.auth.signOut()
+                    if(Firebase.auth.currentUser == null){
+                        print("sing out")
+                        navController.navigate("home")
+                    } else {
+                        Firebase.auth.signOut()
+                    }
+                })
+
         }
     }
 }

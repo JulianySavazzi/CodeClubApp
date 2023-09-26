@@ -1,19 +1,28 @@
 package com.example.codeclubapp.view
 
+import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,18 +30,26 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
+import com.example.codeclubapp.R
 import com.example.codeclubapp.components.MyAppBarBottom
 import com.example.codeclubapp.components.MyAppBarTop
+import com.example.codeclubapp.components.MyGroupCheckBox
 import com.example.codeclubapp.components.MyLoginButton
 import com.example.codeclubapp.components.MyTextBoxInput
 import com.example.codeclubapp.components.MyTextPasswordInput
+import com.example.codeclubapp.model.Feed
 import com.example.codeclubapp.model.Project
+import com.example.codeclubapp.model.Student
 import com.example.codeclubapp.model.Team
+import com.example.codeclubapp.repository.StudentRepository
 import com.example.codeclubapp.repository.TeacherRepository
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
@@ -100,7 +117,9 @@ fun ManageStudents(navController: NavController){
     val context = LocalContext.current
 
     //iniciar repositorio para salvar os dados no bd
-    //val studentRepository = StudentRepository()
+    val studentRepository = StudentRepository()
+
+    val model = Student()
 
     //se salvou ou nao
     var save = false
@@ -109,7 +128,7 @@ fun ManageStudents(navController: NavController){
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
-            .verticalScroll(rememberScrollState()) //barra de rolagem
+            //.verticalScroll(rememberScrollState()) //barra de rolagem
             .background(MaterialTheme.colorScheme.background)
     ){
         MyAppBarTop(title = "cadastrar alunos")
@@ -213,8 +232,7 @@ fun ManageStudents(navController: NavController){
                     //verificações do login usando coroutines scope -> criar novo usuario
                     scope.launch(Dispatchers.IO){
                         //verificar o estado dos campos
-                        if(userState.isEmpty() || password.value.isEmpty()){
-                            //email.isEmpty() || pass.isEmpty()
+                        if(userState.isEmpty() || password.value.isEmpty() || nameState.isEmpty()){
                             save = false
                         } else if(userState.isNotEmpty() && password.value.isNotEmpty()){
                             var pass = password.value.toString()
@@ -223,8 +241,8 @@ fun ManageStudents(navController: NavController){
                                     crud ->
                                 if(crud.isSuccessful){
                                     save = true
-                                    var name = auth.currentUser.toString()
-                                    //teacherRepository.saveTeacher( name = name, userState, pass, true, false)
+                                    //var name = auth.currentUser.toString()
+                                    studentRepository.saveStudent(model.id ,nameState, userState, pass, false, true)
                                 } else {
                                     save = false
                                 }
@@ -240,8 +258,11 @@ fun ManageStudents(navController: NavController){
                     //mostrar mensagem usando o escopo do app -> context Main
                     scope.launch(Dispatchers.Main){
                         if(save == true){
-                            println("\nsalvo com sucesso \n")
-                            navController.navigate("teacher")
+                            println("\ncadastrado com sucesso \n")
+                            nameState = ""
+                            userState = ""
+                            password.value = ""
+                            navController.navigate("manageStudents")
                             Toast.makeText(context, "salvo com sucesso ", Toast.LENGTH_SHORT).show()
                         } else {
                             println("\nalgo deu errado \n")
@@ -250,7 +271,141 @@ fun ManageStudents(navController: NavController){
                     }
                 })
         }
+        Divider(
+            thickness = 1.dp,
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Row (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.Bottom
+        ){
+            Text(
+                text = "alunos(as) cadastrados(as): ",
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontSize = 18.sp
 
+            )
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(224.dp)
+        ){
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(1f)
+                    .fillMaxHeight(1f)
+                    .padding(10.dp)
+                //.background(MaterialTheme.colorScheme.tertiary)
+            ){
+                //var studentList: MutableList<Student> = mutableListOf()
+                val studentList: MutableList<Student> = studentRepository.getStudent().collectAsState(
+                    //se o estado da lista for vazio vai retornar uma mutableListOf
+                    //se a lista tiver preenchida vai retornar os valores dos documentos
+                    mutableListOf()
+                ).value
+
+                //preencher lista
+
+                //componente de listagem
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+
+                ) {
+                    itemsIndexed(studentList){
+                            position, _ -> MyListStudents(position = position, listItem = studentList)
+                    }
+                }
+
+            }
+        }
         MyAppBarBottom(navController = navController, loginStudent = loginStudent, loginTeacher = loginTeacher)
     }
+}
+
+//listar todos os estudantes cadastrados
+@Composable
+fun MyListStudents(
+    position: Int,
+    listItem: MutableList<Student>
+){
+    val context: Context = LocalContext.current
+
+    //ligar a view com a model
+    val nameStudent = listItem[position].name
+    val emailStudent = listItem[position].email
+
+    Divider(
+        thickness = 15.dp,
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.background
+    )
+    Card(
+        modifier = Modifier.padding(5.dp
+        )
+    ) {
+        ConstraintLayout(
+            modifier = Modifier.padding(5.dp)
+        ) {
+            // Create references for the composables to constrain
+            val(
+                txtName,
+                txtEmail,
+                navBarItemEdit,
+                navBarItemDelete
+            ) = createRefs()
+
+            Text(
+                text = nameStudent.toString(),
+                modifier = Modifier.constrainAs(txtName) {
+                    top.linkTo(parent.top, margin = 15.dp)
+                    start.linkTo(parent.start, margin = 15.dp)
+                }
+            )
+
+            Text(
+                text = emailStudent.toString(),
+                modifier = Modifier.constrainAs(txtEmail) {
+                    top.linkTo(txtName.bottom, margin = 15.dp)
+                    start.linkTo(parent.start, margin = 15.dp)
+                }
+            )
+
+            IconButton(
+                onClick = { /*TODO*/ },
+                modifier = Modifier.constrainAs(navBarItemEdit) {
+                    top.linkTo(txtEmail.bottom, margin = 15.dp)
+                    start.linkTo(parent.start, margin = 15.dp)
+                },
+            ) {
+                //Text(text = "editar"),
+                Image(imageVector = ImageVector.vectorResource(id = R.drawable.icon_edit_24), contentDescription ="editar")
+            }
+
+            IconButton(
+                onClick = { /*TODO*/ },
+                modifier = Modifier.constrainAs(navBarItemDelete) {
+                    top.linkTo(txtEmail.bottom, margin = 15.dp)
+                    start.linkTo(navBarItemEdit.end, margin = 15.dp)
+                    end.linkTo(parent.end, margin = 15.dp)
+                }
+            ) {
+                //Text(text = "excluir")
+                Image(imageVector = ImageVector.vectorResource(id = R.drawable.icon_delete_24), contentDescription ="excluir")
+            }
+        }
+    }
+    Divider(
+        thickness = 15.dp,
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.background
+    )
 }
