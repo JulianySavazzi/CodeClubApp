@@ -1,8 +1,10 @@
 package com.example.codeclubapp.view
 
+import android.app.AlertDialog
 import android.content.Context
 import android.graphics.drawable.Icon
 import android.util.AttributeSet
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +24,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -39,6 +42,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.navigation.NavController
 import com.example.codeclubapp.R
 import com.example.codeclubapp.components.MyAppBarBottom
@@ -61,7 +66,14 @@ import com.example.codeclubapp.model.Feed
 import com.example.codeclubapp.repository.FeedRepository
 import com.example.codeclubapp.ui.theme.RedCode
 import com.example.codeclubapp.ui.theme.WHITE
+import com.google.protobuf.Empty
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
 import okhttp3.internal.notify
+import okhttp3.internal.wait
 
 @Composable
 fun Feed(navController: NavController){
@@ -225,12 +237,13 @@ fun MyListFeed(
     )
 }
 
-//**************************************** THEACHER ****************************************
+//******************************************************************************** THEACHER ********************************************************************************
 
 //Feed do professor permite que ele edite ou exclua a publicação que ele selecionar
 @Composable
 fun FeedTeacher(navController: NavController){
-    val context = LocalContext.current
+
+    val context: Context = LocalContext.current
 
     val loginTeacher = remember {
         mutableStateOf(true)
@@ -293,7 +306,7 @@ fun FeedTeacher(navController: NavController){
 
                 ) {
                     itemsIndexed(publicationsList){
-                            position, _ -> MyListFeedTeacher(position = position, listItem = publicationsList)
+                            position, _ -> MyListFeedTeacher(position = position, listItem = publicationsList, context = context, navController = navController)
                     }
                 }
 
@@ -314,17 +327,47 @@ fun FeedTeacher(navController: NavController){
 }
 
 
-//moatrar lista de publicações e permitir editar e excluir
+//mostrar lista de publicações e permitir editar e excluir
 @Composable
 fun MyListFeedTeacher(
     position: Int,
-    listItem: MutableList<Feed>
+    listItem: MutableList<Feed>,
+    context: Context,
+    navController: NavController
 ){
-    val context: Context = LocalContext.current
+    //val context: Context = LocalContext.current
 
     //ligar a view com a model
     val titleFeed = listItem[position].name
     val descriptionFeed = listItem[position].description
+
+    val scope = rememberCoroutineScope()
+
+    val repository = FeedRepository()
+
+    fun deleteDialog(){
+        //deletar publicação
+        val alertDialog = AlertDialog.Builder(context)
+        alertDialog.setTitle("EXCLUIR PUBLICAÇÃO")
+            .setMessage("tem certeza que quer excluir essa publicação?")
+            .setPositiveButton("Sim"){
+                _, _, ->
+
+                repository.deleteFeed(titleFeed.toString(), descriptionFeed.toString())
+
+                scope.launch(Dispatchers.Main){
+                    //remover publicacao excluida da lista
+                    listItem.removeAt(position)
+                    //navegar para a pagina feed para atualizar a listagem
+                    navController.navigate("feed_teacher")
+                    Toast.makeText(context, "publicação excluída com sucesso!", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Não"){
+                _, _, ->
+            }
+            .show()
+    }
 
     Divider(
         thickness = 15.dp,
@@ -374,7 +417,10 @@ fun MyListFeedTeacher(
             }
 
             IconButton(
-                onClick = { /*TODO*/ },
+                onClick = {
+                    //deletar publicacao
+                          deleteDialog()
+                          },
                 modifier = Modifier.constrainAs(navBarItemDelete) {
                     top.linkTo(txtDescription.bottom, margin = 15.dp)
                     start.linkTo(navBarItemEdit.end, margin = 15.dp)

@@ -42,7 +42,9 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
+import okhttp3.internal.wait
 
 //cadastrar noticias
 @OptIn(ExperimentalMaterial3Api::class)
@@ -154,112 +156,49 @@ fun ManageFeed(navController: NavController){
                 text = "salvar publicação",
                 modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp),
-                onClick = {
+                .fillMaxHeight()
+                .padding(10.dp)
+            ) {
 
-                    //verificações usando coroutines scope
-                    scope.launch(Dispatchers.IO){
-                        //verificar o estado dos campos
-                        if(titleState.isEmpty() || contentState.isEmpty()){
-                            save = false
-                        } else if(titleState.isNotEmpty() && contentState.isNotEmpty()){
-                            save = true
-                            feedRepository.saveFeed(model.id, titleState, contentState)
-                            if(feedRepository.getFeed() != null){
-                                println("feed is not null")
-                            } else {
-                                save = false
-                                print("feed is null")
-                            }
-                        }
-                    }
-
-                    //mostrar mensagem usando o escopo do app -> context Main
-                    scope.launch(Dispatchers.Main){
-                        if(save == true){
-                            println("\nsalvo com sucesso \n")
-                            titleState = ""
-                            contentState = ""
-                            // mostra publicacao -> feed_teacher
-                            Toast.makeText(context, "salvo com sucesso ", Toast.LENGTH_SHORT).show()
-                            navController.navigate("feed_teacher")
+                //verificações usando coroutines scope
+                scope.launch(Dispatchers.IO) {
+                    //verificar o estado dos campos
+                    if (titleState.isEmpty() || contentState.isEmpty()) {
+                        save = false
+                    } else if (titleState.isNotEmpty() && contentState.isNotEmpty()) {
+                        save = true
+                        feedRepository.saveFeed(model.id, titleState, contentState)
+                        //fazer verificacao no dataSource
+                        if (feedRepository.getFeedByName(titleState, contentState).id == model.id){
+                            println("feed is not null")
                         } else {
-                            println("\nalgo deu errado \n")
-                            Toast.makeText(context, "algo deu errado, preencha todos os campos!" , Toast.LENGTH_SHORT).show()
+                            save = false
+                            print("feed is null")
                         }
                     }
-
                 }
-            )
-        }
-        /*
-        Divider(
-            thickness = 1.dp,
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.onBackground
-        )
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp, 30.dp, 20.dp, 20.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom
-        ){
-            Text(
-                text = "alterar publicação: ",
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 18.sp
 
-            )
+                //mostrar mensagem usando o escopo do app -> context Main
+                scope.launch(Dispatchers.Main) {
+                    if (save == true) {
+                        println("\nsalvo com sucesso \n")
+                        titleState = ""
+                        contentState = ""
+                        // mostra publicacao -> feed_teacher
+                        Toast.makeText(context, "salvo com sucesso ", Toast.LENGTH_SHORT).show()
+                        navController.navigate("feed_teacher")
+                    } else {
+                        println("\nalgo deu errado \n")
+                        Toast.makeText(
+                            context,
+                            "algo deu errado, preencha todos os campos!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+
+            }
         }
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            //trocar botao por caixa de seleção
-            MyButton(text = "selecionar publicação", route = "manageFeed", navController = navController, modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-                onValueChange = {
-                    loginStudent
-                    loginTeacher
-                })
-        }
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            MyButton(text = "editar publicação", route = "manageFeed", navController = navController, modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-                onValueChange = {
-                    loginStudent
-                    loginTeacher
-                })
-        }
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            MyButton(text = "excluir publicação", route = "manageFeed", navController = navController, modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-                onValueChange = {
-                    loginStudent
-                    loginTeacher
-                })
-        }
-         */
         MyAppBarBottom(navController = navController, loginStudent=loginStudent, loginTeacher=loginTeacher)
     }
 }

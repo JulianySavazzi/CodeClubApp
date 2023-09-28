@@ -23,4 +23,12 @@ class ProjectRepository() {
     fun getProject(): Flow<MutableList<Project>> {
         return dataSource.getProject()
     }
+
+    fun getProjectByName(name: String, description: String): Project {
+        return dataSource.getProjectByName(name, description)
+    }
+
+    fun deleteProject(title: String, description: String){
+        return dataSource.deleteProject(title,description)
+    }
 }

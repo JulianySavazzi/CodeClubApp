@@ -41,6 +41,7 @@ fun MyGroupCheckBox(
    navController: NavController
    */
    name: String,
+   //modifier: Modifier,
    onClick: () -> Unit,
 ){
     val (checkedState, onStateChange) = remember { mutableStateOf(false) }

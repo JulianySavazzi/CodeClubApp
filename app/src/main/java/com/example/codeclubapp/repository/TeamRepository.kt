@@ -24,7 +24,7 @@ class TeamRepository() {
         return dataSource.getTeam()
     }
 
-    fun getTeamByName(name: String): String{
+    fun getTeamByName(name: String): Team{
         return dataSource.getTeamByName(name)
     }
 

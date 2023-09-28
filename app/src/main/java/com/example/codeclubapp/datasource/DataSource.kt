@@ -1,7 +1,9 @@
 package com.example.codeclubapp.datasource
 
+import android.os.Build
 import android.service.controls.ControlsProviderService.TAG
 import android.util.Log
+import androidx.annotation.RequiresApi
 import com.example.codeclubapp.model.Feed
 import com.example.codeclubapp.model.Project
 import com.example.codeclubapp.model.Student
@@ -9,9 +11,13 @@ import com.example.codeclubapp.model.Teacher
 import com.example.codeclubapp.model.Team
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.Filter
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.Source
+import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -54,7 +60,13 @@ class DataSource {
     //utilizar firebase auth
     val auth = FirebaseAuth.getInstance()
 
-    //var identifier = 0
+    var student = Student()
+
+    var feed = Feed()
+
+    var project = Project()
+
+    var team = Team()
 
     var isTrue = false
     //criar estado para a variável:
@@ -153,7 +165,22 @@ class DataSource {
     * */
 
 
-    fun getSudentByName(name: String){
+    fun getSudentByName(name: String): Student {
+        db.collection("student")
+            .whereIn("isStudent", listOf(true))
+            .whereIn("name", listOf(name))
+            .get().addOnCompleteListener {
+                    querySnapshot ->
+                if(querySnapshot.isSuccessful){
+                    for(document in querySnapshot.result){
+                        student = document.toObject(Student::class.java)
+                        Log.d(TAG, "student by name: $querySnapshot, $student")
+                        return@addOnCompleteListener
+                    }
+                }
+            }
+        return student
+        /*
         val docRef = db.collection("student").document(name)
         docRef.addSnapshotListener { snapshot, e ->
             if (e != null) {
@@ -167,9 +194,25 @@ class DataSource {
                 Log.d(TAG, "Current data: null")
             }
         }
+         */
     }
 
-    fun getSudentByEmail(email: String){
+    fun getSudentByEmail(email: String): Student {
+        db.collection("student")
+            .whereIn("isStudent", listOf(true))
+            .whereIn("email", listOf(email))
+            .get().addOnCompleteListener {
+                    querySnapshot ->
+                if(querySnapshot.isSuccessful){
+                    for(document in querySnapshot.result){
+                        student = document.toObject(Student::class.java)
+                        Log.d(TAG, "student by email: $querySnapshot, $student")
+                        return@addOnCompleteListener
+                    }
+                }
+            }
+        return student
+        /*
         val docRef = db.collection("student").document(email)
         docRef.addSnapshotListener { snapshot, e ->
             if (e != null) {
@@ -183,6 +226,7 @@ class DataSource {
                 Log.d(TAG, "Current data: null")
             }
         }
+         */
     }
 
     fun verifyStudent(email: String, pass: String){
@@ -199,6 +243,27 @@ class DataSource {
                     }
                 }
             }
+        return
+    }
+
+    //delete feed -> deletar publicacao
+    fun deleteStudent(email: String){
+        val user = Firebase.auth.currentUser!!
+
+        db.collection("student")
+            .document(email).delete().addOnCompleteListener {
+                if(user.email == email){
+                    user.delete().addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Log.d(TAG, "User account $email deleted.")
+                        }
+                    }
+                }
+                Log.d(TAG, "this student is deleted! print ${user.email}")
+            }.addOnFailureListener {
+                Log.d(TAG, "student not deleted!")
+            }
+
     }
 
     /*
@@ -366,10 +431,68 @@ class DataSource {
         return allFeeds
     }
 
+    fun getFeedByName(name: String, description: String): Feed {
+        db.collection("feed")
+            .whereIn("name", listOf(name))
+            .whereIn("description", listOf(description))
+            .get().addOnCompleteListener {
+                    querySnapshot ->
+                if(querySnapshot.isSuccessful){
+                    for(document in querySnapshot.result){
+                        feed = document.toObject(Feed::class.java)
+                        Log.d(TAG, "feed by name: ${querySnapshot.result}, ${feed.name.toString()}, ${feed.description.toString()}")
+                        return@addOnCompleteListener
+                    }
+                } else {
+                    db.collection("feed")
+                        .document(name).get().addOnSuccessListener {
+                                documentSnapshot ->
+                            val myFeed = documentSnapshot.toObject<Feed>()
+                            feed = myFeed!!
+                        }
+
+                    /*
+                    // Source can be CACHE, SERVER, or DEFAULT.
+                    val source = Source.CACHE
+                    // Get the document, forcing the SDK to use the offline cache -> get(source)
+                    db.collection("feed")
+                        .document(name).get(source).addOnCompleteListener { querySnapshot ->
+                            if (querySnapshot.isSuccessful) {
+                                for(document in querySnapshot.result.id){
+                                    val document = querySnapshot.result
+                                    feed = document.toObject(Feed::class.java)!!
+                                    Log.d(TAG, "feed by name: ${querySnapshot.result}}")
+                                    return@addOnCompleteListener
+                                }
+                            }
+                        }
+
+                     */
+                }
+            }
+        return feed
+    }
+
+    fun updateFeed(title: String, description: String){
+
+    }
+
     //delete feed -> deletar publicacao
     fun deleteFeed(title: String, description: String){
-        db.collection("feed").document(title)
-
+        /*
+        var publi = getFeedByName(title, description)
+        if(publi.name.toString() == title && publi.description.toString() == description && publi.name.toString() != null && publi.description.toString() != null ){
+            Log.d(TAG, "THIS FEED")
+        } else {
+            Log.d(TAG, "THIS FEED IS NULL")
+        }
+         */
+        db.collection("feed")
+            .document(title).delete().addOnCompleteListener {
+                Log.d(TAG, "feed is deleted!")
+            }.addOnFailureListener {
+                Log.d(TAG, "feed not deleted!")
+            }
     }
 
     //*************************************************** PROJECT ***************************************************
@@ -421,6 +544,39 @@ class DataSource {
         return allProjects
     }
 
+    fun getProjectByName(name: String, description: String): Project {
+        db.collection("project")
+            .whereIn("name", listOf(name))
+            .whereIn("description", listOf(description))
+            .get().addOnCompleteListener { querySnapshot ->
+                if (querySnapshot.isSuccessful) {
+                    for (document in querySnapshot.result) {
+                        project = document.toObject(Project::class.java)
+                        Log.d(TAG, "project by name: ${querySnapshot.result}, ${project.name.toString()}, ${project.description.toString()}")
+                        return@addOnCompleteListener
+                    }
+                } else {
+                    db.collection("feed")
+                        .document(name).get().addOnSuccessListener { documentSnapshot ->
+                            val myProject = documentSnapshot.toObject<Project>()
+                            project = myProject!!
+                            Log.d(TAG, "project by name: ${querySnapshot.result}, ${project.name.toString()}, ${project.description.toString()}")
+                        }
+                }
+            }
+        return project
+    }
+
+    fun deleteProject(title: String, description: String){
+        db.collection("project")
+            .document(title).delete().addOnCompleteListener {
+                Log.d(TAG, "project is deleted!")
+            }.addOnFailureListener {
+                Log.d(TAG, "project not deleted!")
+            }
+    }
+
+
     //*************************************************** TEAM ***************************************************
     //save team -> name: String, members: MutableList<Student>, projects: MutableList<Project>
     fun saveTeam(
@@ -469,16 +625,14 @@ class DataSource {
         return allTeams
     }
 
-    fun getTeamByName(name: String): String{
-        db.collection("team").document(name).addSnapshotListener { document, error ->
-            var name: String
-            if(document != null){
-                name = document.getString("name").toString()
-            } else {
-                name = ""
+    fun getTeamByName(name: String): Team{
+        db.collection("feed")
+            .document(name).get().addOnSuccessListener { documentSnapshot ->
+                val myTeam = documentSnapshot.toObject<Team>()
+                team = myTeam!!
+                Log.d(TAG, "project by name: ${team.name.toString()}, ${team.projects.toString()} , ${team.members.toString()}")
             }
-        }
-        return name
+        return team
     }
 
     fun updateTeamByName(

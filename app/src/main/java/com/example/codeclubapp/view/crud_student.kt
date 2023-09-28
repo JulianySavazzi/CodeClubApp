@@ -1,5 +1,6 @@
 package com.example.codeclubapp.view
 
+import android.app.AlertDialog
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -114,7 +115,8 @@ fun ManageStudents(navController: NavController){
 
     //coroutines trabalham com threads
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
+
+    val context: Context = LocalContext.current
 
     //iniciar repositorio para salvar os dados no bd
     val studentRepository = StudentRepository()
@@ -128,7 +130,7 @@ fun ManageStudents(navController: NavController){
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
-            //.verticalScroll(rememberScrollState()) //barra de rolagem
+            .verticalScroll(rememberScrollState()) //barra de rolagem
             .background(MaterialTheme.colorScheme.background)
     ){
         MyAppBarTop(title = "cadastrar alunos")
@@ -258,7 +260,7 @@ fun ManageStudents(navController: NavController){
                     //mostrar mensagem usando o escopo do app -> context Main
                     scope.launch(Dispatchers.Main){
                         if(save == true){
-                            println("\ncadastrado com sucesso \n")
+                            println("\nestudante cadastrado com sucesso \n")
                             nameState = ""
                             userState = ""
                             password.value = ""
@@ -321,7 +323,7 @@ fun ManageStudents(navController: NavController){
 
                 ) {
                     itemsIndexed(studentList){
-                            position, _ -> MyListStudents(position = position, listItem = studentList)
+                            position, _ -> MyListStudents(position = position, listItem = studentList, context = context, navController = navController)
                     }
                 }
 
@@ -335,13 +337,43 @@ fun ManageStudents(navController: NavController){
 @Composable
 fun MyListStudents(
     position: Int,
-    listItem: MutableList<Student>
+    listItem: MutableList<Student>,
+    context: Context,
+    navController: NavController
 ){
     val context: Context = LocalContext.current
 
     //ligar a view com a model
     val nameStudent = listItem[position].name
     val emailStudent = listItem[position].email
+
+    val scope = rememberCoroutineScope()
+
+    val repository = StudentRepository()
+
+    fun deleteDialog(){
+        //deletar estudante
+        val alertDialog = AlertDialog.Builder(context)
+        alertDialog.setTitle("EXCLUIR ESTUDANTE")
+            .setMessage("tem certeza que quer excluir esse estudante ${nameStudent.toString()}?")
+            .setPositiveButton("Sim"){
+                    _, _, ->
+
+                repository.deleteStudent(emailStudent.toString())
+
+                scope.launch(Dispatchers.Main){
+                    //remover estudante excluido da lista
+                    listItem.removeAt(position)
+                    //navegar para a pagina feed para atualizar a listagem
+                    navController.navigate("manageStudents")
+                    Toast.makeText(context, "estudante excluído com sucesso!", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Não"){
+                    _, _, ->
+            }
+            .show()
+    }
 
     Divider(
         thickness = 15.dp,
@@ -391,7 +423,9 @@ fun MyListStudents(
             }
 
             IconButton(
-                onClick = { /*TODO*/ },
+                onClick = {
+                          deleteDialog()
+                          },
                 modifier = Modifier.constrainAs(navBarItemDelete) {
                     top.linkTo(txtEmail.bottom, margin = 15.dp)
                     start.linkTo(navBarItemEdit.end, margin = 15.dp)

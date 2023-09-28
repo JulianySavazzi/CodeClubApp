@@ -177,17 +177,10 @@ fun UserAndPassStudent(navController: NavController){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ){
-            MyLoginButton(text = "entrar", /*route = "student", navController = navController,*/ modifier = Modifier
+            MyLoginButton(text = "entrar",
+                modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp)
-
-            )
-            /*onValueChange = {
-            loginStudent
-            loginTeacher
-        },
-        isLoginGoogle = false,*/
-
+                .padding(10.dp))
             {
                 //verifyStudent = repository.isStudent(userState)
                 //verificações do login usando coroutines scope
@@ -200,32 +193,6 @@ fun UserAndPassStudent(navController: NavController){
                         var pass = password.value
                         repository.verifyStudent(userState, pass)
                         if(auth.currentUser != null) save = true
-                      /*
-                        print("student: ${repository.getSudentByEmail(userState)} ")
-
-                        if (verifyStudent === true) {
-                            // auth.startActivityForSignInWithProvider().isSuccessful
-                            auth.signInWithEmailAndPassword(userState, pass)
-                                .addOnCompleteListener { crud ->
-                                    //scope.wait()
-                                    isNull = false
-                                    if (crud.isSuccessful) {
-                                        // Sign in success, update UI with the signed-in user's information
-                                        Log.d(TAG, "signInWithEmail:success")
-                                        //val user = auth.currentUser
-                                        //updateUI(user)
-                                        save = true
-                                        //var name = auth.currentUser.toString()
-                                    }
-                                }.addOnFailureListener {
-                                println("erro ao acessar estudante -> ${auth.currentUser.toString()}")
-                                isNull = true
-                            }
-                        } else {
-                            save = false
-                            isNull = true
-                        }
-                       */
                     }
                 }
 

@@ -80,15 +80,21 @@ fun Teacher(navController: NavController){
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.Bottom
             ){
-                MyButton(
+                MyLoginButton(
                     text = "gerenciar alunos(as)",
-                    route = "manageStudents",
-                    navController = navController,
+                    //route = "manageStudents",
+                    //navController = navController,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(10.dp),
-                    onValueChange = {
+                    //onValueChange = {
+                    //    loginTeacher.value = true
+                    //    print("try go manageStudents")
+                    //}
+                    onClick = {
                         loginTeacher.value = true
+                        navController.navigate("manageStudents")
+                        print("try go manageStudents")
                     }
                 )
             }
@@ -99,14 +105,19 @@ fun Teacher(navController: NavController){
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.Bottom
             ){
-                MyButton(text = "gerenciar projetos",
-                    route = "manageProjects",
-                    navController = navController,
+                MyLoginButton(text = "gerenciar projetos",
+                    //route = "manageProjects",
+                    //navController = navController,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(10.dp),
-                    onValueChange = {
+                    //onValueChange = {
+
+                    //}
+                    onClick = {
                         loginTeacher.value = true
+                        navController.navigate("manageProjects")
+                        print("try go manageProjects")
                     }
                 )
             }
@@ -117,14 +128,16 @@ fun Teacher(navController: NavController){
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.Bottom
             ){
-                MyButton(text = "gerenciar equipes",
-                    route = "manageTeams",
-                    navController = navController,
+                MyLoginButton(text = "gerenciar equipes",
+                    //route = "manageTeams",
+                    //navController = navController,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(10.dp),
-                    onValueChange = {
+                    onClick = {
                         loginTeacher.value = true
+                        navController.navigate("manageTeams")
+                        print("try go manageTeams")
                     }
                 )
             }
@@ -135,15 +148,17 @@ fun Teacher(navController: NavController){
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.Bottom
             ){
-                MyButton(
+                MyLoginButton(
                     text = "gerenciar votações",
-                    route = "managePolls",
-                    navController = navController,
+                    //route = "managePolls",
+                    //navController = navController,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(10.dp),
-                    onValueChange = {
+                    onClick = {
                         loginTeacher.value = true
+                        navController.navigate("managePolls")
+                        print("try go managePolls")
                     }
                 )
             }
@@ -154,15 +169,21 @@ fun Teacher(navController: NavController){
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.Bottom
             ){
-                MyButton(
+                MyLoginButton(
                     text = "cadastrar publicações",
-                    route = "manageFeed",
-                    navController = navController,
+                    //route = "manageFeed",
+                    //navController = navController,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(10.dp),
-                    onValueChange = {
+                    //onValueChange = {
+                    //    loginTeacher.value = true
+                    //    print("try go manageFeed")
+                    //}
+                    onClick = {
                         loginTeacher.value = true
+                        navController.navigate("manageFeed")
+                        print("manageFeed")
                     }
                 )
             }

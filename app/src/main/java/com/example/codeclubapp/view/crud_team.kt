@@ -1,20 +1,37 @@
 package com.example.codeclubapp.view
 
+import android.app.AlertDialog
+import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Checkbox
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.AddBox
+import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,21 +39,31 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.navigation.NavController
+import com.example.codeclubapp.R
 import com.example.codeclubapp.components.MyAppBarBottom
 import com.example.codeclubapp.components.MyAppBarTop
 import com.example.codeclubapp.components.MyGroupCheckBox
 import com.example.codeclubapp.components.MyLoginButton
 import com.example.codeclubapp.components.MyTextBoxInput
+import com.example.codeclubapp.model.Feed
 import com.example.codeclubapp.model.Project
 import com.example.codeclubapp.model.Student
+import com.example.codeclubapp.model.Team
 import com.example.codeclubapp.repository.ProjectRepository
 import com.example.codeclubapp.repository.StudentRepository
 import com.example.codeclubapp.repository.TeamRepository
+import com.example.codeclubapp.ui.theme.WHITE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -77,18 +104,22 @@ fun ManageTeams(navController: NavController){
 
     val projectRepository = ProjectRepository()
 
+    val model = Team()
+
     //se salvou ou nao
     var save = false
 
-    val project: MutableList<Project> = mutableListOf()
+    //adicionar projeto selecionado nessa lista para salvar no banco
+    val myProjects: MutableList<Project> = mutableListOf()
 
-    val student: MutableList<Student> = mutableListOf()
+    //adicionar estudante selecionado nessa lista para salvar no banco
+    val myMembers: MutableList<Student> = mutableListOf()
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
-            //.verticalScroll(rememberScrollState()) //barra de rolagem
+            .verticalScroll(rememberScrollState()) //barra de rolagem
             .background(MaterialTheme.colorScheme.background)
     ){
         MyAppBarTop(title = "cadastrar equipes")
@@ -96,7 +127,7 @@ fun ManageTeams(navController: NavController){
         Row (
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp, 30.dp, 20.dp, 20.dp),
+                .padding(15.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom
         ){
@@ -123,34 +154,121 @@ fun ManageTeams(navController: NavController){
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp),
-                label = "nome",
+                label = "nome da equipe",
                 maxLines = 1
             )
         }
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(0.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+                .height(168.dp)
+                //.fillMaxHeight()
         ){
-            //MyGroupCheckBox(name = nameState, members = student, projects = project, repository = teamRepository, context = context, scope = scope, navController = navController)
-            MyGroupCheckBox(name = projectRepository.getProject().toString(), onClick = {})
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(1f)
+                    .fillMaxHeight(1f)
+                    .padding(10.dp)
+                //.background(MaterialTheme.colorScheme.tertiary)
+            ){
+
+                Row(
+                    modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp)
+                ) {
+                    Text(
+                        text = "projetos:",
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontSize = 18.sp
+
+                    )
+                }
+
+
+                //preencher a lista
+                //var projectList: MutableList<Project> = mutableListOf()
+                val projectList: MutableList<Project> = projectRepository.getProject().collectAsState(
+                    //se o estado da lista for vazio vai retornar uma mutableListOf
+                    //se a lista tiver preenchida vai retornar os valores dos documentos
+                    mutableListOf()
+                ).value
+
+                //componente de listagem
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+
+                ) {
+                    itemsIndexed(projectList){
+                            position, _ -> MyCheckListProjects(position = position, listItem = projectList, /*context = context, navController = navController,*/ selectedItem = myProjects)
+                    }
+                }
+
+            }
         }
+
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(0.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxWidth(1f)
+                .height(168.dp)
+            //.fillMaxHeight(0.5f)
         ){
-            //MyGroupCheckBox(name = nameState, members = student, projects = project, repository = teamRepository, context = context, scope = scope, navController = navController)
-            MyGroupCheckBox(name = studentRepository.getStudent().toString(), onClick = {})
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(1f)
+                    .fillMaxHeight(1f)
+                    .padding(10.dp)
+                //.background(MaterialTheme.colorScheme.tertiary)
+            ){
+
+                Row(
+                    modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp)
+                ) {
+                    Text(
+                        text = "membros:",
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontSize = 18.sp
+
+                    )
+                }
+
+                //preencher lista
+                val studentList: MutableList<Student> = studentRepository.getStudent().collectAsState(
+                    //se o estado da lista for vazio vai retornar uma mutableListOf
+                    //se a lista tiver preenchida vai retornar os valores dos documentos
+                    mutableListOf()
+                ).value
+
+                //componente de listagem
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+
+                ) {
+                    itemsIndexed(studentList){
+                            position, _ -> MyCheckListMembers(position = position, listItem = studentList) }
+                }
+
+            }
         }
+
         Row (
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp),
+                //.height(56.dp)
+                .padding(15.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ){
@@ -161,17 +279,17 @@ fun ManageTeams(navController: NavController){
                     .background(MaterialTheme.colorScheme.secondary),
                 onClick = {
 
-                    //verificações do login usando coroutines scope -> criar novo usuario
+                    //verificações do login usando coroutines scope -> criar nova equipe
                     scope.launch(Dispatchers.IO){
                         //verificar o estado dos campos
                         if(nameState.isEmpty() ){
                             //verify-> name, project, member
                             save = false
-                        } else if(nameState.isNotEmpty() ){
-                            save = true
-                            teamRepository.saveTeam(0, nameState, student, project)
-                            if(teamRepository.getTeamByName(nameState) != ""){
+                        } else if(nameState.isNotEmpty() && myProjects.isNotEmpty()){
+                            if(teamRepository.getTeamByName(nameState).id != model.id){
+                                //teamRepository.saveTeam(model.id, nameState, student, project)
                                 println("team is not null")
+                                save = true
                             } else {
                                 save = false
                                 print("team is null")
@@ -182,8 +300,8 @@ fun ManageTeams(navController: NavController){
                     //mostrar mensagem usando o escopo do app -> context Main
                     scope.launch(Dispatchers.Main){
                         if(save == true){
-                            println("\nsalvo com sucesso \n")
-                            navController.navigate("teacher")
+                            println("\nequipe salva com sucesso \n")
+                            navController.navigate("manageTeams")
                             Toast.makeText(context, "salvo com sucesso ", Toast.LENGTH_SHORT).show()
                         } else {
                             println("\nalgo deu errado \n")
@@ -200,7 +318,9 @@ fun ManageTeams(navController: NavController){
         Row (
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp, 30.dp, 20.dp, 20.dp),
+                .padding(15.dp),
+                //.height(56.dp)
+                //.padding(20.dp, 30.dp, 20.dp, 20.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom
         ){
@@ -212,6 +332,250 @@ fun ManageTeams(navController: NavController){
 
             )
         }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(1f)
+                .height(122.dp)
+                //.fillMaxHeight(0.5f)
+        ){
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(1f)
+                    .fillMaxHeight(1f)
+                    .padding(10.dp)
+                //.background(MaterialTheme.colorScheme.tertiary)
+            ){
+
+                //preencher lista
+                val teamsList: MutableList<Team> = teamRepository.getTeam().collectAsState(
+                    //se o estado da lista for vazio vai retornar uma mutableListOf
+                    //se a lista tiver preenchida vai retornar os valores dos documentos
+                    mutableListOf()
+                ).value
+
+                //componente de listagem
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+
+                ) {
+                    itemsIndexed(teamsList){
+                            position, _ -> MyListTeams(position = position, listItem = teamsList) }
+                }
+
+            }
+        }
         MyAppBarBottom(navController = navController, loginStudent = loginStudent, loginTeacher = loginTeacher)
     }
+}
+
+//CHECKBOX PROJECTS
+@Composable
+fun MyCheckListProjects(
+    position: Int,
+    listItem: MutableList<Project>,
+    //context: Context,
+    //navController: NavController,
+    selectedItem: MutableList<Project>
+){
+    //ligar a view com a model
+    val nameProject = listItem[position].name
+
+    //val scope = rememberCoroutineScope()
+
+    var selected by remember {
+        mutableStateOf(false)
+    }
+
+    Divider(
+        thickness = 10.dp,
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.background
+    )
+    Card(
+        modifier = Modifier.padding(5.dp
+        )
+    ) {
+        ConstraintLayout(
+            modifier = Modifier.padding(5.dp)
+        ) {
+            // Create references for the composables to constraint
+            val(
+                txtName,
+                check
+            ) = createRefs()
+
+
+            Text(
+                text = nameProject.toString(),
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontSize = 14.sp,
+                modifier = Modifier
+                    .constrainAs(txtName) {
+                        top.linkTo(parent.top, margin = 10.dp)
+                        start.linkTo(check.end, margin = 10.dp)
+                    }
+                    .padding(start = 16.dp)
+            )
+
+            Checkbox(
+                checked = selected,
+                onCheckedChange =  {
+                        selected_ ->
+                    selected = selected_
+                    //adicionar item selecionado na lista
+                },
+                modifier = Modifier
+                    .constrainAs(check) {
+                        top.linkTo(parent.top, margin = 10.dp)
+                        start.linkTo(parent.start, margin = 10.dp)
+                    }
+            )
+
+        }
+    }
+    Divider(
+        thickness = 10.dp,
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.background
+    )
+}
+
+//moatrar lista de equipes cadastradas
+@Composable
+fun MyCheckListMembers(
+    position: Int,
+    listItem: MutableList<Student>
+){
+    val context: Context = LocalContext.current
+
+    //ligar a view com a model
+    val titleTeam = listItem[position].name
+
+    var selected by remember {
+        mutableStateOf(false)
+    }
+
+    Divider(
+        thickness = 10.dp,
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.background
+    )
+    Card(
+        modifier = Modifier.padding(5.dp
+        )
+    ) {
+        ConstraintLayout(
+            modifier = Modifier.padding(5.dp)
+        ) {
+            // Create references for the composables to constrain
+            val(
+                txtTitle,
+                check
+            ) = createRefs()
+
+            Text(
+                text = titleTeam.toString(),
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontSize = 14.sp,
+                modifier = Modifier.constrainAs(txtTitle) {
+                    top.linkTo(parent.top, margin = 10.dp)
+                    start.linkTo(check.end, margin = 10.dp)
+                }
+            )
+
+            Checkbox(
+                checked = selected,
+                onCheckedChange =  {
+                        selected_ ->
+                    selected = selected_
+                    //adicionar item selecionado na lista
+                },
+                modifier = Modifier
+                    .constrainAs(check) {
+                        top.linkTo(parent.top, margin = 10.dp)
+                        start.linkTo(parent.start, margin = 10.dp)
+                    }
+            )
+
+        }
+    }
+    Divider(
+        thickness = 10.dp,
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.background
+    )
+}
+
+//moatrar lista de equipes cadastradas
+@Composable
+fun MyListTeams(
+    position: Int,
+    listItem: MutableList<Team>
+){
+    val context: Context = LocalContext.current
+
+    //ligar a view com a model
+    val titleTeam = listItem[position].name
+    //val projectsTeam = listItem[position].projects
+    //val membersTeam = listItem[position].members
+
+
+    Divider(
+        thickness = 15.dp,
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.background
+    )
+    Card(
+        modifier = Modifier.padding(15.dp
+        )
+    ) {
+        ConstraintLayout(
+            modifier = Modifier.padding(15.dp)
+        ) {
+            // Create references for the composables to constrain
+            val(
+                txtTitle,
+                //txtProjects,
+                //txtMembers
+            ) = createRefs()
+
+            Text(
+                text = titleTeam.toString(),
+                modifier = Modifier.constrainAs(txtTitle) {
+                    top.linkTo(parent.top, margin = 15.dp)
+                    start.linkTo(parent.start, margin = 15.dp)
+                }
+            )
+            /*
+            Text(
+                text = projectsTeam.toString(),
+                modifier = Modifier.constrainAs(txtProjects) {
+                    top.linkTo(txtTitle.bottom, margin = 15.dp)
+                    start.linkTo(parent.start, margin = 15.dp)
+                }
+            )
+
+            Text(
+                text = membersTeam.toString(),
+                modifier = Modifier.constrainAs(txtMembers) {
+                    top.linkTo(txtProjects.bottom, margin = 15.dp)
+                    start.linkTo(parent.start, margin = 15.dp)
+                }
+            )
+
+             */
+
+
+        }
+    }
+    Divider(
+        thickness = 15.dp,
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.background
+    )
 }

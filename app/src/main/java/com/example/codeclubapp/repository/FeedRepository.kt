@@ -20,4 +20,12 @@ class FeedRepository() {
     fun getFeed(): Flow<MutableList<Feed>> {
         return dataSource.getFeed()
     }
+
+    fun getFeedByName(name: String, description: String): Feed {
+        return dataSource.getFeedByName(name, description)
+    }
+
+    fun deleteFeed(title: String, description: String){
+        return dataSource.deleteFeed(title, description)
+    }
 }

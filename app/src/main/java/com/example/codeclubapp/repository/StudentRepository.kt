@@ -28,16 +28,20 @@ class StudentRepository() {
         return dataSource.getSudent()
     }
 
-    fun getSudentByName(name: String){
+    fun getSudentByName(name: String): Student {
         return dataSource.getSudentByName(name)
     }
 
-    fun getSudentByEmail(email: String){
+    fun getSudentByEmail(email: String): Student {
         return dataSource.getSudentByEmail(email)
     }
 
     fun verifyStudent(email: String, pass: String){
         return dataSource.verifyStudent(email, pass)
+    }
+
+    fun deleteStudent(email: String){
+        return dataSource.deleteStudent(email)
     }
 
 }
