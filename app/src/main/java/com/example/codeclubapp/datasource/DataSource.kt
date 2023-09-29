@@ -266,55 +266,6 @@ class DataSource {
 
     }
 
-    /*
-    private fun sigInStudent(email: String, pass: String){
-        auth.signInWithEmailAndPassword(email, pass).addOnCompleteListener { crud ->
-            if (crud.isSuccessful) {
-                // Sign in success, update UI with the signed-in user's information
-                Log.d(TAG, "signInStudentWithEmail:success")
-            }
-        }.addOnFailureListener {
-            println("erro ao acessar estudante -> ${auth.currentUser.toString()}")
-        }
-    }
-
-    private fun verifyStudent(email: String, pass: String
-    ): Task<QuerySnapshot> {
-        val collection = db.collection("student")
-        //val table = db.collection("student").document(email)
-        // [START or_query]
-        val query = collection.where(
-            Filter.and(
-                Filter.equalTo("email", email),
-                Filter.equalTo("pass", pass),
-                Filter.equalTo("isStudent", true),
-                Filter.or(
-                    Filter.equalTo("isTeacher", false)
-                )
-            )
-        )
-        Log.d(TAG, "query data: ${query.get()}")
-        query.addSnapshotListener { snapshot, e ->
-            if (e != null) {
-                return@addSnapshotListener
-            }
-            if (snapshot != null && !snapshot.documents.isEmpty()) {
-                //se a query nao for vazia
-                Log.d(TAG, "Current data: ${snapshot.query}, Query data ${query.get()}")
-                sigInStudent(email, pass)
-            } else {
-                Log.d(TAG, "Current data: null")
-            }
-        }
-        return query.firestore.collection(email).whereEqualTo("isStudent", true).get()
-    }
-
-    fun isStudent(email: String, pass: String): Boolean {
-        verifyStudent(email, pass)
-        return true
-    }
-
-     */
 
     //*************************************************** TEATCHER ***************************************************
     //save techer -> name: String, email: String, pass: String, isTeacher: Boolean = true, isStudent: Boolean = false
@@ -626,12 +577,29 @@ class DataSource {
     }
 
     fun getTeamByName(name: String): Team{
-        db.collection("feed")
-            .document(name).get().addOnSuccessListener { documentSnapshot ->
-                val myTeam = documentSnapshot.toObject<Team>()
-                team = myTeam!!
-                Log.d(TAG, "project by name: ${team.name.toString()}, ${team.projects.toString()} , ${team.members.toString()}")
+        db.collection("team")
+            .whereIn("name", listOf(name))
+            .get().addOnCompleteListener { querySnapshot ->
+                if (querySnapshot.isSuccessful) {
+                    for (document in querySnapshot.result) {
+                        team = document.toObject(Team::class.java)
+                        Log.d(
+                            TAG,
+                            "team by name: ${querySnapshot.result}, ${team.name.toString()}, ${team.projects.toString()} , ${team.members.toString()}"
+                        )
+                        return@addOnCompleteListener
+                    }
+                } else {
+                    db.collection("team")
+                        .document(name).get().addOnSuccessListener { documentSnapshot ->
+                            val myTeam = documentSnapshot.toObject<Team>()
+                            team = myTeam!!
+                            Log.d(TAG, "team by name: ${team.name.toString()}, ${team.projects.toString()} , ${team.members.toString()}")
+                            //Log.d(TAG, "project by name: $team")
+                        }
+                }
             }
+
         return team
     }
 
@@ -645,7 +613,6 @@ class DataSource {
             "name" to name,
             "members" to members,
             "projects" to projects
-
         )
 
         if(members != null){

@@ -20,6 +20,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Checkbox
+import androidx.compose.material.CheckboxDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AddBox
@@ -108,6 +109,7 @@ fun ManageTeams(navController: NavController){
 
     //se salvou ou nao
     var save = false
+    var isNull = false
 
     //adicionar projeto selecionado nessa lista para salvar no banco
     val myProjects: MutableList<Project> = mutableListOf()
@@ -206,7 +208,7 @@ fun ManageTeams(navController: NavController){
 
                 ) {
                     itemsIndexed(projectList){
-                            position, _ -> MyCheckListProjects(position = position, listItem = projectList, /*context = context, navController = navController,*/ selectedItem = myProjects)
+                            position, _ -> MyCheckListProjects(position = position, listItem = projectList, selectedItem = myProjects)
                     }
                 }
 
@@ -258,7 +260,7 @@ fun ManageTeams(navController: NavController){
 
                 ) {
                     itemsIndexed(studentList){
-                            position, _ -> MyCheckListMembers(position = position, listItem = studentList) }
+                            position, _ -> MyCheckListMembers(position = position, listItem = studentList, selectedItem = myMembers) }
                 }
 
             }
@@ -285,13 +287,14 @@ fun ManageTeams(navController: NavController){
                         if(nameState.isEmpty() ){
                             //verify-> name, project, member
                             save = false
-                        } else if(nameState.isNotEmpty() && myProjects.isNotEmpty()){
+                        } else if(nameState.isNotEmpty() && myProjects.isNotEmpty() && myMembers.isNotEmpty()){
                             if(teamRepository.getTeamByName(nameState).id != model.id){
-                                //teamRepository.saveTeam(model.id, nameState, student, project)
-                                println("team is not null")
+                                teamRepository.saveTeam(model.id, nameState, myMembers, myProjects)
+                                println("team is not null, $myMembers , $myProjects")
                                 save = true
                             } else {
                                 save = false
+                                isNull = true
                                 print("team is null")
                             }
                         }
@@ -299,7 +302,7 @@ fun ManageTeams(navController: NavController){
 
                     //mostrar mensagem usando o escopo do app -> context Main
                     scope.launch(Dispatchers.Main){
-                        if(save == true){
+                        if(save && !isNull){
                             println("\nequipe salva com sucesso \n")
                             navController.navigate("manageTeams")
                             Toast.makeText(context, "salvo com sucesso ", Toast.LENGTH_SHORT).show()
@@ -362,7 +365,7 @@ fun ManageTeams(navController: NavController){
 
                 ) {
                     itemsIndexed(teamsList){
-                            position, _ -> MyListTeams(position = position, listItem = teamsList) }
+                            position, _ -> MyListTeams(position = position, listItem = teamsList, context = context, navController = navController) }
                 }
 
             }
@@ -427,7 +430,13 @@ fun MyCheckListProjects(
                         selected_ ->
                     selected = selected_
                     //adicionar item selecionado na lista
+                    selectedItem.add(listItem[position])
+                    print("projeto selecionado: $selectedItem")
+
                 },
+                colors = CheckboxDefaults.colors(
+                    checkedColor = Color.Red
+                ),
                 modifier = Modifier
                     .constrainAs(check) {
                         top.linkTo(parent.top, margin = 10.dp)
@@ -448,7 +457,8 @@ fun MyCheckListProjects(
 @Composable
 fun MyCheckListMembers(
     position: Int,
-    listItem: MutableList<Student>
+    listItem: MutableList<Student>,
+    selectedItem: MutableList<Student>
 ){
     val context: Context = LocalContext.current
 
@@ -494,7 +504,13 @@ fun MyCheckListMembers(
                         selected_ ->
                     selected = selected_
                     //adicionar item selecionado na lista
+                    selectedItem.add(listItem[position])
+                    print("projeto selecionado: $selectedItem")
+
                 },
+                colors = CheckboxDefaults.colors(
+                    checkedColor = Color.Red
+                ),
                 modifier = Modifier
                     .constrainAs(check) {
                         top.linkTo(parent.top, margin = 10.dp)
@@ -515,15 +531,43 @@ fun MyCheckListMembers(
 @Composable
 fun MyListTeams(
     position: Int,
-    listItem: MutableList<Team>
+    listItem: MutableList<Team>,
+    context: Context,
+    navController: NavController
 ){
-    val context: Context = LocalContext.current
+   // val context: Context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    val repository = TeamRepository()
 
     //ligar a view com a model
     val titleTeam = listItem[position].name
-    //val projectsTeam = listItem[position].projects
-    //val membersTeam = listItem[position].members
+    val projectsTeam = listItem[position].projects
+    val membersTeam = listItem[position].members
 
+    fun deleteDialog(){
+        //deletar estudante
+        val alertDialog = AlertDialog.Builder(context)
+        alertDialog.setTitle("EXCLUIR EQUIPE")
+            .setMessage("tem certeza que quer excluir essa equipe ?")
+            .setPositiveButton("Sim"){
+                    _, _, ->
+                //funcao delete
+                //repository
+
+                scope.launch(Dispatchers.Main){
+                    //remover equipe excluido da lista
+                    listItem.removeAt(position)
+                    //navegar para a pagina para atualizar a listagem
+                    navController.navigate("manageTeams")
+                    Toast.makeText(context, "equipe excluída com sucesso!", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Não"){
+                    _, _, ->
+            }
+            .show()
+    }
 
     Divider(
         thickness = 15.dp,
@@ -540,8 +584,10 @@ fun MyListTeams(
             // Create references for the composables to constrain
             val(
                 txtTitle,
-                //txtProjects,
-                //txtMembers
+                txtProjects,
+                txtMembers,
+                navBarItemEdit,
+                navBarItemDelete
             ) = createRefs()
 
             Text(
@@ -551,7 +597,7 @@ fun MyListTeams(
                     start.linkTo(parent.start, margin = 15.dp)
                 }
             )
-            /*
+
             Text(
                 text = projectsTeam.toString(),
                 modifier = Modifier.constrainAs(txtProjects) {
@@ -568,7 +614,30 @@ fun MyListTeams(
                 }
             )
 
-             */
+
+            IconButton(
+                onClick = { /*TODO*/ },
+                modifier = Modifier.constrainAs(navBarItemEdit) {
+                    top.linkTo(txtMembers.bottom, margin = 15.dp)
+                    start.linkTo(parent.start, margin = 15.dp)
+                },
+            ) {
+                //Text(text = "editar"),
+                Image(imageVector = ImageVector.vectorResource(id = R.drawable.icon_edit_24), contentDescription ="editar")
+            }
+
+            IconButton(
+                onClick = {
+                    deleteDialog()
+                },
+                modifier = Modifier.constrainAs(navBarItemDelete) {
+                    top.linkTo(txtMembers.bottom, margin = 15.dp)
+                    start.linkTo(navBarItemEdit.end, margin = 15.dp)
+                    end.linkTo(parent.end, margin = 15.dp)
+                }
+            ) {
+                Image(imageVector = ImageVector.vectorResource(id = R.drawable.icon_delete_24), contentDescription ="excluir")
+            }
 
 
         }

@@ -92,6 +92,7 @@ fun ManageProjects(navController: NavController){
 
     //se salvou ou nao
     var save = false
+    var isNull = false
 
     Column(
         modifier = Modifier
@@ -182,6 +183,7 @@ fun ManageProjects(navController: NavController){
                                 print("project save is true")
                             } else {
                                 save = false
+                                isNull = true
                                 print("project save is false")
                             }
                         }
@@ -189,7 +191,7 @@ fun ManageProjects(navController: NavController){
 
                     //mostrar mensagem usando o escopo do app -> context Main
                     scope.launch(Dispatchers.Main){
-                        if(save == true){
+                        if(save && !isNull){
                             println("\nprojeto cadastrado com sucesso \n")
                             nameState = ""
                             descriptionState = ""

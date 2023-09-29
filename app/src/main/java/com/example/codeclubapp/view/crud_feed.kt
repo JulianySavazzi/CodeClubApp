@@ -82,6 +82,7 @@ fun ManageFeed(navController: NavController){
 
     //se salvou ou nao
     var save = false
+    var isNull = false
 
     Column(
         modifier = Modifier
@@ -173,6 +174,7 @@ fun ManageFeed(navController: NavController){
                             println("feed is not null")
                         } else {
                             save = false
+                            isNull = true
                             print("feed is null")
                         }
                     }
@@ -180,7 +182,7 @@ fun ManageFeed(navController: NavController){
 
                 //mostrar mensagem usando o escopo do app -> context Main
                 scope.launch(Dispatchers.Main) {
-                    if (save == true) {
+                    if (save && !isNull) {
                         println("\nsalvo com sucesso \n")
                         titleState = ""
                         contentState = ""

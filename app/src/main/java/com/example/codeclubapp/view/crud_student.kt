@@ -125,6 +125,7 @@ fun ManageStudents(navController: NavController){
 
     //se salvou ou nao
     var save = false
+    var isNull = false
 
     Column(
         modifier = Modifier
@@ -247,11 +248,13 @@ fun ManageStudents(navController: NavController){
                                     studentRepository.saveStudent(model.id ,nameState, userState, pass, false, true)
                                 } else {
                                     save = false
+                                    isNull = true
                                 }
                             }.addOnFailureListener{
                                 //tratamento de exceções -> mensagens de erro
                                 print("erro ao cadastrar aluno")
                                 save = false
+                                isNull = true
                             }
 
                         }
@@ -259,7 +262,7 @@ fun ManageStudents(navController: NavController){
 
                     //mostrar mensagem usando o escopo do app -> context Main
                     scope.launch(Dispatchers.Main){
-                        if(save == true){
+                        if(save && !isNull){
                             println("\nestudante cadastrado com sucesso \n")
                             nameState = ""
                             userState = ""
