@@ -46,6 +46,7 @@ import com.example.codeclubapp.components.MyLoginButton
 import com.example.codeclubapp.components.MyTextBoxInput
 import com.example.codeclubapp.model.Project
 import com.example.codeclubapp.model.Student
+import com.example.codeclubapp.model.Team
 import com.example.codeclubapp.repository.ProjectRepository
 import com.example.codeclubapp.repository.StudentRepository
 import kotlinx.coroutines.Dispatchers
@@ -195,7 +196,7 @@ fun ManageProjects(navController: NavController){
                             println("\nprojeto cadastrado com sucesso \n")
                             nameState = ""
                             descriptionState = ""
-                            navController.navigate("manageProjects")
+                            navController.navigate("teacher")
                             Toast.makeText(context, "projeto salvo com sucesso ", Toast.LENGTH_SHORT).show()
                         } else {
                             println("\nalgo deu errado \n")
@@ -281,6 +282,8 @@ fun MyListProjects(
 
     val repository = ProjectRepository()
 
+    var isDeleted = false
+
     fun deleteDialog(){
         //deletar estudante
         val alertDialog = AlertDialog.Builder(context)
@@ -289,14 +292,34 @@ fun MyListProjects(
             .setPositiveButton("Sim"){
                     _, _, ->
 
-                repository.deleteProject(nameProject.toString(), descriptionProject.toString())
+                var myProjectDel = repository.getProjectByName(nameProject.toString(), descriptionProject.toString())
+
+                var del = repository.verifyProjectDelete(nameProject.toString(), descriptionProject.toString())
+
+                scope.launch(Dispatchers.IO){
+                    //if (del.projects?.contains(myProjectDel) ?:  del == Team()) {
+                    if (del.projects.isNullOrEmpty() && del.projects.toString() != myProjectDel.toString()) {
+                        //se o projeto nao esta cadastrado em nenhuma equipe ele pode ser excluido
+                        repository.deleteProject(nameProject.toString(), descriptionProject.toString())
+                        isDeleted = true
+                    } else {
+                        print("try delete this project")
+                    }
+                }
 
                 scope.launch(Dispatchers.Main){
-                    //remover estudante excluido da lista
-                    listItem.removeAt(position)
-                    //navegar para a pagina feed para atualizar a listagem
-                    navController.navigate("manageProjects")
-                    Toast.makeText(context, "projeto excluído com sucesso!", Toast.LENGTH_SHORT).show()
+                    if(isDeleted == true){
+                        //remover estudante excluido da lista
+                        listItem.removeAt(position)
+                        //navegar para a pagina feed para atualizar a listagem
+                        navController.navigate("manageProjects")
+                        Toast.makeText(context, "projeto excluído com sucesso!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        //navegar para a pagina feed para atualizar a listagem
+                        navController.navigate("manageProjects")
+                        Toast.makeText(context, "projeto está cadastrado em alguma equipe e não pode ser excluído", Toast.LENGTH_SHORT).show()
+                    }
+
                 }
             }
             .setNegativeButton("Não"){

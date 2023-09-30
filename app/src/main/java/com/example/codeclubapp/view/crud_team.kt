@@ -304,7 +304,7 @@ fun ManageTeams(navController: NavController){
                     scope.launch(Dispatchers.Main){
                         if(save && !isNull){
                             println("\nequipe salva com sucesso \n")
-                            navController.navigate("manageTeams")
+                            navController.navigate("teacher")
                             Toast.makeText(context, "salvo com sucesso ", Toast.LENGTH_SHORT).show()
                         } else {
                             println("\nalgo deu errado \n")
@@ -430,8 +430,10 @@ fun MyCheckListProjects(
                         selected_ ->
                     selected = selected_
                     //adicionar item selecionado na lista
-                    selectedItem.add(listItem[position])
-                    print("projeto selecionado: $selectedItem")
+                    if(selected){
+                        selectedItem.add(listItem[position])
+                        print("projeto selecionado: $selectedItem")
+                    }
 
                 },
                 colors = CheckboxDefaults.colors(
@@ -463,7 +465,7 @@ fun MyCheckListMembers(
     val context: Context = LocalContext.current
 
     //ligar a view com a model
-    val titleTeam = listItem[position].name
+    val memberTeam = listItem[position].name
 
     var selected by remember {
         mutableStateOf(false)
@@ -488,7 +490,7 @@ fun MyCheckListMembers(
             ) = createRefs()
 
             Text(
-                text = titleTeam.toString(),
+                text = memberTeam.toString(),
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 14.sp,
@@ -504,8 +506,10 @@ fun MyCheckListMembers(
                         selected_ ->
                     selected = selected_
                     //adicionar item selecionado na lista
-                    selectedItem.add(listItem[position])
-                    print("projeto selecionado: $selectedItem")
+                    if(selected){
+                        selectedItem.add(listItem[position])
+                        print("membro selecionado: $selectedItem")
+                    }
 
                 },
                 colors = CheckboxDefaults.colors(
@@ -591,7 +595,7 @@ fun MyListTeams(
             ) = createRefs()
 
             Text(
-                text = titleTeam.toString(),
+                text = "equipe: ${titleTeam.toString()}",
                 modifier = Modifier.constrainAs(txtTitle) {
                     top.linkTo(parent.top, margin = 15.dp)
                     start.linkTo(parent.start, margin = 15.dp)
@@ -599,7 +603,7 @@ fun MyListTeams(
             )
 
             Text(
-                text = projectsTeam.toString(),
+                text = "projetos: ${projectsTeam!![0].name.toString()} ...",
                 modifier = Modifier.constrainAs(txtProjects) {
                     top.linkTo(txtTitle.bottom, margin = 15.dp)
                     start.linkTo(parent.start, margin = 15.dp)
@@ -607,7 +611,7 @@ fun MyListTeams(
             )
 
             Text(
-                text = membersTeam.toString(),
+                text = "membros: ${membersTeam!![0].name.toString()} ...",
                 modifier = Modifier.constrainAs(txtMembers) {
                     top.linkTo(txtProjects.bottom, margin = 15.dp)
                     start.linkTo(parent.start, margin = 15.dp)

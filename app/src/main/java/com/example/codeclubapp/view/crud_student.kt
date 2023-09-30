@@ -267,7 +267,7 @@ fun ManageStudents(navController: NavController){
                             nameState = ""
                             userState = ""
                             password.value = ""
-                            navController.navigate("manageStudents")
+                            navController.navigate("teacher")
                             Toast.makeText(context, "salvo com sucesso ", Toast.LENGTH_SHORT).show()
                         } else {
                             println("\nalgo deu errado \n")

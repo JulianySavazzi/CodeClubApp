@@ -28,6 +28,10 @@ class ProjectRepository() {
         return dataSource.getProjectByName(name, description)
     }
 
+    fun verifyProjectDelete(title: String, description: String): Team {
+        return dataSource.verifyProjectDelete(title, description)
+    }
+
     fun deleteProject(title: String, description: String){
         return dataSource.deleteProject(title,description)
     }

@@ -68,7 +68,7 @@ class DataSource {
 
     var team = Team()
 
-    var isTrue = false
+    //var isTrue = false
     //criar estado para a variável:
     //private var isTrue by remember {mutableStateOf(false)}
 
@@ -180,21 +180,6 @@ class DataSource {
                 }
             }
         return student
-        /*
-        val docRef = db.collection("student").document(name)
-        docRef.addSnapshotListener { snapshot, e ->
-            if (e != null) {
-                Log.w(TAG, "Listen failed.", e)
-                return@addSnapshotListener
-            }
-
-            if (snapshot != null && snapshot.exists()) {
-                Log.d(TAG, "Current data: ${snapshot.data}")
-            } else {
-                Log.d(TAG, "Current data: null")
-            }
-        }
-         */
     }
 
     fun getSudentByEmail(email: String): Student {
@@ -212,21 +197,6 @@ class DataSource {
                 }
             }
         return student
-        /*
-        val docRef = db.collection("student").document(email)
-        docRef.addSnapshotListener { snapshot, e ->
-            if (e != null) {
-                Log.w(TAG, "Listen failed. e ", e)
-                return@addSnapshotListener
-            }
-
-            if (snapshot != null && snapshot.exists()) {
-                Log.d(TAG, "Current data: ${snapshot.data}")
-            } else {
-                Log.d(TAG, "Current data: null")
-            }
-        }
-         */
     }
 
     fun verifyStudent(email: String, pass: String){
@@ -243,13 +213,13 @@ class DataSource {
                     }
                 }
             }
-        return
     }
 
     //delete feed -> deletar publicacao
     fun deleteStudent(email: String){
         val user = Firebase.auth.currentUser!!
 
+        //verificar se o estudante esta cadastrado em alguma equipe antes de excluir
         db.collection("student")
             .document(email).delete().addOnCompleteListener {
                 if(user.email == email){
@@ -402,23 +372,6 @@ class DataSource {
                             feed = myFeed!!
                         }
 
-                    /*
-                    // Source can be CACHE, SERVER, or DEFAULT.
-                    val source = Source.CACHE
-                    // Get the document, forcing the SDK to use the offline cache -> get(source)
-                    db.collection("feed")
-                        .document(name).get(source).addOnCompleteListener { querySnapshot ->
-                            if (querySnapshot.isSuccessful) {
-                                for(document in querySnapshot.result.id){
-                                    val document = querySnapshot.result
-                                    feed = document.toObject(Feed::class.java)!!
-                                    Log.d(TAG, "feed by name: ${querySnapshot.result}}")
-                                    return@addOnCompleteListener
-                                }
-                            }
-                        }
-
-                     */
                 }
             }
         return feed
@@ -518,7 +471,32 @@ class DataSource {
         return project
     }
 
+
+    fun verifyProjectDelete(title: String, description: String): Team {
+        //verificar se o projeto esta cadastrado em alguma equipe antes de excluir
+        val myProject = getProjectByName(title, description)
+
+        db.collection("team")
+            .whereIn("projects", listOf(myProject))
+            .get().addOnCompleteListener { querySnapshot ->
+                if (querySnapshot.isSuccessful) {
+                    for (document in querySnapshot.result) {
+                        team = document.toObject(Team::class.java)
+                        Log.d(
+                            TAG,
+                            " can't delete this project, because this exists in team: ${querySnapshot.result}, ${team.name.toString()}, ${team.projects.toString()} , ${team.members.toString()}"
+                        )
+                        return@addOnCompleteListener
+                    }
+                } else {
+                    team = Team()
+                }
+        }
+        return team
+    }
+
     fun deleteProject(title: String, description: String){
+        //se o projeto selecionado nao pertencer a nenhuma equipe ele pode ser excluido
         db.collection("project")
             .document(title).delete().addOnCompleteListener {
                 Log.d(TAG, "project is deleted!")
@@ -634,11 +612,14 @@ class DataSource {
         if(name != null && members != null && projects != null){
             db.collection("team").document(name).update(teamUpMap)
         }
-
     }
+
 
     //*************************************************** POLL ***************************************************
     //save poll
 
 }
+
+
+
 
