@@ -603,6 +603,16 @@ class DataSource {
         return team
     }
 
+
+    fun deleteTeam(title: String){
+        db.collection("team")
+            .document(title).delete().addOnCompleteListener {
+                Log.d(TAG, "team is deleted!")
+            }.addOnFailureListener {
+                Log.d(TAG, "team not deleted!")
+            }
+    }
+
     fun updateTeamByName(
         name: String,
         members: MutableList<Student>,

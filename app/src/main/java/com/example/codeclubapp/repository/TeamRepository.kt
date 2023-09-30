@@ -28,6 +28,10 @@ class TeamRepository() {
         return dataSource.getTeamByName(name)
     }
 
+    fun deleteTeam(title: String){
+        return dataSource.deleteTeam(title)
+    }
+
     fun updateTeamByName(
         name: String,
         members: MutableList<Student>,

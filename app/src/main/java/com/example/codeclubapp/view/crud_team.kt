@@ -553,7 +553,7 @@ fun MyListTeams(
             .setPositiveButton("Sim"){
                     _, _, ->
                 //funcao delete
-                //repository
+                repository.deleteTeam(titleTeam.toString())
 
                 scope.launch(Dispatchers.Main){
                     //remover equipe excluido da lista
