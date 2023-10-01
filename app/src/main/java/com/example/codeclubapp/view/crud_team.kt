@@ -32,6 +32,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,11 +62,14 @@ import com.example.codeclubapp.model.Feed
 import com.example.codeclubapp.model.Project
 import com.example.codeclubapp.model.Student
 import com.example.codeclubapp.model.Team
+import com.example.codeclubapp.repository.FeedRepository
 import com.example.codeclubapp.repository.ProjectRepository
 import com.example.codeclubapp.repository.StudentRepository
 import com.example.codeclubapp.repository.TeamRepository
 import com.example.codeclubapp.ui.theme.WHITE
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -104,6 +108,10 @@ fun ManageTeams(navController: NavController){
     val studentRepository = StudentRepository()
 
     val projectRepository = ProjectRepository()
+
+    val feedRepository = FeedRepository()
+
+    val feedModel = Feed()
 
     val model = Team()
 
@@ -199,6 +207,21 @@ fun ManageTeams(navController: NavController){
                     mutableListOf()
                 ).value
 
+                Row(
+                    modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp)
+                ) {
+                    Text(
+                        text = "selecionados: ${myProjects.size}",
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontSize = 18.sp
+
+                    )
+                }
+
                 //componente de listagem
                 LazyColumn(
                     modifier = Modifier
@@ -251,6 +274,21 @@ fun ManageTeams(navController: NavController){
                     mutableListOf()
                 ).value
 
+                Row(
+                    modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp)
+                ) {
+                    Text(
+                        text = "selecionados: ${myMembers.size}",
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontSize = 18.sp
+
+                    )
+                }
+
                 //componente de listagem
                 LazyColumn(
                     modifier = Modifier
@@ -265,6 +303,8 @@ fun ManageTeams(navController: NavController){
 
             }
         }
+
+        var idTeam = teamRepository.getTeamByName(nameState).id
 
         Row (
             modifier = Modifier
@@ -290,12 +330,13 @@ fun ManageTeams(navController: NavController){
                         } else if(nameState.isNotEmpty() && myProjects.isNotEmpty() && myMembers.isNotEmpty()){
                             if(teamRepository.getTeamByName(nameState).id != model.id){
                                 teamRepository.saveTeam(model.id, nameState, myMembers, myProjects)
-                                println("team is not null, $myMembers , $myProjects")
+                                println("team is not null, id: $idTeam != ${model.id}, $myMembers , $myProjects")
                                 save = true
+                                isNull = false
                             } else {
                                 save = false
                                 isNull = true
-                                print("team is null")
+                                print("team is null,  id: $idTeam, model.id: ${model.id}")
                             }
                         }
                     }
@@ -304,6 +345,7 @@ fun ManageTeams(navController: NavController){
                     scope.launch(Dispatchers.Main){
                         if(save && !isNull){
                             println("\nequipe salva com sucesso \n")
+                            feedRepository.saveFeed(feedModel.id, "nova equipe cadastrada: $nameState ", "nova equipe cadastrada: $nameState, projetos: ${myProjects[0].name} ..., membros: ${myMembers[0].name} ...")
                             navController.navigate("teacher")
                             Toast.makeText(context, "salvo com sucesso ", Toast.LENGTH_SHORT).show()
                         } else {
@@ -374,6 +416,20 @@ fun ManageTeams(navController: NavController){
     }
 }
 
+
+//get checkbox project selected
+fun mySelectedProjects(mutableListProjects: MutableList<Project>): StateFlow<MutableList<Project>>{
+    //flow -> recuperar todo fluxo de PROJECT
+    //_allProjects -> estado de fluxo assincrono
+    val _listProjects = MutableStateFlow<MutableList<Project>>(mutableListOf())
+    //allProjects -> observa todos os dados que foram atribuidos para ela
+    val listProjects: StateFlow<MutableList<Project>> = _listProjects
+    _listProjects.value = mutableListProjects
+    return  listProjects
+}
+
+
+
 //CHECKBOX PROJECTS
 @Composable
 fun MyCheckListProjects(
@@ -391,6 +447,8 @@ fun MyCheckListProjects(
     var selected by remember {
         mutableStateOf(false)
     }
+
+    //var myProjectsList: State<List<Project>>
 
     Divider(
         thickness = 10.dp,
@@ -424,17 +482,19 @@ fun MyCheckListProjects(
                     .padding(start = 16.dp)
             )
 
+
+
             Checkbox(
                 checked = selected,
                 onCheckedChange =  {
                         selected_ ->
                     selected = selected_
+                    //selected = true
                     //adicionar item selecionado na lista
                     if(selected){
                         selectedItem.add(listItem[position])
                         print("projeto selecionado: $selectedItem")
                     }
-
                 },
                 colors = CheckboxDefaults.colors(
                     checkedColor = Color.Red
@@ -506,9 +566,10 @@ fun MyCheckListMembers(
                         selected_ ->
                     selected = selected_
                     //adicionar item selecionado na lista
+                    //selected = true
                     if(selected){
                         selectedItem.add(listItem[position])
-                        print("membro selecionado: $selectedItem")
+                        print("projeto selecionado: $selectedItem")
                     }
 
                 },
@@ -652,3 +713,4 @@ fun MyListTeams(
         color = MaterialTheme.colorScheme.background
     )
 }
+

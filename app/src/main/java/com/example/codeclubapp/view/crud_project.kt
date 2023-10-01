@@ -284,6 +284,10 @@ fun MyListProjects(
 
     var isDeleted = false
 
+    var myProjectDel = repository.getProjectByName(nameProject.toString(), descriptionProject.toString())
+
+    var del = repository.verifyProjectDelete(nameProject.toString(), descriptionProject.toString())
+
     fun deleteDialog(){
         //deletar estudante
         val alertDialog = AlertDialog.Builder(context)
@@ -291,10 +295,6 @@ fun MyListProjects(
             .setMessage("tem certeza que quer excluir esse projeto ${nameProject.toString()}?")
             .setPositiveButton("Sim"){
                     _, _, ->
-
-                var myProjectDel = repository.getProjectByName(nameProject.toString(), descriptionProject.toString())
-
-                var del = repository.verifyProjectDelete(nameProject.toString(), descriptionProject.toString())
 
                 scope.launch(Dispatchers.IO){
                     //if (del.projects?.contains(myProjectDel) ?:  del == Team()) {
@@ -304,6 +304,7 @@ fun MyListProjects(
                         isDeleted = true
                     } else {
                         print("try delete this project")
+                        isDeleted = false
                     }
                 }
 
@@ -313,7 +314,7 @@ fun MyListProjects(
                         listItem.removeAt(position)
                         //navegar para a pagina feed para atualizar a listagem
                         navController.navigate("manageProjects")
-                        Toast.makeText(context, "projeto excluído com sucesso!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "projeto excluído com sucesso! ${del.projects.toString()} != ${myProjectDel.toString()}", Toast.LENGTH_SHORT).show()
                     } else {
                         //navegar para a pagina feed para atualizar a listagem
                         navController.navigate("manageProjects")
@@ -333,6 +334,7 @@ fun MyListProjects(
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.background
     )
+
     Card(
         modifier = Modifier.padding(5.dp
         )
@@ -389,6 +391,7 @@ fun MyListProjects(
             }
         }
     }
+
     Divider(
         thickness = 15.dp,
         modifier = Modifier.fillMaxWidth(),

@@ -456,7 +456,7 @@ class DataSource {
                 if (querySnapshot.isSuccessful) {
                     for (document in querySnapshot.result) {
                         project = document.toObject(Project::class.java)
-                        Log.d(TAG, "project by name: ${querySnapshot.result}, ${project.name.toString()}, ${project.description.toString()}")
+                        Log.d(TAG, "project by name: ${querySnapshot.result}, ${project.name.toString()}, description: ${project.description.toString()}")
                         return@addOnCompleteListener
                     }
                 } else {
