@@ -190,7 +190,7 @@ fun ManageTeams(navController: NavController){
                         .padding(5.dp)
                 ) {
                     Text(
-                        text = "projetos:",
+                        text = "projetos: ",
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 18.sp
@@ -231,7 +231,7 @@ fun ManageTeams(navController: NavController){
 
                 ) {
                     itemsIndexed(projectList){
-                            position, _ -> MyCheckListProjects(position = position, listItem = projectList, selectedItem = myProjects)
+                            position, _ -> MyCheckListProjects(position = position, listItem = projectList, selectedItem = myProjects, context = context)
                     }
                 }
 
@@ -298,7 +298,7 @@ fun ManageTeams(navController: NavController){
 
                 ) {
                     itemsIndexed(studentList){
-                            position, _ -> MyCheckListMembers(position = position, listItem = studentList, selectedItem = myMembers) }
+                            position, _ -> MyCheckListMembers(position = position, listItem = studentList, selectedItem = myMembers, context = context) }
                 }
 
             }
@@ -435,20 +435,30 @@ fun mySelectedProjects(mutableListProjects: MutableList<Project>): StateFlow<Mut
 fun MyCheckListProjects(
     position: Int,
     listItem: MutableList<Project>,
-    //context: Context,
+    context: Context,
     //navController: NavController,
     selectedItem: MutableList<Project>
 ){
     //ligar a view com a model
     val nameProject = listItem[position].name
 
-    //val scope = rememberCoroutineScope()
+    val scope = rememberCoroutineScope()
 
     var selected by remember {
         mutableStateOf(false)
     }
 
     //var myProjectsList: State<List<Project>>
+
+    fun removeSelected(){
+        scope.launch(Dispatchers.Main){
+        //remover projeto excluido da lista
+            if(selectedItem.size > 0) {
+                selectedItem.removeAt(position)
+                Toast.makeText(context, "item removido" , Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     Divider(
         thickness = 10.dp,
@@ -465,7 +475,8 @@ fun MyCheckListProjects(
             // Create references for the composables to constraint
             val(
                 txtName,
-                check
+                check,
+                navBarRemove
             ) = createRefs()
 
 
@@ -506,6 +517,19 @@ fun MyCheckListProjects(
                     }
             )
 
+            IconButton(
+                onClick = {
+                    removeSelected()
+                },
+                modifier = Modifier.constrainAs(navBarRemove) {
+                    top.linkTo(parent.top, margin = 15.dp)
+                    start.linkTo(txtName.end, margin = 15.dp)
+                    end.linkTo(parent.end, margin = 15.dp)
+                }
+            ) {
+                Image(imageVector = ImageVector.vectorResource(id = R.drawable.icon_delete_24), contentDescription ="excluir")
+            }
+
         }
     }
     Divider(
@@ -520,15 +544,27 @@ fun MyCheckListProjects(
 fun MyCheckListMembers(
     position: Int,
     listItem: MutableList<Student>,
+    context: Context,
     selectedItem: MutableList<Student>
 ){
-    val context: Context = LocalContext.current
 
     //ligar a view com a model
     val memberTeam = listItem[position].name
 
     var selected by remember {
         mutableStateOf(false)
+    }
+
+    val scope = rememberCoroutineScope()
+
+    fun removeSelected(){
+        scope.launch(Dispatchers.Main){
+            //remover projeto excluido da lista
+            if(selectedItem.size > 0) {
+                selectedItem.removeAt(position)
+                Toast.makeText(context, "item removido" , Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     Divider(
@@ -546,7 +582,8 @@ fun MyCheckListMembers(
             // Create references for the composables to constrain
             val(
                 txtTitle,
-                check
+                check,
+                navBarRemove
             ) = createRefs()
 
             Text(
@@ -582,6 +619,19 @@ fun MyCheckListMembers(
                         start.linkTo(parent.start, margin = 10.dp)
                     }
             )
+
+            IconButton(
+                onClick = {
+                    removeSelected()
+                },
+                modifier = Modifier.constrainAs(navBarRemove) {
+                    top.linkTo(parent.top, margin = 15.dp)
+                    start.linkTo(txtTitle.end, margin = 15.dp)
+                    end.linkTo(parent.end, margin = 15.dp)
+                }
+            ) {
+                Image(imageVector = ImageVector.vectorResource(id = R.drawable.icon_delete_24), contentDescription ="excluir")
+            }
 
         }
     }

@@ -310,13 +310,13 @@ fun MyListProjects(
 
                 scope.launch(Dispatchers.Main){
                     if(isDeleted == true){
-                        //remover estudante excluido da lista
+                        //remover projeto excluido da lista
                         listItem.removeAt(position)
                         //navegar para a pagina feed para atualizar a listagem
                         navController.navigate("manageProjects")
                         Toast.makeText(context, "projeto excluído com sucesso! ${del.projects.toString()} != ${myProjectDel.toString()}", Toast.LENGTH_SHORT).show()
                     } else {
-                        //navegar para a pagina feed para atualizar a listagem
+                        //navegar para a pagina para atualizar a listagem
                         navController.navigate("manageProjects")
                         Toast.makeText(context, "projeto está cadastrado em alguma equipe e não pode ser excluído", Toast.LENGTH_SHORT).show()
                     }
