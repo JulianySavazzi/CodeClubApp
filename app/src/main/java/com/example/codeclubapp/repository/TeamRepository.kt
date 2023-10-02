@@ -14,10 +14,11 @@ class TeamRepository() {
         id: Int ,
         name: String,
         members: MutableList<Student>,
-        projects: MutableList<Project>
+        projects: MutableList<Project>,
+        vote: Int
     ){
         //vamos receber os atributos da view a enviar ao banco de dados
-        dataSource.saveTeam(id, name, members, projects)
+        dataSource.saveTeam(id, name, members, projects, vote)
     }
 
     fun getTeam(): Flow<MutableList<Team>> {
@@ -35,8 +36,9 @@ class TeamRepository() {
     fun updateTeamByName(
         name: String,
         members: MutableList<Student>,
-        projects: MutableList<Project>
+        projects: MutableList<Project>,
+        vote: Int
     ){
-        dataSource.updateTeamByName(name, members, projects)
+        dataSource.updateVoteTeamByName(name, members, projects, vote)
     }
 }

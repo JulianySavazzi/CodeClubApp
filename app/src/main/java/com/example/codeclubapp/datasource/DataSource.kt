@@ -5,6 +5,7 @@ import android.service.controls.ControlsProviderService.TAG
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.example.codeclubapp.model.Feed
+import com.example.codeclubapp.model.Poll
 import com.example.codeclubapp.model.Project
 import com.example.codeclubapp.model.Student
 import com.example.codeclubapp.model.Teacher
@@ -56,6 +57,12 @@ class DataSource {
     private val _allFeeds = MutableStateFlow<MutableList<Feed>>(mutableListOf())
     //allFeeds -> observa todos os dados que foram atribuidos para ela
     private val allFeeds: StateFlow<MutableList<Feed>> = _allFeeds
+
+    //flow -> recuperar todo fluxo de tarefas FEED
+    //_allFeeds -> estado de fluxo assincrono
+    private val _allPolls = MutableStateFlow<MutableList<Poll>>(mutableListOf())
+    //allFeeds -> observa todos os dados que foram atribuidos para ela
+    private val allPolls: StateFlow<MutableList<Poll>> = _allPolls
 
     //utilizar firebase auth
     val auth = FirebaseAuth.getInstance()
@@ -512,7 +519,8 @@ class DataSource {
         id: Int,
         name: String,
         members: MutableList<Student>,
-        projects: MutableList<Project>
+        projects: MutableList<Project>,
+        vote: Int
 
     ){
         //mapeamento para salvar todos os campos
@@ -520,7 +528,8 @@ class DataSource {
             "id" to id,
             "name" to name,
             "members" to members,
-            "projects" to projects
+            "projects" to projects,
+            "vote" to vote
 
             )
 
@@ -591,32 +600,65 @@ class DataSource {
             }
     }
 
-    fun updateTeamByName(
+    fun updateVoteTeamByName(
         name: String,
         members: MutableList<Student>,
-        projects: MutableList<Project>
+        projects: MutableList<Project>,
+        vote: Int
     ){
         //mapeamento para salvar todos os campos
         val teamUpMap = hashMapOf(
             "name" to name,
             "members" to members,
-            "projects" to projects
+            "projects" to projects,
+            "vote" to vote
         )
 
-        if(members != null){
+        if(members == members && projects == projects && name == name){
             db.collection("team").document(name).update( "members", members)
-        }
-        if(projects != null){
             db.collection("team").document(name).update( "projects", projects)
-        }
-        if(name != null && members != null && projects != null){
             db.collection("team").document(name).update(teamUpMap)
         }
+
     }
 
 
     //*************************************************** POLL ***************************************************
     //save poll
+
+    //save poll -> id: Int, codeVal: MutableList<Long>, qtdTotalVotes: Int, teamsForVotes: MutableList<Team>, endPoll: Boolean = false,
+    fun savePoll(
+        id: Int,
+        codeVal: MutableList<Long>,
+        qtdTotalVotes: Int,
+        teamsForVotes: MutableList<Team>,
+        endPoll: Boolean
+
+    ){
+        //mapeamento para salvar todos os campos
+        val teamMap = hashMapOf(
+            "id" to id,
+            "codeVal" to codeVal,
+            "qtdTotalVotes" to qtdTotalVotes,
+            "teamsForVotes" to teamsForVotes,
+            "endPoll" to endPoll
+
+        )
+
+        //salvar colecao de team em um documento -> como se fosse a tabela team
+        db.collection("team").document(teamsForVotes.toString()).set(teamMap).addOnCompleteListener {
+            //salvo com sucesso
+            print("success save poll")
+        }.addOnFailureListener {
+            //erro ao salvar
+            print("fail save poll")
+        }
+    }
+
+    fun getPoll(): Flow<MutableList<Poll>>{
+
+        return allPolls
+    }
 
 }
 

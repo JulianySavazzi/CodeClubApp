@@ -1,16 +1,26 @@
 package com.example.codeclubapp.model
 
 private var identifier = 1
-//salvar resultado da votacao do bd -> qtd votos, ganhadores
+
+private var qtdTotal: Int = 0
+//salvar resultado da votacao do bd -> qtd votos, ganhadores, gerar codigos de autenticacao para votar
+//resultPoll -> mostrar lista com a quantidade de votos de cada equipe e de cada projeto
+//winnerTeam -> nome da equipe com mais votos
+//winnerProject -> nome do projeto com mais votos
+//codeVal -> codigo de validacao para usuario poder votar (lista de codigos validos para votar em determinada votacao ->
+// a prof vai cadastrar os codigos que podem ser usados na votacao, naão pode ter coódigos repetidos)
 class Poll (
     var id: Int= identifier++,
-    var code_val: Float? = null,
-    var qtd_total_votes: Int? = null,
-    var teams_votes: MutableList<Team>? = null,
-    var projects_votes: MutableList<Project>? = null,
-    var qtd_votes_team: Int? = null,
-    var qtd_votes_project: Int? = null,
-    var result_team: String? = null,
-    var result_project: String? = null,
-    var result: String
+    var codeVal: MutableList<Long>? = null,
+    var qtdTotalVotes: Int? = qtdTotal,
+    var teamsForVotes: MutableList<Team>? = null,
+    var endPoll: Boolean = false,
+    //var projectsForVotes: MutableList<Project>? = null,
+    //var qtdVotesTeam: Int? = null,
+    //var qtdVotesProject: Int? = null,
+    //var winnerTeam: String? = null,
+    //var winnerProject: String? = null,
+    //var resultPoll: MutableList<String>? = null
 )
+
+

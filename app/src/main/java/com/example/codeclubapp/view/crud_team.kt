@@ -329,7 +329,7 @@ fun ManageTeams(navController: NavController){
                             save = false
                         } else if(nameState.isNotEmpty() && myProjects.isNotEmpty() && myMembers.isNotEmpty()){
                             if(teamRepository.getTeamByName(nameState).id != model.id){
-                                teamRepository.saveTeam(model.id, nameState, myMembers, myProjects)
+                                teamRepository.saveTeam(model.id, nameState, myMembers, myProjects, model.vote)
                                 println("team is not null, id: $idTeam != ${model.id}, $myMembers , $myProjects")
                                 save = true
                                 isNull = false

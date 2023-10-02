@@ -21,9 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.codeclubapp.components.MyAppBarTop
-import com.example.codeclubapp.components.MyButton
 import com.example.codeclubapp.components.MyLoginButton
-import com.example.codeclubapp.ui.theme.BLACK
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
