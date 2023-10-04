@@ -24,6 +24,8 @@ import androidx.navigation.NavController
 import com.example.codeclubapp.components.MyAppBarBottom
 import com.example.codeclubapp.components.MyAppBarTop
 import com.example.codeclubapp.components.MyLoginButton
+import com.example.codeclubapp.model.Student
+import com.example.codeclubapp.repository.StudentRepository
 import com.example.codeclubapp.ui.theme.GreenLightCode
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -44,6 +46,10 @@ fun Student(navController: NavController){
 
     //utilizar firebase auth
     val auth = FirebaseAuth.getInstance()
+
+    val repository = StudentRepository()
+
+    val nameStudent: Student = repository.getSudentByEmail(Firebase.auth.currentUser?.email.toString())
 
     Column(
         modifier = Modifier
@@ -108,7 +114,7 @@ fun Student(navController: NavController){
                 verticalAlignment = Alignment.Bottom
             ){
                 Text(
-                    text = "meu perfil: ${auth.currentUser}",
+                    text = "meu perfil:\n email: ${Firebase.auth.currentUser?.email}\n nome: ${nameStudent.name}",
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 18.sp

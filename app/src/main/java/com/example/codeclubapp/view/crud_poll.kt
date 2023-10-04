@@ -18,8 +18,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -47,6 +49,12 @@ fun ManagePolls(navController: NavController){
     }
 
     val repository = PollRepository()
+
+    val model = Poll()
+
+    var endPoll by remember {
+        mutableStateOf(false)
+    }
 
     Column(
         modifier = Modifier
@@ -82,12 +90,13 @@ fun ManagePolls(navController: NavController){
             MyLoginButton(
                 text = "iniciar votação",
                 modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp)
-                .background(MaterialTheme.colorScheme.secondary),
+                    .fillMaxWidth()
+                    .padding(10.dp)
+                    .background(MaterialTheme.colorScheme.secondary),
                 onClick = {
                     //cria documento da votação -> dados que aparecerao na poll_screen
                     //inicia com a lista de codigos de validacao vazia, mostra todas as equipes cadastradas como opcoes de votacao
+                    repository.savePoll(model.id, model.codeVal, model.qtdTotalVotes, model.teamsForVotes, endPoll)
                 }
             )
 

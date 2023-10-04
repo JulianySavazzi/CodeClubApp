@@ -58,10 +58,10 @@ class DataSource {
     //allFeeds -> observa todos os dados que foram atribuidos para ela
     private val allFeeds: StateFlow<MutableList<Feed>> = _allFeeds
 
-    //flow -> recuperar todo fluxo de tarefas FEED
-    //_allFeeds -> estado de fluxo assincrono
+    //flow -> recuperar todo fluxo de tarefas POLL
+    //_allPolls -> estado de fluxo assincrono
     private val _allPolls = MutableStateFlow<MutableList<Poll>>(mutableListOf())
-    //allFeeds -> observa todos os dados que foram atribuidos para ela
+    //allPolls -> observa todos os dados que foram atribuidos para ela
     private val allPolls: StateFlow<MutableList<Poll>> = _allPolls
 
     //utilizar firebase auth
@@ -198,7 +198,7 @@ class DataSource {
                 if(querySnapshot.isSuccessful){
                     for(document in querySnapshot.result){
                         student = document.toObject(Student::class.java)
-                        Log.d(TAG, "student by email: $querySnapshot, $student")
+                        Log.d(TAG, "student by email: $querySnapshot, ${student.name}")
                         return@addOnCompleteListener
                     }
                 }
@@ -279,7 +279,7 @@ class DataSource {
         val listTeacher: MutableList<Teacher> = mutableListOf()
         //listar todos os professores cadastrados
         db.collection("teacher").whereIn("isTeacher", listOf(true)).get().addOnCompleteListener{
-            querySnapshot ->
+                querySnapshot ->
             if(querySnapshot.isSuccessful){
                 for(document in querySnapshot.result){
                     //se a colecao existe e tem documentos
@@ -305,7 +305,7 @@ class DataSource {
             .whereIn("email", listOf(email))
             .whereIn("pass", listOf(pass))
             .get().addOnCompleteListener{
-                querySnapshot ->
+                    querySnapshot ->
                 if(querySnapshot.isSuccessful){
                     for(document in querySnapshot.result){
                         auth.signInWithEmailAndPassword(email, pass)
@@ -498,7 +498,7 @@ class DataSource {
                 } else {
                     team = Team()
                 }
-        }
+            }
         return team
     }
 
@@ -531,7 +531,7 @@ class DataSource {
             "projects" to projects,
             "vote" to vote
 
-            )
+        )
 
         //salvar colecao de team em um documento -> como se fosse a tabela team
         db.collection("team").document(name).set(teamMap).addOnCompleteListener {
@@ -646,7 +646,7 @@ class DataSource {
         )
 
         //salvar colecao de team em um documento -> como se fosse a tabela team
-        db.collection("team").document(teamsForVotes.toString()).set(teamMap).addOnCompleteListener {
+        db.collection("poll").document(teamsForVotes.toString()).set(teamMap).addOnCompleteListener {
             //salvo com sucesso
             print("success save poll")
         }.addOnFailureListener {
@@ -656,7 +656,20 @@ class DataSource {
     }
 
     fun getPoll(): Flow<MutableList<Poll>>{
-
+        val listPoll: MutableList<Poll> = mutableListOf()
+        //listar todas as votacoes cadastradas
+        db.collection("poll").get().addOnCompleteListener{
+                querySnapshot ->
+            if(querySnapshot.isSuccessful){
+                for(document in querySnapshot.result){
+                    //se a colecao existe e tem documentos
+                    //vamos recuperar cada documento e adicionar no nosso objeto da model
+                    val poll = document.toObject(Poll::class.java)
+                    listPoll.add(poll)
+                    _allPolls.value = listPoll
+                }
+            }
+        }
         return allPolls
     }
 
