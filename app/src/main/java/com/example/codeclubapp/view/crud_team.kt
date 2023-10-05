@@ -418,6 +418,7 @@ fun ManageTeams(navController: NavController){
 
 
 //get checkbox project selected
+/*
 fun mySelectedProjects(mutableListProjects: MutableList<Project>): StateFlow<MutableList<Project>>{
     //flow -> recuperar todo fluxo de PROJECT
     //_allProjects -> estado de fluxo assincrono
@@ -427,6 +428,7 @@ fun mySelectedProjects(mutableListProjects: MutableList<Project>): StateFlow<Mut
     _listProjects.value = mutableListProjects
     return  listProjects
 }
+ */
 
 
 

@@ -666,7 +666,7 @@ class DataSource {
         )
 
         //salvar colecao de team em um documento -> como se fosse a tabela team
-        db.collection("poll").document(teamsForVotes.toString()).set(teamMap).addOnCompleteListener {
+        db.collection("poll").document(id.toString()).set(teamMap).addOnCompleteListener {
             //salvo com sucesso
             print("success save poll")
         }.addOnFailureListener {

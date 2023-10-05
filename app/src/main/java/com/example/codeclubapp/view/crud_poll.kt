@@ -83,7 +83,7 @@ fun ManagePolls(navController: NavController){
 
     val repository = PollRepository()
 
-    val teamRepository = TeamRepository()
+    //val teamRepository = TeamRepository()
 
     val feedRepository = FeedRepository()
 
@@ -103,10 +103,12 @@ fun ManagePolls(navController: NavController){
 
     var teamsForVotes: MutableList<Team> = mutableListOf()
 
+    /*
     for (element in teamRepository.returnTeam()){
         teamsForVotes.add(element)
         print("lista de equipes: $element")
     }
+     */
 
     val dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMM dd yyyy, hh:mm:ss a"))
 
@@ -162,7 +164,7 @@ fun ManagePolls(navController: NavController){
                         //se tiver, nao vai deixar criar uma nova antes da atual ser encerrada
                         if(verifyStatusPoll || existPoll.id != model.id){
                             //cria documento da votação -> dados que aparecerao na poll_screen
-                            //inicia com a lista de codigos de validacao vazia, mostra todas as equipes cadastradas como opcoes de votacao
+                            //inicia com a lista de codigos de validacao vazia,e lista de equipes vazia -> adicionar as equipes na lista de acordo com as votacoes
                             print("*** TENTANDO PREENCHER A LISTA DE EQUIPES ***")
                             repository.savePoll(model.id, /*model.codeVal*/ codeVal, model.qtdTotalVotes, /*model.teamsForVotes*/ teamsForVotes, endPoll)
                             feedRepository.saveFeed(
@@ -330,7 +332,8 @@ fun MyListPolls(
                 txtCodVal,
                 txtQtdVotes,
                 txtTeams,
-                txtStatus
+                txtStatus,
+                navBarItemDelete
             ) = createRefs()
 
             Text(
@@ -372,6 +375,19 @@ fun MyListPolls(
                     start.linkTo(parent.start, margin = 15.dp)
                 }
             )
+
+            IconButton(
+                onClick = {
+                    //deleteDialog()
+                },
+                modifier = Modifier.constrainAs(navBarItemDelete) {
+                    top.linkTo(txtStatus.bottom, margin = 15.dp)
+                    start.linkTo(txtStatus.end, margin = 15.dp)
+                    end.linkTo(parent.end, margin = 15.dp)
+                }
+            ) {
+                Image(imageVector = ImageVector.vectorResource(id = R.drawable.icon_delete_24), contentDescription ="excluir")
+            }
 
         }
     }
