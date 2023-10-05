@@ -343,9 +343,9 @@ fun ManageTeams(navController: NavController){
 
                     //mostrar mensagem usando o escopo do app -> context Main
                     scope.launch(Dispatchers.Main){
-                        if(save && !isNull){
+                        if(save == true && isNull == false){
                             println("\nequipe salva com sucesso \n")
-                            feedRepository.saveFeed(feedModel.id, "nova equipe cadastrada: $nameState ", "nova equipe cadastrada: $nameState, projetos: ${myProjects[0].name} ..., membros: ${myMembers[0].name} ...")
+                            feedRepository.saveFeed(feedModel.id, "nova equipe cadastrada: $nameState ", "nova equipe cadastrada: $nameState \n, projetos: ${myProjects[0].name} ...\n, membros: ${myMembers[0].name}...")
                             navController.navigate("teacher")
                             Toast.makeText(context, "salvo com sucesso ", Toast.LENGTH_SHORT).show()
                         } else {
@@ -444,6 +444,8 @@ fun MyCheckListProjects(
 
     val scope = rememberCoroutineScope()
 
+    //val navController: NavController
+
     var selected by remember {
         mutableStateOf(false)
     }
@@ -456,6 +458,9 @@ fun MyCheckListProjects(
             if(selectedItem.size > 0) {
                 selectedItem.removeAt(position)
                 Toast.makeText(context, "item removido" , Toast.LENGTH_SHORT).show()
+            } else {
+                //navController.navigate("manageTeams")
+                Toast.makeText(context, "não foi possiível remover o item" , Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -563,6 +568,9 @@ fun MyCheckListMembers(
             if(selectedItem.size > 0) {
                 selectedItem.removeAt(position)
                 Toast.makeText(context, "item removido" , Toast.LENGTH_SHORT).show()
+            } else {
+                //navController.navigate("manageTeams")
+                Toast.makeText(context, "não foi possiível remover o item" , Toast.LENGTH_SHORT).show()
             }
         }
     }

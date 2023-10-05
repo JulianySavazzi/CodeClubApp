@@ -75,6 +75,8 @@ class DataSource {
 
     var team = Team()
 
+    var currentPoll = Poll()
+
     //var isTrue = false
     //criar estado para a variável:
     //private var isTrue by remember {mutableStateOf(false)}
@@ -563,6 +565,24 @@ class DataSource {
         return allTeams
     }
 
+    fun returnTeam(): MutableList<Team>{
+        val listTeam: MutableList<Team> = mutableListOf()
+        //listar todos os projetos cadastrados
+        db.collection("team").get().addOnCompleteListener{
+                querySnapshot ->
+            if(querySnapshot.isSuccessful){
+                for(document in querySnapshot.result){
+                    //se a colecao existe e tem documentos
+                    //vamos recuperar cada documento e adicionar no nosso objeto da model
+                    val team = document.toObject(Team::class.java)
+                    listTeam.add(team)
+                    _allTeams.value = listTeam
+                }
+            }
+        }
+        return allTeams.value
+    }
+
     fun getTeamByName(name: String): Team{
         db.collection("team")
             .whereIn("name", listOf(name))
@@ -631,7 +651,7 @@ class DataSource {
         id: Int,
         codeVal: MutableList<Long>,
         qtdTotalVotes: Int,
-        teamsForVotes: MutableList<Team>,
+        teamsForVotes: List<Team>,
         endPoll: Boolean
 
     ){
@@ -671,6 +691,22 @@ class DataSource {
             }
         }
         return allPolls
+    }
+
+    fun verifyStatusPoll(): Poll{
+        db.collection("poll")
+            .whereIn("endPoll", listOf(false))
+            .get().addOnCompleteListener{
+                    querySnapshot ->
+                if(querySnapshot.isSuccessful){
+                    for(document in querySnapshot.result){
+                        currentPoll = document.toObject(Poll::class.java)
+                        return@addOnCompleteListener
+                        Log.d(TAG, "endPoll: ${currentPoll.endPoll}, await current poll end for start other poll!")
+                    }
+                }
+            }
+        return currentPoll
     }
 
 }

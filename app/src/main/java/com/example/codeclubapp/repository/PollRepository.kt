@@ -12,7 +12,7 @@ class PollRepository {
         id: Int,
         codeVal: MutableList<Long>,
         qtdTotalVotes: Int,
-        teamsForVotes: MutableList<Team>,
+        teamsForVotes: List<Team>,
         endPoll: Boolean
 
     ){
@@ -21,5 +21,9 @@ class PollRepository {
 
     fun getPoll(): Flow<MutableList<Poll>> {
         return dataSource.getPoll()
+    }
+
+    fun verifyStatusPoll(): Poll{
+        return dataSource.verifyStatusPoll()
     }
 }
