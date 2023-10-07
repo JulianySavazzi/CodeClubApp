@@ -651,7 +651,7 @@ class DataSource {
         id: Int,
         codeVal: MutableList<Long>,
         qtdTotalVotes: Int,
-        teamsForVotes: List<Team>,
+        teamsVoted: List<Team>,
         endPoll: Boolean
 
     ){
@@ -660,7 +660,7 @@ class DataSource {
             "id" to id,
             "codeVal" to codeVal,
             "qtdTotalVotes" to qtdTotalVotes,
-            "teamsForVotes" to teamsForVotes,
+            "teamsVoted" to teamsVoted,
             "endPoll" to endPoll
 
         )
@@ -673,6 +673,15 @@ class DataSource {
             //erro ao salvar
             print("fail save poll")
         }
+    }
+
+    fun deletePoll(id: Int){
+        db.collection("poll")
+            .document(id.toString()).delete().addOnCompleteListener {
+                Log.d(TAG, "poll is deleted!")
+            }.addOnFailureListener {
+                Log.d(TAG, "poll not deleted!")
+            }
     }
 
     fun getPoll(): Flow<MutableList<Poll>>{
@@ -709,7 +718,14 @@ class DataSource {
         return currentPoll
     }
 
-}
+    fun updatePoll(
+
+    ){
+        //mapeamento para salvar todos os campos
+        
+
+    }
+} //DataSource
 
 
 

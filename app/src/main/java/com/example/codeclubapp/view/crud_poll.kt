@@ -1,5 +1,6 @@
 package com.example.codeclubapp.view
 
+import android.app.AlertDialog
 import android.content.Context
 import android.os.Build
 import android.widget.Toast
@@ -81,9 +82,9 @@ fun ManagePolls(navController: NavController){
         mutableStateOf(false)
     }
 
-    val repository = PollRepository()
-
     //val teamRepository = TeamRepository()
+
+    val repository = PollRepository()
 
     val feedRepository = FeedRepository()
 
@@ -101,7 +102,7 @@ fun ManagePolls(navController: NavController){
 
     var codeVal: MutableList<Long> = mutableListOf()
 
-    var teamsForVotes: MutableList<Team> = mutableListOf()
+    var teamsVoted: MutableList<Team> = mutableListOf()
 
     /*
     for (element in teamRepository.returnTeam()){
@@ -166,7 +167,7 @@ fun ManagePolls(navController: NavController){
                             //cria documento da votação -> dados que aparecerao na poll_screen
                             //inicia com a lista de codigos de validacao vazia,e lista de equipes vazia -> adicionar as equipes na lista de acordo com as votacoes
                             print("*** TENTANDO PREENCHER A LISTA DE EQUIPES ***")
-                            repository.savePoll(model.id, /*model.codeVal*/ codeVal, model.qtdTotalVotes, /*model.teamsForVotes*/ teamsForVotes, endPoll)
+                            repository.savePoll(model.id, /*model.codeVal*/ codeVal, model.qtdTotalVotes, /*model.teamsForVotes*/ teamsVoted, endPoll)
                             feedRepository.saveFeed(
                                 feedModel.id, "votação iniciada em $dateTime", "a votação está acontecendo, quando terminar, vamos publicar o resultado!"
                             )
@@ -265,7 +266,7 @@ fun ManagePolls(navController: NavController){
                     .padding(10.dp)
                 //.background(MaterialTheme.colorScheme.tertiary)
             ){
-                val pollList: MutableList<Poll> = repository.getPoll().collectAsState(
+                val   pollList: MutableList<Poll> = repository.getPoll().collectAsState(
                     //se o estado da lista for vazio vai retornar uma mutableListOf
                     //se a lista tiver preenchida vai retornar os valores dos documentos
                     mutableListOf()
@@ -283,7 +284,7 @@ fun ManagePolls(navController: NavController){
                 ) {
                     itemsIndexed(pollList){
                             position, _ ->
-                        //MyListPolls(position = position, listItem = pollList)
+                        MyListPolls(position = position, listItem = pollList, context = context, navController = navController)
                     }
                 }
 
@@ -298,9 +299,9 @@ fun ManagePolls(navController: NavController){
 @Composable
 fun MyListPolls(
     position: Int,
-    listItem: MutableList<Poll>
-    //context: Context,
-    //navController: NavController
+    listItem: MutableList<Poll>,
+    context: Context,
+    navController: NavController
 ){
     //ligar a view com a model
     //var id: Int = identifier++,
@@ -309,10 +310,39 @@ fun MyListPolls(
     //var teamsForVotes: MutableList<Team> = listTeams,
     //var endPoll: Boolean? = null,
     val idPoll = listItem[position].id
-    val codValPoll = listItem[position].codeVal
+    //val codValPoll = listItem[position].codeVal
     val qtdVotesPoll = listItem[position].qtdTotalVotes
-    val teamsPoll = listItem[position].teamsForVotes
+    //val teamsPoll = listItem[position].teamsVoted
     val statusPoll = listItem[position].endPoll
+
+    val repository = PollRepository()
+
+    //coroutines trabalham com threads
+    val scope = rememberCoroutineScope()
+
+    fun deleteDialog(){
+        //deletar estudante
+        val alertDialog = AlertDialog.Builder(context)
+        alertDialog.setTitle("EXCLUIR VOTAÇÃO")
+            .setMessage("tem certeza que quer excluir essa VOTAÇÃO ?")
+            .setPositiveButton("Sim"){
+                    _, _, ->
+                //funcao delete
+                repository.deletePoll(idPoll)
+
+                scope.launch(Dispatchers.Main){
+                    //remover equipe excluido da lista
+                    listItem.removeAt(position)
+                    //navegar para a pagina para atualizar a listagem
+                    navController.navigate("managePolls")
+                    Toast.makeText(context, "votação excluída com sucesso!", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Não"){
+                    _, _, ->
+            }
+            .show()
+    }
 
     Divider(
         thickness = 15.dp,
@@ -329,9 +359,9 @@ fun MyListPolls(
             // Create references for the composables to constrain
             val(
                 txtId,
-                txtCodVal,
+                //txtCodVal,
                 txtQtdVotes,
-                txtTeams,
+                //txtTeams,
                 txtStatus,
                 navBarItemDelete
             ) = createRefs()
@@ -344,6 +374,7 @@ fun MyListPolls(
                 }
             )
 
+            /*
             Text(
                 text = "códigos de validação: ${codValPoll!![0]} ...",
                 modifier = Modifier.constrainAs(txtCodVal) {
@@ -352,14 +383,17 @@ fun MyListPolls(
                 }
             )
 
+             */
+
             Text(
                 text = "quantidade de votos: $qtdVotesPoll ...",
                 modifier = Modifier.constrainAs(txtQtdVotes) {
-                    top.linkTo(txtCodVal.bottom, margin = 15.dp)
+                    top.linkTo(txtId.bottom, margin = 15.dp)
                     start.linkTo(parent.start, margin = 15.dp)
                 }
             )
 
+            /*
             Text(
                 text = "equipes elegíveis: ${teamsPoll!![0]} ...",
                 modifier = Modifier.constrainAs(txtTeams) {
@@ -367,18 +401,19 @@ fun MyListPolls(
                     start.linkTo(parent.start, margin = 15.dp)
                 }
             )
+             */
 
             Text(
-                text = "status da votação: $statusPoll ...",
+                text = "status da votação: encerrada -> $statusPoll ...",
                 modifier = Modifier.constrainAs(txtStatus) {
-                    top.linkTo(txtTeams.bottom, margin = 15.dp)
+                    top.linkTo(txtQtdVotes.bottom, margin = 15.dp)
                     start.linkTo(parent.start, margin = 15.dp)
                 }
             )
 
             IconButton(
                 onClick = {
-                    //deleteDialog()
+                    deleteDialog()
                 },
                 modifier = Modifier.constrainAs(navBarItemDelete) {
                     top.linkTo(txtStatus.bottom, margin = 15.dp)

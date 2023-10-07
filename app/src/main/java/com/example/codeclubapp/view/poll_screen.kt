@@ -1,5 +1,6 @@
 package com.example.codeclubapp.view
 
+import android.app.AlertDialog
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -43,6 +44,8 @@ import com.example.codeclubapp.model.Team
 import com.example.codeclubapp.repository.TeamRepository
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun Poll(navController: NavController){
@@ -198,6 +201,12 @@ fun VotesTeam(
     //ligar a view com a model
     val titleTeam = listItem[position].name
     //val projectsTeam = listItem[position].projects
+
+    //coroutines trabalham com threads
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+
 
     //enviar equipe selecionada para a funcao de salvar voto
     Divider(

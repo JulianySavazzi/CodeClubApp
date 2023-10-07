@@ -12,11 +12,15 @@ class PollRepository {
         id: Int,
         codeVal: MutableList<Long>,
         qtdTotalVotes: Int,
-        teamsForVotes: List<Team>,
+        teamsVoted: List<Team>,
         endPoll: Boolean
 
     ){
-        dataSource.savePoll(id, codeVal, qtdTotalVotes, teamsForVotes, endPoll)
+        dataSource.savePoll(id, codeVal, qtdTotalVotes, teamsVoted, endPoll)
+    }
+
+    fun deletePoll(id: Int){
+        dataSource.deletePoll(id)
     }
 
     fun getPoll(): Flow<MutableList<Poll>> {

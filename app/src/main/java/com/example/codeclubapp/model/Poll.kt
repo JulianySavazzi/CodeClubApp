@@ -18,6 +18,6 @@ class Poll(
     var id: Int = identifier++,
     var codeVal: MutableList<Long> ? = null,
     var qtdTotalVotes: Int = qtdTotal,
-    var teamsForVotes: MutableList<Team> ? = null,
+    var teamsVoted: MutableList<Team> ? = null,
     var endPoll: Boolean = false
 )
