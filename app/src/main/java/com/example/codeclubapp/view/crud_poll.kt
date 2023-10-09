@@ -50,6 +50,7 @@ import com.example.codeclubapp.model.Team
 import com.example.codeclubapp.repository.FeedRepository
 import com.example.codeclubapp.repository.PollRepository
 import com.example.codeclubapp.repository.TeamRepository
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -92,9 +93,11 @@ fun ManagePolls(navController: NavController){
 
     val feedModel = Feed()
 
+    /*
     var endPoll: Boolean by remember {
         mutableStateOf(false)
     }
+    */
 
     //coroutines trabalham com threads
     val scope = rememberCoroutineScope()
@@ -113,11 +116,20 @@ fun ManagePolls(navController: NavController){
 
     val dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMM dd yyyy, hh:mm:ss a"))
 
-    var verifyStatusPoll = repository.verifyStatusPoll().endPoll
+    //val verifyStatusPoll = repository.verifyStatusPoll().endPoll
 
-    var existPoll = repository.verifyStatusPoll()
+    //val verifyPoll = repository.verifyStatusPoll(model.id, codeVal, model.qtdTotalVotes, teamsVoted, endPoll)
+
+    //val existPoll = repository.verifyStatusPoll()
+
+    //val getPoll = repository.returnPoll()
 
     var newPoll = false
+
+    var error = false
+
+    val refPoll = FirebaseFirestore.getInstance().collection("poll")
+    val query = refPoll.whereEqualTo("endPoll", false)
 
     Column(
         modifier = Modifier
@@ -158,15 +170,16 @@ fun ManagePolls(navController: NavController){
                     .background(MaterialTheme.colorScheme.secondary),
                 onClick = {
 
-
+                    //println(" verifyStatusPoll = $verifyStatusPoll; existPoll.id = ${existPoll.id}; model.id = ${model.id}; empty? ${getPoll.isEmpty()}")
                     //verificações usando coroutines scope -> iniciar votacao
                     scope.launch(Dispatchers.IO){
                         //verificar se não tem nenhuma outra votação acontecendo
                         //se tiver, nao vai deixar criar uma nova antes da atual ser encerrada
-                        if(verifyStatusPoll || existPoll.id != model.id){
+                        /*
+                        if(verifyStatusPoll != false && existPoll.id != model.id || getPoll.isEmpty() && verifyStatusPoll == true && existPoll.id != model.id){
                             //cria documento da votação -> dados que aparecerao na poll_screen
                             //inicia com a lista de codigos de validacao vazia,e lista de equipes vazia -> adicionar as equipes na lista de acordo com as votacoes
-                            print("*** TENTANDO PREENCHER A LISTA DE EQUIPES ***")
+                            //print("*** TENTANDO PREENCHER A LISTA DE EQUIPES ***")
                             repository.savePoll(model.id, /*model.codeVal*/ codeVal, model.qtdTotalVotes, /*model.teamsForVotes*/ teamsVoted, endPoll)
                             feedRepository.saveFeed(
                                 feedModel.id, "votação iniciada em $dateTime", "a votação está acontecendo, quando terminar, vamos publicar o resultado!"
@@ -174,20 +187,38 @@ fun ManagePolls(navController: NavController){
                             print("*** VOTAÇÃO INICIADA ***")
                             newPoll = true
                         } else newPoll = false
+                         */
+                        query!!.addSnapshotListener{ snapshot, e ->
+                            if(e != null) error = true
+                            else{
+                                error = false
+                                if(snapshot != null && snapshot.documents.isNotEmpty()){
+                                    newPoll = false
+                                } else {
+                                    repository.savePoll(model.id, /*model.codeVal*/ codeVal, model.qtdTotalVotes, /*model.teamsForVotes*/ teamsVoted, false)
+                                    //repository.verifyStatusPoll(model.id, codeVal, model.qtdTotalVotes, teamsVoted, endPoll)
+                                    feedRepository.saveFeed(
+                                        feedModel.id, "votação iniciada em $dateTime", "a votação está acontecendo, quando terminar, vamos publicar o resultado!"
+                                    )
+                                    print("*** VOTAÇÃO INICIADA ***")
+                                    newPoll = true
+                                }
+                            }
+                        }
 
                     }
 
-
                     scope.launch(Dispatchers.Main){
-                            if(newPoll){
+                            if (error) Toast.makeText(context, "aconteceu um problema!", Toast.LENGTH_SHORT).show()
+                            if(newPoll == true){
                                 navController.navigate("teacher")
                                 Toast.makeText(context, "votação iniciada!", Toast.LENGTH_SHORT).show()
                             } else {
                                 Toast.makeText(context, "já temos uma votação acontecendo, espere ela terminar para iniciar outra.", Toast.LENGTH_SHORT).show()
+                                navController.navigate("managePolls")
                             }
                         }
                     }
-
             )
 
         }

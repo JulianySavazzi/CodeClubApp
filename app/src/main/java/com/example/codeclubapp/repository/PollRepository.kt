@@ -27,7 +27,17 @@ class PollRepository {
         return dataSource.getPoll()
     }
 
-    fun verifyStatusPoll(): Poll{
-        return dataSource.verifyStatusPoll()
+    fun returnPoll(): MutableList<Poll> {
+        return dataSource.returnPoll()
+    }
+
+    fun verifyStatusPoll(
+        id: Int,
+        codeVal: MutableList<Long>,
+        qtdTotalVotes: Int,
+        teamsVoted: List<Team>,
+        endPoll: Boolean
+    ){
+        return dataSource.verifyStatusPoll(id, codeVal, qtdTotalVotes, teamsVoted, endPoll)
     }
 }

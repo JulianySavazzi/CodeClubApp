@@ -65,17 +65,17 @@ class DataSource {
     private val allPolls: StateFlow<MutableList<Poll>> = _allPolls
 
     //utilizar firebase auth
-    val auth = FirebaseAuth.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
-    var student = Student()
+    private var student = Student()
 
-    var feed = Feed()
+    private var feed = Feed()
 
-    var project = Project()
+    private var project = Project()
 
-    var team = Team()
+    private var team = Team()
 
-    var currentPoll = Poll()
+    private var currentPoll: Poll = Poll()
 
     //var isTrue = false
     //criar estado para a variável:
@@ -501,7 +501,7 @@ class DataSource {
                     team = Team()
                 }
             }
-        return team
+        return this.team
     }
 
     fun deleteProject(title: String, description: String){
@@ -702,7 +702,31 @@ class DataSource {
         return allPolls
     }
 
-    fun verifyStatusPoll(): Poll{
+    fun returnPoll(): MutableList<Poll> {
+        val listPoll: MutableList<Poll> = mutableListOf()
+        //listar todas as votacoes cadastradas
+        db.collection("poll").get().addOnCompleteListener{
+                querySnapshot ->
+            if(querySnapshot.isSuccessful){
+                for(document in querySnapshot.result){
+                    //se a colecao existe e tem documentos
+                    //vamos recuperar cada documento e adicionar no nosso objeto da model
+                    val poll = document.toObject(Poll::class.java)
+                    listPoll.add(poll)
+                    _allPolls.value = listPoll
+                }
+            }
+        }
+        return allPolls.value
+    }
+
+    fun verifyStatusPoll(
+        id: Int,
+        codeVal: MutableList<Long>,
+        qtdTotalVotes: Int,
+        teamsVoted: List<Team>,
+        endPoll: Boolean
+    ){
         db.collection("poll")
             .whereIn("endPoll", listOf(false))
             .get().addOnCompleteListener{
@@ -710,12 +734,14 @@ class DataSource {
                 if(querySnapshot.isSuccessful){
                     for(document in querySnapshot.result){
                         currentPoll = document.toObject(Poll::class.java)
-                        return@addOnCompleteListener
                         Log.d(TAG, "endPoll: ${currentPoll.endPoll}, await current poll end for start other poll!")
+                        return@addOnCompleteListener
                     }
+                } else {
+                    Log.d(TAG, "endPoll: ${currentPoll.endPoll}, you can start poll")
+                    savePoll(id, codeVal, qtdTotalVotes, teamsVoted, endPoll)
                 }
             }
-        return currentPoll
     }
 
     fun updatePoll(

@@ -14,10 +14,10 @@ private var qtdTotal: Int = 0
 //codeVal -> codigo de validacao para usuario poder votar (lista de codigos validos para votar em determinada votacao ->
 // a prof vai cadastrar os codigos que podem ser usados na votacao, naão pode ter códigos repetidos)
 
-class Poll(
+data class Poll(
     var id: Int = identifier++,
     var codeVal: MutableList<Long> ? = null,
     var qtdTotalVotes: Int = qtdTotal,
     var teamsVoted: MutableList<Team> ? = null,
-    var endPoll: Boolean = false
+    var endPoll: Boolean ? = null
 )
