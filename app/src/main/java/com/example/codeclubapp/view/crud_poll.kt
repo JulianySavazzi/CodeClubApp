@@ -3,6 +3,8 @@ package com.example.codeclubapp.view
 import android.app.AlertDialog
 import android.content.Context
 import android.os.Build
+import android.service.controls.ControlsProviderService
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -125,6 +127,8 @@ fun ManagePolls(navController: NavController){
     //val getPoll = repository.returnPoll()
 
     var newPoll = false
+
+    var endPoll = false
 
     var error = false
 
@@ -260,6 +264,52 @@ fun ManagePolls(navController: NavController){
                     //atualiza atributo endPoll do documento da votação para true
                     //contabiliza o resultado da votação e salva uma publicação com o resultado
                     //colocar data e hora no titulo da publicacao
+                    scope.launch(Dispatchers.IO) {
+                        query!!.addSnapshotListener{ snapshot, e ->
+                            if(e != null) error = true
+                            else{
+                                error = false
+                                if(snapshot != null && snapshot.documents.isNotEmpty()){
+                                    //se existe uma votação em andamento
+                                    query.get().addOnCompleteListener { querySnapshot ->
+                                        if (querySnapshot.isSuccessful) {
+                                            for (document in querySnapshot.result) {
+                                                var thisPoll = document.toObject(Poll::class.java)
+                                                if(thisPoll.endPoll == false && thisPoll.endPoll != null && thisPoll.endPoll != true){
+                                                    Log.d(
+                                                        ControlsProviderService.TAG,
+                                                        "endPoll: ${thisPoll.endPoll}, this poll may be finished!"
+                                                    )
+                                                    repository.updatePoll(thisPoll.id, true)
+                                                    break
+                                                } else break
+                                                return@addOnCompleteListener
+                                            }
+                                        }
+                                    }
+                                    feedRepository.saveFeed(
+                                        feedModel.id, "votação finalizada em $dateTime", "a votação foi encerrada!"
+                                    )
+                                    endPoll = true
+                                    print("*** VOTAÇÃO FINALIZADA ***")
+                                } else {
+                                    endPoll = false
+                                }
+                            }
+                        }
+                    }
+
+                    scope.launch(Dispatchers.Main){
+                        if (error) Toast.makeText(context, "aconteceu um problema!", Toast.LENGTH_SHORT).show()
+                        if(endPoll == true){
+                            navController.navigate("teacher")
+                            Toast.makeText(context, "votação finalizada!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, "não foi possível encerrar a votação.", Toast.LENGTH_SHORT).show()
+                            navController.navigate("managePolls")
+                        }
+                    }
+
                 }
             )
 
@@ -454,6 +504,10 @@ fun MyListPolls(
             ) {
                 Image(imageVector = ImageVector.vectorResource(id = R.drawable.icon_delete_24), contentDescription ="excluir")
             }
+
+            //colocar o botão para encerrar a votação aqui
+
+            //colocar o botão para gerar codigos da votação aqui
 
         }
     }

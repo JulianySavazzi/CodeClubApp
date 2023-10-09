@@ -23,6 +23,13 @@ class PollRepository {
         dataSource.deletePoll(id)
     }
 
+    fun updatePoll(
+        id: Int,
+        endPoll: Boolean
+    ){
+        dataSource.updatePoll(id, endPoll)
+    }
+
     fun getPoll(): Flow<MutableList<Poll>> {
         return dataSource.getPoll()
     }

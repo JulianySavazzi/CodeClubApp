@@ -744,12 +744,16 @@ class DataSource {
             }
     }
 
+
     fun updatePoll(
-
+        id: Int,
+        endPoll: Boolean
     ){
-        //mapeamento para salvar todos os campos
-        
-
+        //update poll status
+        db.collection("poll").document(id.toString()).update("endPoll", endPoll).
+                addOnCompleteListener{
+                    Log.d(TAG, "endPoll: ${currentPoll.endPoll}, this poll is finished!")
+                }
     }
 } //DataSource
 
