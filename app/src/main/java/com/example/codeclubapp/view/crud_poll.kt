@@ -2,6 +2,7 @@ package com.example.codeclubapp.view
 
 import android.app.AlertDialog
 import android.content.Context
+import android.graphics.drawable.Icon
 import android.os.Build
 import android.service.controls.ControlsProviderService
 import android.util.Log
@@ -20,6 +21,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.filled.Block
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.IconButton
@@ -254,6 +258,7 @@ fun ManagePolls(navController: NavController){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom
         ){
+            /*
             MyLoginButton(
                 text = "encerrar votação",
                 modifier = Modifier
@@ -312,8 +317,9 @@ fun ManagePolls(navController: NavController){
 
                 }
             )
-
+             */
         }
+
         Divider(
             thickness = 1.dp,
             modifier = Modifier.fillMaxWidth(),
@@ -377,6 +383,7 @@ fun ManagePolls(navController: NavController){
 }
 
 //mostrar as votações cadastradas
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MyListPolls(
     position: Int,
@@ -400,6 +407,19 @@ fun MyListPolls(
 
     //coroutines trabalham com threads
     val scope = rememberCoroutineScope()
+
+    val feedRepository = FeedRepository()
+    val dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMM dd yyyy, hh:mm:ss a"))
+    val feedModel = Feed()
+
+    var newPoll = false
+
+    var endPoll = false
+
+    var error = false
+
+    val refPoll = FirebaseFirestore.getInstance().collection("poll")
+    val query = refPoll.whereEqualTo("endPoll", false)
 
     fun deleteDialog(){
         //deletar estudante
@@ -444,7 +464,9 @@ fun MyListPolls(
                 txtQtdVotes,
                 //txtTeams,
                 txtStatus,
-                navBarItemDelete
+                navBarItemDelete,
+                navBarStop,
+                navBarCod
             ) = createRefs()
 
             Text(
@@ -506,8 +528,81 @@ fun MyListPolls(
             }
 
             //colocar o botão para encerrar a votação aqui
+            IconButton(
+                onClick = {
+                    //atualiza atributo endPoll do documento da votação para true
+                    //contabiliza o resultado da votação e salva uma publicação com o resultado
+                    //colocar data e hora no titulo da publicacao
+                    scope.launch(Dispatchers.IO) {
+                        query!!.addSnapshotListener{ snapshot, e ->
+                            if(e != null) error = true
+                            else{
+                                error = false
+                                if(snapshot != null && snapshot.documents.isNotEmpty()){
+                                    //se existe uma votação em andamento
+                                    query.get().addOnCompleteListener { querySnapshot ->
+                                        if (querySnapshot.isSuccessful) {
+                                            for (document in querySnapshot.result) {
+                                                var thisPoll = document.toObject(Poll::class.java)
+                                                Log.d(
+                                                    ControlsProviderService.TAG,
+                                                    "endPoll: ${thisPoll.endPoll}|${idPoll}, this poll may be finished!"
+                                                )
+                                                repository.updatePoll(idPoll, true)
+                                                break
+                                                return@addOnCompleteListener
+                                            }
+                                        }
+                                    }
+                                    feedRepository.saveFeed(
+                                        feedModel.id, "votação finalizada em $dateTime", "a votação foi encerrada!"
+                                    )
+                                    endPoll = true
+                                    print("*** VOTAÇÃO FINALIZADA ***")
+                                } else {
+                                    endPoll = false
+                                }
+                            }
+                        }
+                    }
+
+                    scope.launch(Dispatchers.Main){
+                        if (error) Toast.makeText(context, "aconteceu um problema!", Toast.LENGTH_SHORT).show()
+                        if(endPoll == true){
+                            navController.navigate("teacher")
+                            Toast.makeText(context, "votação finalizada!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, "não foi possível encerrar a votação.", Toast.LENGTH_SHORT).show()
+                            navController.navigate("managePolls")
+                        }
+                    }
+                },
+                modifier = Modifier.constrainAs(navBarStop) {
+                    top.linkTo(txtStatus.bottom, margin = 15.dp)
+                    start.linkTo(parent.start, margin = 15.dp)
+                    end.linkTo(navBarCod.start, margin = 15.dp)
+                }
+            ) {
+                //Icons.Filled.Block
+                //Text(text = "encerrar")
+                Image(imageVector = ImageVector.vectorResource(id = R.drawable.baseline_pause_circle_24), contentDescription ="encerrar")
+            }
 
             //colocar o botão para gerar codigos da votação aqui
+            IconButton(
+                onClick = {
+
+                },
+                modifier = Modifier.constrainAs(navBarCod) {
+                    top.linkTo(txtStatus.bottom, margin = 15.dp)
+                    start.linkTo(navBarStop.end, margin = 15.dp)
+                    end.linkTo(navBarItemDelete.start, margin = 15.dp)
+                }
+            ) {
+                //Icons.Filled.AddCircleOutline
+                //Text(text = "gerar código")
+                Image(imageVector = ImageVector.vectorResource(id = R.drawable.baseline_new_label_24), contentDescription ="adicionar código")
+            }
 
         }
     }

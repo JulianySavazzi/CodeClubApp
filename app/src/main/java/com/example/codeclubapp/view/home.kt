@@ -1,7 +1,9 @@
 package com.example.codeclubapp.view
 
+import android.app.AlertDialog
 import android.content.res.Resources.Theme
 import android.text.Html.ImageGetter
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Arrangement.Horizontal
@@ -45,10 +47,14 @@ import com.example.codeclubapp.components.MyAppBarTop
 import com.example.codeclubapp.components.MyButton
 import com.example.codeclubapp.components.MyCodeClubImage
 import com.example.codeclubapp.components.MyLoginButton
+import com.example.codeclubapp.model.Poll
+import com.example.codeclubapp.repository.PollRepository
 import com.example.codeclubapp.ui.theme.BLACK
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 
 //tela inicial do app
@@ -71,6 +77,42 @@ fun Home(navController: NavController){
     val loginStudent = remember {
         //a senha fica invisiível
         mutableStateOf(false)
+    }
+
+    var listPoll: MutableList<Poll> = mutableListOf()
+
+    val pollRepository = PollRepository()
+
+    val refPoll = FirebaseFirestore.getInstance().collection("poll")
+    val query = refPoll.whereEqualTo("endPoll", true).get().addOnCompleteListener{
+            querySnapshot ->
+        if(querySnapshot.isSuccessful){
+            //se a votacao foi encerrada
+            for(document in querySnapshot.result){
+                //se a colecao existe e tem documentos
+                //vamos recuperar cada documento e adicionar no nosso objeto da model
+                val poll = document.toObject(com.example.codeclubapp.model.Poll::class.java)
+                listPoll.add(poll)
+            }
+        }
+    }
+
+    fun pollDialog(){
+        //aviso
+        val alertDialog = AlertDialog.Builder(context)
+        alertDialog.setTitle("NÃO É POSSÍVEL VOTAR!")
+            .setMessage("nenhuma votação está disponível no momento.")
+            .setPositiveButton("OK"){
+                    _, _, ->
+
+                scope.launch(Dispatchers.Main){
+                    //navegar para a pagina inicial
+                    auth.signOut()
+                    navController.navigate("home")
+                    Toast.makeText(context, "nenhuma votação está disponível", Toast.LENGTH_SHORT).show()
+                }
+            }
+                .show()
     }
 
     Column(
@@ -132,8 +174,14 @@ fun Home(navController: NavController){
 
                     //escopo do app -> context Main
                     scope.launch(Dispatchers.Main){
-                        println("\nlogin anonimo \n")
-                        navController.navigate("poll")
+                        //se existir uma votação ir para a tela de votacao
+                        //se nao, exibir um alert dizendo que nao tem votacoes disponiveis
+                        if(pollRepository.getPoll().toList().isEmpty() || pollRepository.getPoll().toList().isNullOrEmpty() || query.isSuccessful || listPoll.isNotEmpty()) {
+                            pollDialog()
+                        } else {
+                            println("\nlogin anonimo \n")
+                            navController.navigate("poll")
+                        }
                     }
                 }
             )
