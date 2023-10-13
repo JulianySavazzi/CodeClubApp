@@ -83,6 +83,8 @@ fun Home(navController: NavController){
 
     val pollRepository = PollRepository()
 
+    var existPoll =  false
+
     val refPoll = FirebaseFirestore.getInstance().collection("poll")
     val query = refPoll.whereEqualTo("endPoll", true).get().addOnCompleteListener{
             querySnapshot ->
@@ -111,8 +113,7 @@ fun Home(navController: NavController){
                     navController.navigate("home")
                     Toast.makeText(context, "nenhuma votação está disponível", Toast.LENGTH_SHORT).show()
                 }
-            }
-                .show()
+            }.show()
     }
 
     Column(
@@ -167,21 +168,28 @@ fun Home(navController: NavController){
                 //onValueChange = {}
                 onClick = {
                     //verificações do login usando coroutines scope
-                        scope.launch(Dispatchers.IO){
-                            //verificar codigo de autenticacao antes de entrar como anonimo
-                            auth.signInAnonymously()
+                    scope.launch(Dispatchers.IO){
+                        //verificar codigo de autenticacao antes de entrar como anonimo
+                        auth.signInAnonymously()
+                        if(pollRepository.getPoll().toList().isEmpty() || pollRepository.getPoll().toList().isNullOrEmpty() && query.isSuccessful /*|| listPoll.isNotEmpty()*/ ) {
+                            pollDialog()
+                            existPoll = false
+                        } else {
+                            existPoll = true
                         }
+                    }
 
                     //escopo do app -> context Main
                     scope.launch(Dispatchers.Main){
                         //se existir uma votação ir para a tela de votacao
                         //se nao, exibir um alert dizendo que nao tem votacoes disponiveis
-                        if(pollRepository.getPoll().toList().isEmpty() || pollRepository.getPoll().toList().isNullOrEmpty() || query.isSuccessful || listPoll.isNotEmpty()) {
-                            pollDialog()
-                        } else {
+                        if(existPoll == true){
                             println("\nlogin anonimo \n")
                             navController.navigate("poll")
+                        } else {
+                            pollDialog()
                         }
+
                     }
                 }
             )

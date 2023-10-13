@@ -755,6 +755,10 @@ class DataSource {
                     Log.d(TAG, "endPoll: ${currentPoll.endPoll}, this poll is finished!")
                 }
     }
+
+    fun updateCodValPoll(){
+
+    }
 } //DataSource
 
 

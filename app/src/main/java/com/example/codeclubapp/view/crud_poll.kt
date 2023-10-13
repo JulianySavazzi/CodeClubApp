@@ -58,6 +58,7 @@ import com.example.codeclubapp.repository.PollRepository
 import com.example.codeclubapp.repository.TeamRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -226,6 +227,7 @@ fun ManagePolls(navController: NavController){
                                 navController.navigate("managePolls")
                             }
                         }
+
                     }
             )
 
@@ -428,8 +430,10 @@ fun MyListPolls(
             .setMessage("tem certeza que quer excluir essa VOTAÇÃO ?")
             .setPositiveButton("Sim"){
                     _, _, ->
-                //funcao delete
-                repository.deletePoll(idPoll)
+                scope.launch(Dispatchers.IO) {
+                    //funcao delete
+                    repository.deletePoll(idPoll)
+                }
 
                 scope.launch(Dispatchers.Main){
                     //remover equipe excluido da lista
@@ -542,16 +546,19 @@ fun MyListPolls(
                                     //se existe uma votação em andamento
                                     query.get().addOnCompleteListener { querySnapshot ->
                                         if (querySnapshot.isSuccessful) {
-                                            for (document in querySnapshot.result) {
-                                                var thisPoll = document.toObject(Poll::class.java)
+                                            repository.updatePoll(idPoll, true)
+                                            /*for (document in querySnapshot.result) {
+                                                /*var thisPoll = document.toObject(Poll::class.java)
                                                 Log.d(
                                                     ControlsProviderService.TAG,
                                                     "endPoll: ${thisPoll.endPoll}|${idPoll}, this poll may be finished!"
                                                 )
-                                                repository.updatePoll(idPoll, true)
+                                                 */
+                                                //repository.updatePoll(idPoll, true)
                                                 break
-                                                return@addOnCompleteListener
+                                               // return@addOnCompleteListener
                                             }
+                                             */
                                         }
                                     }
                                     feedRepository.saveFeed(
@@ -576,6 +583,8 @@ fun MyListPolls(
                             navController.navigate("managePolls")
                         }
                     }
+
+                    //scope.cancel()
                 },
                 modifier = Modifier.constrainAs(navBarStop) {
                     top.linkTo(txtStatus.bottom, margin = 15.dp)
