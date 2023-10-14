@@ -54,6 +54,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 
@@ -81,24 +82,55 @@ fun Home(navController: NavController){
 
     var listPoll: MutableList<Poll> = mutableListOf()
 
-    val pollRepository = PollRepository()
+    //val pollRepository = PollRepository()
 
     var existPoll =  true
 
-    val refPoll = FirebaseFirestore.getInstance().collection("poll")
-    val query = refPoll.whereEqualTo("endPoll", true).get().addOnCompleteListener{
-            querySnapshot ->
-        if(querySnapshot.isSuccessful){
-            //se a votacao foi encerrada
-            for(document in querySnapshot.result){
-                //se a colecao existe e tem documentos
-                //vamos recuperar cada documento e adicionar no nosso objeto da model
-                val poll = document.toObject(com.example.codeclubapp.model.Poll::class.java)
-                listPoll.add(poll)
+
+
+    fun verifyPoll(){
+        val refPoll = FirebaseFirestore.getInstance().collection("poll")
+        val query = refPoll.whereEqualTo("endPoll", true).get().addOnCompleteListener{
+                querySnapshot ->
+            if(querySnapshot.isSuccessful){
+                //se a votacao foi encerrada
+                for(document in querySnapshot.result){
+                    //se a colecao existe e tem documentos
+                    //vamos recuperar cada documento e adicionar no nosso objeto da model
+                    val poll = document.toObject(com.example.codeclubapp.model.Poll::class.java)
+                    listPoll.add(poll)
+                }
+                existPoll = false
             }
+        }
+
+        val queryNull = refPoll.whereEqualTo("endPoll", null).get().addOnCompleteListener{
+                querySnapshot ->
+            if(querySnapshot.isSuccessful){
+                //se a votacao nao foi iniciada
+                for(document in querySnapshot.result){
+                    //se a colecao existe e tem documentos
+                    //vamos recuperar cada documento e adicionar no nosso objeto da model
+                    val poll = document.toObject(com.example.codeclubapp.model.Poll::class.java)
+                    listPoll.add(poll)
+                }
+                existPoll = false
+            }
+        }
+
+        if(queryNull.isSuccessful || query.isSuccessful) existPoll = false
+        else existPoll = true
+/*
+        if(pollRepository.getPoll().toList().isNullOrEmpty() ||  (listPoll.isNotEmpty() && query.isSuccessful) ) {
+            //pollDialog()
+            existPoll = false
         } else {
             existPoll = true
         }
+
+ */
+        println("\n existPoll = $existPoll")
+
     }
 
     fun pollDialog(){
@@ -169,18 +201,14 @@ fun Home(navController: NavController){
                     .padding(20.dp),
                 //onValueChange = {}
                 onClick = {
+                    verifyPoll()
+                    print("\n votação disponível: $existPoll")
                     //verificações do login usando coroutines scope
                     scope.launch(Dispatchers.IO){
+                        //verifyPoll()
                         //verificar codigo de autenticacao antes de entrar como anonimo
                         auth.signInAnonymously()
-                        if(pollRepository.getPoll().toList().isNullOrEmpty() && query.isSuccessful /*|| listPoll.isNotEmpty()*/ ) {
-                            //pollDialog()
-                            existPoll = false
-                        } else {
-                            existPoll = true
-                        }
                     }
-
                     //escopo do app -> context Main
                     scope.launch(Dispatchers.Main){
                         //se existir uma votação ir para a tela de votacao

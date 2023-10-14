@@ -470,37 +470,22 @@ fun MyListPolls(
             else {
                 error = false
                 if (snapshot != null && snapshot.documents.isNotEmpty()) {
-                    //se existe uma votação em andamento
+                    //se existe uma votação em andamento -> endPoll = false
                     query.get().addOnCompleteListener { querySnapshot ->
-                        if (querySnapshot.isSuccessful) {
-                            updatePoll = true
-                            //if(this.isActive){
-                            // repository.updatePoll(idPoll, true)
-                            //}
-                            /*for (document in querySnapshot.result) {
-                            /*var thisPoll = document.toObject(Poll::class.java)
-                            Log.d(
-                                ControlsProviderService.TAG,
-                                "endPoll: ${thisPoll.endPoll}|${idPoll}, this poll may be finished!"
+                        updatePoll = if(querySnapshot.isSuccessful) querySnapshot.isSuccessful
+                        else false
+                        print(" updatePoll = $updatePoll ")
+                        if(updatePoll){
+                            repository.updatePoll(idPoll, true)
+                            feedRepository.saveFeed(
+                                feedModel.id,
+                                "votação finalizada em $dateTime",
+                                "a votação foi encerrada!"
                             )
-                             */
-                            //repository.updatePoll(idPoll, true)
-                            break
-                           // return@addOnCompleteListener
-                        }
-                         */
-                        }
+                            endPoll = true
+                            print("*** VOTAÇÃO FINALIZADA ***")
+                        } else print("*** VOTAÇÃO NÃO PODE SER FINALIZADA ***")
                     }
-                    if(updatePoll == true){
-                        repository.updatePoll(idPoll, true)
-                        feedRepository.saveFeed(
-                            feedModel.id,
-                            "votação finalizada em $dateTime",
-                            "a votação foi encerrada!"
-                        )
-                        endPoll = true
-                        print("*** VOTAÇÃO FINALIZADA ***")
-                    } else print("*** VOTAÇÃO NÃO PODE SER FINALIZADA ***")
                 } else {
                     endPoll = false
                 }
@@ -597,15 +582,12 @@ fun MyListPolls(
                     //atualiza atributo endPoll do documento da votação para true
                     //contabiliza o resultado da votação e salva uma publicação com o resultado
                     //colocar data e hora no titulo da publicacao
-                    scope.launch(Dispatchers.IO) {
-                        //if(this.isActive) {
-                        //}
-                        updateStatusPoll()
-                    }
+                    updateStatusPoll()
 
+                    println("\nupdatePoll = $updatePoll, endPoll = $endPoll")
                     scope.launch(Dispatchers.Main){
                         if (error) Toast.makeText(context, "aconteceu um problema!", Toast.LENGTH_SHORT).show()
-                        if(endPoll == true){
+                        if(updatePoll == true || endPoll == true){
                             navController.navigate("teacher")
                             Toast.makeText(context, "votação finalizada!", Toast.LENGTH_SHORT).show()
                         } else {
@@ -634,6 +616,7 @@ fun MyListPolls(
                     //atualiza atributo codVal do documento da votação -> insere o codigo na lista
                     //esse codigo vai verificar se o usuario pode votar ou não
                     //o codigo so pode ser gerado se a votacao ja foi iniciada  e nao foi finalizada
+                          println("tentando cadastrar código...")
 
                 },
                 modifier = Modifier.constrainAs(navBarCod) {
