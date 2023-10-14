@@ -138,6 +138,25 @@ class DataSource {
         return allStudents
     }
 
+    fun returnSudent(): MutableList<Student>{
+        val listStudent: MutableList<Student> = mutableListOf()
+        //listar todos os alunos cadastrados
+        db.collection("student").whereIn("isStudent", listOf(true)).get().addOnCompleteListener{
+                querySnapshot ->
+            if(querySnapshot.isSuccessful){
+                for(document in querySnapshot.result){
+                    //se a colecao existe e tem documentos
+                    //vamos recuperar cada documento e adicionar no nosso objeto da model
+                    val student = document.toObject(Student::class.java)
+                    listStudent.add(student)
+                    _allStudents.value = listStudent
+
+                }
+            }
+        }
+        return allStudents.value
+    }
+
     //exemplo:
     /*
         val docRef = db.collection("cities").document("SF")

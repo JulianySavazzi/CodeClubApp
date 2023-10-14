@@ -59,6 +59,7 @@ import com.example.codeclubapp.repository.TeamRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -137,8 +138,42 @@ fun ManagePolls(navController: NavController){
 
     var error = false
 
-    val refPoll = FirebaseFirestore.getInstance().collection("poll")
-    val query = refPoll.whereEqualTo("endPoll", false)
+    var click by remember{
+        mutableStateOf(false)
+    }
+
+    fun startPoll(){
+        val refPoll = FirebaseFirestore.getInstance().collection("poll")
+        val query = refPoll.whereEqualTo("endPoll", false)
+
+        query!!.addSnapshotListener { snapshot, e ->
+            if (e != null) error = true
+            else {
+                error = false
+                if (snapshot != null && snapshot.documents.isNotEmpty()) {
+                    newPoll = false
+                } else {
+                    repository.savePoll(
+                        model.id, /*model.codeVal*/
+                        codeVal,
+                        model.qtdTotalVotes, /*model.teamsForVotes*/
+                        teamsVoted,
+                        false
+                    )
+                    //repository.verifyStatusPoll(model.id, codeVal, model.qtdTotalVotes, teamsVoted, endPoll)
+                    feedRepository.saveFeed(
+                        feedModel.id,
+                        "votação iniciada em $dateTime",
+                        "a votação está acontecendo, quando terminar, vamos publicar o resultado!"
+                    )
+                }
+                print("*** VOTAÇÃO INICIADA ***")
+                newPoll = true
+
+            }
+        }
+
+    }
 
     Column(
         modifier = Modifier
@@ -178,57 +213,33 @@ fun ManagePolls(navController: NavController){
                     .padding(10.dp)
                     .background(MaterialTheme.colorScheme.secondary),
                 onClick = {
-
+                    //click = true
                     //println(" verifyStatusPoll = $verifyStatusPoll; existPoll.id = ${existPoll.id}; model.id = ${model.id}; empty? ${getPoll.isEmpty()}")
                     //verificações usando coroutines scope -> iniciar votacao
                     scope.launch(Dispatchers.IO){
                         //verificar se não tem nenhuma outra votação acontecendo
                         //se tiver, nao vai deixar criar uma nova antes da atual ser encerrada
-                        /*
-                        if(verifyStatusPoll != false && existPoll.id != model.id || getPoll.isEmpty() && verifyStatusPoll == true && existPoll.id != model.id){
-                            //cria documento da votação -> dados que aparecerao na poll_screen
-                            //inicia com a lista de codigos de validacao vazia,e lista de equipes vazia -> adicionar as equipes na lista de acordo com as votacoes
-                            //print("*** TENTANDO PREENCHER A LISTA DE EQUIPES ***")
-                            repository.savePoll(model.id, /*model.codeVal*/ codeVal, model.qtdTotalVotes, /*model.teamsForVotes*/ teamsVoted, endPoll)
-                            feedRepository.saveFeed(
-                                feedModel.id, "votação iniciada em $dateTime", "a votação está acontecendo, quando terminar, vamos publicar o resultado!"
-                            )
-                            print("*** VOTAÇÃO INICIADA ***")
-                            newPoll = true
-                        } else newPoll = false
-                         */
-                        query!!.addSnapshotListener{ snapshot, e ->
-                            if(e != null) error = true
-                            else{
-                                error = false
-                                if(snapshot != null && snapshot.documents.isNotEmpty()){
-                                    newPoll = false
-                                } else {
-                                    repository.savePoll(model.id, /*model.codeVal*/ codeVal, model.qtdTotalVotes, /*model.teamsForVotes*/ teamsVoted, false)
-                                    //repository.verifyStatusPoll(model.id, codeVal, model.qtdTotalVotes, teamsVoted, endPoll)
-                                    feedRepository.saveFeed(
-                                        feedModel.id, "votação iniciada em $dateTime", "a votação está acontecendo, quando terminar, vamos publicar o resultado!"
-                                    )
-                                    print("*** VOTAÇÃO INICIADA ***")
-                                    newPoll = true
-                                }
-                            }
-                        }
-
+                        //if(this.isActive) {
+                        //}
+                        startPoll()
                     }
 
                     scope.launch(Dispatchers.Main){
-                            if (error) Toast.makeText(context, "aconteceu um problema!", Toast.LENGTH_SHORT).show()
-                            if(newPoll == true){
-                                navController.navigate("teacher")
-                                Toast.makeText(context, "votação iniciada!", Toast.LENGTH_SHORT).show()
-                            } else {
-                                Toast.makeText(context, "já temos uma votação acontecendo, espere ela terminar para iniciar outra.", Toast.LENGTH_SHORT).show()
-                                navController.navigate("managePolls")
-                            }
+                        //if(this.isActive){
+                        if (error) Toast.makeText(context, "aconteceu um problema!", Toast.LENGTH_SHORT).show()
+                        if(newPoll == true){
+                            navController.navigate("teacher")
+                            Toast.makeText(context, "votação iniciada!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, "já temos uma votação acontecendo, espere ela terminar para iniciar outra.", Toast.LENGTH_SHORT).show()
+                            navController.navigate("managePolls")
                         }
-
+                        //click = false
+                        //}
                     }
+
+                }
+
             )
 
         }
@@ -239,6 +250,7 @@ fun ManagePolls(navController: NavController){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom
         ){
+            /*
             MyLoginButton(
                 text = "gerar código de validação",
                 modifier = Modifier
@@ -251,6 +263,7 @@ fun ManagePolls(navController: NavController){
                     //o codigo so pode ser gerado se a votacao ja foi iniciada
                 }
             )
+             */
 
         }
         Row (
@@ -409,12 +422,13 @@ fun MyListPolls(
 
     //coroutines trabalham com threads
     val scope = rememberCoroutineScope()
+    val scopeCodVal = rememberCoroutineScope()
 
     val feedRepository = FeedRepository()
     val dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMM dd yyyy, hh:mm:ss a"))
     val feedModel = Feed()
 
-    var newPoll = false
+    var updatePoll = false
 
     var endPoll = false
 
@@ -423,6 +437,10 @@ fun MyListPolls(
     val refPoll = FirebaseFirestore.getInstance().collection("poll")
     val query = refPoll.whereEqualTo("endPoll", false)
 
+    var click by remember{
+        mutableStateOf(false)
+    }
+
     fun deleteDialog(){
         //deletar estudante
         val alertDialog = AlertDialog.Builder(context)
@@ -430,16 +448,13 @@ fun MyListPolls(
             .setMessage("tem certeza que quer excluir essa VOTAÇÃO ?")
             .setPositiveButton("Sim"){
                     _, _, ->
-                scope.launch(Dispatchers.IO) {
-                    //funcao delete
-                    repository.deletePoll(idPoll)
-                }
+                repository.deletePoll(idPoll)
 
                 scope.launch(Dispatchers.Main){
                     //remover equipe excluido da lista
                     listItem.removeAt(position)
                     //navegar para a pagina para atualizar a listagem
-                    navController.navigate("managePolls")
+                    navController.navigate("teacher")
                     Toast.makeText(context, "votação excluída com sucesso!", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -447,6 +462,50 @@ fun MyListPolls(
                     _, _, ->
             }
             .show()
+    }
+
+    fun updateStatusPoll(){
+        query!!.addSnapshotListener { snapshot, e ->
+            if (e != null) error = true
+            else {
+                error = false
+                if (snapshot != null && snapshot.documents.isNotEmpty()) {
+                    //se existe uma votação em andamento
+                    query.get().addOnCompleteListener { querySnapshot ->
+                        if (querySnapshot.isSuccessful) {
+                            updatePoll = true
+                            //if(this.isActive){
+                            // repository.updatePoll(idPoll, true)
+                            //}
+                            /*for (document in querySnapshot.result) {
+                            /*var thisPoll = document.toObject(Poll::class.java)
+                            Log.d(
+                                ControlsProviderService.TAG,
+                                "endPoll: ${thisPoll.endPoll}|${idPoll}, this poll may be finished!"
+                            )
+                             */
+                            //repository.updatePoll(idPoll, true)
+                            break
+                           // return@addOnCompleteListener
+                        }
+                         */
+                        }
+                    }
+                    if(updatePoll == true){
+                        repository.updatePoll(idPoll, true)
+                        feedRepository.saveFeed(
+                            feedModel.id,
+                            "votação finalizada em $dateTime",
+                            "a votação foi encerrada!"
+                        )
+                        endPoll = true
+                        print("*** VOTAÇÃO FINALIZADA ***")
+                    } else print("*** VOTAÇÃO NÃO PODE SER FINALIZADA ***")
+                } else {
+                    endPoll = false
+                }
+            }
+        }
     }
 
     Divider(
@@ -534,43 +593,14 @@ fun MyListPolls(
             //colocar o botão para encerrar a votação aqui
             IconButton(
                 onClick = {
+                    //click = true
                     //atualiza atributo endPoll do documento da votação para true
                     //contabiliza o resultado da votação e salva uma publicação com o resultado
                     //colocar data e hora no titulo da publicacao
                     scope.launch(Dispatchers.IO) {
-                        query!!.addSnapshotListener{ snapshot, e ->
-                            if(e != null) error = true
-                            else{
-                                error = false
-                                if(snapshot != null && snapshot.documents.isNotEmpty()){
-                                    //se existe uma votação em andamento
-                                    query.get().addOnCompleteListener { querySnapshot ->
-                                        if (querySnapshot.isSuccessful) {
-                                            repository.updatePoll(idPoll, true)
-                                            /*for (document in querySnapshot.result) {
-                                                /*var thisPoll = document.toObject(Poll::class.java)
-                                                Log.d(
-                                                    ControlsProviderService.TAG,
-                                                    "endPoll: ${thisPoll.endPoll}|${idPoll}, this poll may be finished!"
-                                                )
-                                                 */
-                                                //repository.updatePoll(idPoll, true)
-                                                break
-                                               // return@addOnCompleteListener
-                                            }
-                                             */
-                                        }
-                                    }
-                                    feedRepository.saveFeed(
-                                        feedModel.id, "votação finalizada em $dateTime", "a votação foi encerrada!"
-                                    )
-                                    endPoll = true
-                                    print("*** VOTAÇÃO FINALIZADA ***")
-                                } else {
-                                    endPoll = false
-                                }
-                            }
-                        }
+                        //if(this.isActive) {
+                        //}
+                        updateStatusPoll()
                     }
 
                     scope.launch(Dispatchers.Main){
@@ -580,8 +610,9 @@ fun MyListPolls(
                             Toast.makeText(context, "votação finalizada!", Toast.LENGTH_SHORT).show()
                         } else {
                             Toast.makeText(context, "não foi possível encerrar a votação.", Toast.LENGTH_SHORT).show()
-                            navController.navigate("managePolls")
+                            navController.navigate("teacher")
                         }
+                        //click = false
                     }
 
                     //scope.cancel()
@@ -600,6 +631,9 @@ fun MyListPolls(
             //colocar o botão para gerar codigos da votação aqui
             IconButton(
                 onClick = {
+                    //atualiza atributo codVal do documento da votação -> insere o codigo na lista
+                    //esse codigo vai verificar se o usuario pode votar ou não
+                    //o codigo so pode ser gerado se a votacao ja foi iniciada  e nao foi finalizada
 
                 },
                 modifier = Modifier.constrainAs(navBarCod) {

@@ -83,7 +83,7 @@ fun Home(navController: NavController){
 
     val pollRepository = PollRepository()
 
-    var existPoll =  false
+    var existPoll =  true
 
     val refPoll = FirebaseFirestore.getInstance().collection("poll")
     val query = refPoll.whereEqualTo("endPoll", true).get().addOnCompleteListener{
@@ -96,6 +96,8 @@ fun Home(navController: NavController){
                 val poll = document.toObject(com.example.codeclubapp.model.Poll::class.java)
                 listPoll.add(poll)
             }
+        } else {
+            existPoll = true
         }
     }
 
@@ -171,8 +173,8 @@ fun Home(navController: NavController){
                     scope.launch(Dispatchers.IO){
                         //verificar codigo de autenticacao antes de entrar como anonimo
                         auth.signInAnonymously()
-                        if(pollRepository.getPoll().toList().isEmpty() || pollRepository.getPoll().toList().isNullOrEmpty() && query.isSuccessful /*|| listPoll.isNotEmpty()*/ ) {
-                            pollDialog()
+                        if(pollRepository.getPoll().toList().isNullOrEmpty() && query.isSuccessful /*|| listPoll.isNotEmpty()*/ ) {
+                            //pollDialog()
                             existPoll = false
                         } else {
                             existPoll = true
@@ -184,10 +186,12 @@ fun Home(navController: NavController){
                         //se existir uma votação ir para a tela de votacao
                         //se nao, exibir um alert dizendo que nao tem votacoes disponiveis
                         if(existPoll == true){
-                            println("\nlogin anonimo \n")
+                            println("\nlogin anonimo, existPoll = $existPoll \n")
                             navController.navigate("poll")
+                            Toast.makeText(context, "abrindo votação...", Toast.LENGTH_SHORT).show()
                         } else {
                             pollDialog()
+                            println("existPoll = $existPoll \n")
                         }
 
                     }

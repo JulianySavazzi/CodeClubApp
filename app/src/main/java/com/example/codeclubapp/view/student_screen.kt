@@ -49,7 +49,9 @@ fun Student(navController: NavController){
 
     val repository = StudentRepository()
 
-    val nameStudent: Student = repository.getSudentByEmail(Firebase.auth.currentUser?.email.toString())
+    val student: Student = repository.getSudentByEmail(Firebase.auth.currentUser?.email.toString())
+
+    var nameStudent = student.name
 
     Column(
         modifier = Modifier
@@ -114,7 +116,7 @@ fun Student(navController: NavController){
                 verticalAlignment = Alignment.Bottom
             ){
                 Text(
-                    text = "meu perfil:\n email: ${Firebase.auth.currentUser?.email}\n nome: ${nameStudent.name}",
+                    text = "meu perfil:\n email: ${Firebase.auth.currentUser?.email}\n nome: $nameStudent",
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 18.sp

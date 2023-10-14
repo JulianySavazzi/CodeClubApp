@@ -17,6 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonColors
@@ -38,6 +39,8 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import com.example.codeclubapp.components.MyAppBarTop
 import com.example.codeclubapp.components.MyLoginButton
+import com.example.codeclubapp.components.MyTextBoxInput
+import com.example.codeclubapp.model.Poll
 import com.example.codeclubapp.model.Project
 import com.example.codeclubapp.model.Student
 import com.example.codeclubapp.model.Team
@@ -47,6 +50,7 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Poll(navController: NavController){
     //o usuario nao precisa estar logado, so precisa ter o codigo de autenticacao
@@ -69,7 +73,15 @@ fun Poll(navController: NavController){
     //coroutines trabalham com threads
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    
+
+    val myPoll = Poll()
+
+    //criar estado para as caixas de texto:
+    var codigoState by remember {
+        //iniciar como uma string vazia
+        mutableStateOf("")
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -79,14 +91,49 @@ fun Poll(navController: NavController){
     ){
         MyAppBarTop(title = "votação")
         //Rows -> corpo do app
-        Row (
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(56.dp),
+                .padding(10.dp,20.dp,10.dp,10.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ){
+            Text(
+                text = "digite o código de validação:",
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontSize = 18.sp
 
+            )
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(5.dp,0.dp,5.dp,0.dp,),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            //inserir codigo de validacao
+            MyTextBoxInput(
+                //codigo
+                value = codigoState,
+                onValueChange = {
+                    codigoState = it
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp),
+                label = "codigo",
+                maxLines = 1
+            )
+        }
+        Row (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ){
             Text(
                 text = "escolha alguém para votar:",
                 textAlign = TextAlign.Center,
@@ -106,7 +153,7 @@ fun Poll(navController: NavController){
                 modifier = Modifier
                     .fillMaxWidth(1f)
                     .fillMaxHeight(1f)
-                    .padding(10.dp)
+                    .padding(5.dp)
                 //.background(MaterialTheme.colorScheme.tertiary)
             ) {
                 //preencher a lista
@@ -140,7 +187,7 @@ fun Poll(navController: NavController){
         Row (
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp),
+                .padding(5.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ){
@@ -160,12 +207,15 @@ fun Poll(navController: NavController){
                 text = "votar",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp)
+                    .padding(12.dp)
                     .background(MaterialTheme.colorScheme.secondary),
                 onClick = {
                     //verificar codigo de votacao
                     //confirmar voto em alert -> salvar voto
                     //logout
+
+                    if(codigoState.isNotEmpty() && codigoState == myPoll.codeVal.toString())
+
                     if(myTeams.isNotEmpty()){
                         Toast.makeText(context, "voto salvo com sucesso!" , Toast.LENGTH_SHORT).show()
                         Firebase.auth.signOut()
@@ -210,12 +260,12 @@ fun VotesTeam(
 
     //enviar equipe selecionada para a funcao de salvar voto
     Divider(
-        thickness = 15.dp,
+        thickness = 5.dp,
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.background
     )
     Card(
-        modifier = Modifier.padding(15.dp
+        modifier = Modifier.padding(5.dp
         )
     ){
         ConstraintLayout(
@@ -296,7 +346,7 @@ fun VotesTeam(
         }
     }
     Divider(
-        thickness = 15.dp,
+        thickness = 10.dp,
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.background
     )

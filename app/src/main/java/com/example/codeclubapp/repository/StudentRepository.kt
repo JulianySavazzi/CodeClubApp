@@ -36,6 +36,10 @@ class StudentRepository() {
         return dataSource.getSudentByEmail(email)
     }
 
+    fun returnSudent(): MutableList<Student>{
+        return dataSource.returnSudent()
+    }
+
     fun verifyStudent(email: String, pass: String){
         return dataSource.verifyStudent(email, pass)
     }
