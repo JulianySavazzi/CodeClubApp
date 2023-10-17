@@ -2,7 +2,7 @@ package com.example.codeclubapp.model
 
 private var identifier = 1
 //o(a) aluno(a) pode participar de varias equipes e varios projetos
-class Student (
+data class Student (
     var id: Int= identifier++,
     var name: String? = null,
     var password: String? = null,

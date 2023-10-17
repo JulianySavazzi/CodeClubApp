@@ -16,7 +16,7 @@ class TeacherRepository(){
         isStudent: Boolean = false
     ){
         //vamos receber os atributos da view a enviar ao banco de dados
-        dataSource.saveTeacher(id, name, email, pass, isTeacher, isStudent)
+        return dataSource.saveTeacher(id, name, email, pass, isTeacher, isStudent)
     }
 
     fun getTeacher(): Flow<MutableList<Teacher>>{

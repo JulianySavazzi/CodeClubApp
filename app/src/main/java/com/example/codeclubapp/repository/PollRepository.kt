@@ -1,6 +1,7 @@
 package com.example.codeclubapp.repository
 
 import com.example.codeclubapp.datasource.DataSource
+import com.example.codeclubapp.model.LogPoll
 import com.example.codeclubapp.model.Poll
 import com.example.codeclubapp.model.Team
 import kotlinx.coroutines.flow.Flow
@@ -16,22 +17,34 @@ class PollRepository {
         endPoll: Boolean
 
     ){
-        dataSource.savePoll(id, codeVal, qtdTotalVotes, teamsVoted, endPoll)
+        return dataSource.savePoll(id, codeVal, qtdTotalVotes, teamsVoted, endPoll)
+    }
+
+    fun saveLog(
+        id: Int,
+        name: String,
+        description: String
+    ){
+        return dataSource.saveLog(id, name, description)
     }
 
     fun deletePoll(id: Int){
-        dataSource.deletePoll(id)
+        return dataSource.deletePoll(id)
     }
 
     fun updatePoll(
         id: Int,
         endPoll: Boolean
     ){
-        dataSource.updatePoll(id, endPoll)
+        return dataSource.updatePoll(id, endPoll)
     }
 
     fun getPoll(): Flow<MutableList<Poll>> {
         return dataSource.getPoll()
+    }
+
+    fun getLogs(): Flow<MutableList<LogPoll>>{
+        return dataSource.getLogs()
     }
 
     fun returnPoll(): MutableList<Poll> {

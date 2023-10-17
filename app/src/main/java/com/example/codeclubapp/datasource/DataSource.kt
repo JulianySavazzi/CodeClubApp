@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.example.codeclubapp.model.Feed
+import com.example.codeclubapp.model.LogPoll
 import com.example.codeclubapp.model.Poll
 import com.example.codeclubapp.model.Project
 import com.example.codeclubapp.model.Student
@@ -62,7 +63,13 @@ class DataSource {
     //allFeeds -> observa todos os dados que foram atribuidos para ela
     private val allFeeds: StateFlow<MutableList<Feed>> = _allFeeds
 
-    //flow -> recuperar todo fluxo de tarefas POLL
+    //flow -> recuperar todo fluxo de tarefas LOGPOLL
+    //_allLogs -> estado de fluxo assincrono
+    private val _allLogs = MutableStateFlow<MutableList<LogPoll>>(mutableListOf())
+    //allLogs -> observa todos os dados que foram atribuidos para ela
+    private val allLogs: StateFlow<MutableList<LogPoll>> = _allLogs
+
+            //flow -> recuperar todo fluxo de tarefas POLL
     //_allPolls -> estado de fluxo assincrono
     private val _allPolls = MutableStateFlow<MutableList<Poll>>(mutableListOf())
     //allPolls -> observa todos os dados que foram atribuidos para ela
@@ -348,6 +355,41 @@ class DataSource {
         description: String
     ){
 
+        //mapeamento para salvar todos os campos
+        val feedMap = hashMapOf(
+            "id" to id,
+            "name" to name,
+            "description" to description
+        )
+
+        db.collection("log").document(name).set(feedMap).addOnCompleteListener {
+            //salvo com sucesso
+            print("success save log")
+        }.addOnFailureListener {
+            //erro ao salvar
+            print("fail save log")
+        }
+
+    }
+
+    //get feed -> recuperar dados da publicacao
+    fun getLogs(): Flow<MutableList<LogPoll>>{
+        val listLogs: MutableList<LogPoll> = mutableListOf()
+        //listar todos os logs cadastrados
+        db.collection("log").get().addOnCompleteListener{
+                querySnapshot ->
+            if(querySnapshot.isSuccessful){
+                for(document in querySnapshot.result){
+                    //se a colecao existe e tem documentos
+                    //vamos recuperar cada documento e adicionar no nosso objeto da model
+                    val log = document.toObject(LogPoll::class.java)
+                    listLogs.add(log)
+                    _allLogs.value = listLogs
+
+                }
+            }
+        }
+        return allLogs
     }
 
     //*************************************************** FEED ***************************************************
@@ -384,8 +426,8 @@ class DataSource {
                 for(document in querySnapshot.result){
                     //se a colecao existe e tem documentos
                     //vamos recuperar cada documento e adicionar no nosso objeto da model
-                    val project = document.toObject(Feed::class.java)
-                    listFeed.add(project)
+                    val feed = document.toObject(Feed::class.java)
+                    listFeed.add(feed)
                     _allFeeds.value = listFeed
 
                 }

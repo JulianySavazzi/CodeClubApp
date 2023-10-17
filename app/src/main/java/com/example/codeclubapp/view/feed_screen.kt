@@ -156,7 +156,7 @@ fun Feed(navController: NavController){
     }
 }
 
-//moatrar lista de publicações
+//mostrar lista de publicações
 @Composable
 fun MyListFeed(
     position: Int,

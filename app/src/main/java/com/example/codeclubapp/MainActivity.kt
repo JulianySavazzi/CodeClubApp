@@ -16,6 +16,7 @@ import com.example.codeclubapp.view.FeedTeacher
 import com.example.codeclubapp.view.Home
 import com.example.codeclubapp.view.Login
 import com.example.codeclubapp.view.LoginFormTeacher
+import com.example.codeclubapp.view.LogsPoll
 import com.example.codeclubapp.view.ManageFeed
 import com.example.codeclubapp.view.ManagePolls
 import com.example.codeclubapp.view.ManageProjects
@@ -147,6 +148,12 @@ class MainActivity : ComponentActivity() {
                         route = "notifications_teacher"
                     ){
                         NotificationsTeacher(navController)
+                    }
+                    composable(
+                        //logs das votacoes -> logs_poll_screen
+                        route = "logsPoll"
+                    ){
+                        LogsPoll(navController)
                     }
                 } //NaviHost -> navegacao
 

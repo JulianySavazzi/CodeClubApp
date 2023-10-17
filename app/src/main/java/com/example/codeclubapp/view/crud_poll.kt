@@ -51,6 +51,7 @@ import com.example.codeclubapp.components.MyAppBarBottom
 import com.example.codeclubapp.components.MyAppBarTop
 import com.example.codeclubapp.components.MyLoginButton
 import com.example.codeclubapp.model.Feed
+import com.example.codeclubapp.model.LogPoll
 import com.example.codeclubapp.model.Poll
 import com.example.codeclubapp.model.Team
 import com.example.codeclubapp.repository.FeedRepository
@@ -142,6 +143,8 @@ fun ManagePolls(navController: NavController){
         mutableStateOf(false)
     }
 
+    val idLogPoll = LogPoll().id
+
     fun startPoll(){
         val refPoll = FirebaseFirestore.getInstance().collection("poll")
         val query = refPoll.whereEqualTo("endPoll", false)
@@ -166,6 +169,7 @@ fun ManagePolls(navController: NavController){
                         "votação iniciada em $dateTime",
                         "a votação está acontecendo, quando terminar, vamos publicar o resultado!"
                     )
+                    repository.saveLog(idLogPoll, "votação ${model.id} iniciada ", "votação iniciada em $dateTime, quantidade de votos: ${model.qtdTotalVotes}, equipes: $teamsVoted")
                 }
                 print("*** VOTAÇÃO INICIADA ***")
                 newPoll = true
@@ -273,6 +277,18 @@ fun ManagePolls(navController: NavController){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom
         ){
+
+            MyLoginButton(
+                text = "exibir log das votações",
+                modifier =  Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+                    .background(MaterialTheme.colorScheme.secondary),
+                onClick = {
+                    navController.navigate("logsPoll")
+                }
+            )
+
             /*
             MyLoginButton(
                 text = "encerrar votação",
@@ -417,6 +433,7 @@ fun MyListPolls(
     val qtdVotesPoll = listItem[position].qtdTotalVotes
     //val teamsPoll = listItem[position].teamsVoted
     val statusPoll = listItem[position].endPoll
+    val idLogPoll = LogPoll().id
 
     val repository = PollRepository()
 
@@ -449,6 +466,7 @@ fun MyListPolls(
             .setPositiveButton("Sim"){
                     _, _, ->
                 repository.deletePoll(idPoll)
+                repository.saveLog(idLogPoll, "votação $idPoll excluída ", "votação excluída em $dateTime, quantidade de votos: $qtdVotesPoll")
 
                 scope.launch(Dispatchers.Main){
                     //remover equipe excluido da lista
@@ -482,6 +500,7 @@ fun MyListPolls(
                                 "votação finalizada em $dateTime",
                                 "a votação foi encerrada!"
                             )
+                            repository.saveLog(idLogPoll, "votação $idPoll encerrada ", "votação finalizada em $dateTime, quantidade de votos: $qtdVotesPoll")
                             endPoll = true
                             print("*** VOTAÇÃO FINALIZADA ***")
                         } else print("*** VOTAÇÃO NÃO PODE SER FINALIZADA ***")

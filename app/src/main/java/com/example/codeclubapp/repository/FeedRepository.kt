@@ -14,7 +14,7 @@ class FeedRepository() {
         description: String
     ){
         //vamos receber os atributos da view a enviar ao banco de dados
-        dataSource.saveFeed(id, name, description)
+        return dataSource.saveFeed(id, name, description)
     }
 
     fun getFeed(): Flow<MutableList<Feed>> {
