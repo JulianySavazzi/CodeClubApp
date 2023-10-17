@@ -4,6 +4,10 @@ import android.os.Build
 import android.service.controls.ControlsProviderService.TAG
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.example.codeclubapp.model.Feed
 import com.example.codeclubapp.model.Poll
 import com.example.codeclubapp.model.Project
@@ -334,6 +338,16 @@ class DataSource {
                     }
                 }
             }
+    }
+
+    //*************************************************** LOG_POLL ***************************************************
+    //save logs -> logPoll_screen ->
+    fun saveLog(
+        id: Int,
+        name: String,
+        description: String
+    ){
+
     }
 
     //*************************************************** FEED ***************************************************
@@ -777,6 +791,190 @@ class DataSource {
 
     fun updateCodValPoll(){
 
+    }
+
+    //verify poll
+
+    /*
+    private var listPollEnd: MutableList<Poll> = mutableListOf()
+    private var listPollNull: MutableList<Poll> = mutableListOf()
+    */
+    private var ListPollOn: MutableList<Poll> = mutableListOf()
+
+    //private var existPoll = false
+
+    private var error = false
+
+    private val refPoll = FirebaseFirestore.getInstance().collection("poll")
+    private val query = refPoll.whereEqualTo("endPoll", true)
+    private val queryNull = refPoll.whereEqualTo("endPoll", null)
+    private val queryPollOn = refPoll.whereEqualTo("endPoll", false)
+
+    fun verifyPoll():Boolean{
+        var existPoll = false
+        println(" Datasource: start verify poll -> init existPoll = $existPoll ")
+        //se a votacao foi encerrada
+        query!!.addSnapshotListener { snapshot, e ->
+            //se retornou um erro
+            if (e != null) error = true
+            else {
+                if (snapshot != null && snapshot.documents.isNotEmpty()) {
+                    query.get().addOnCompleteListener {
+                            querySnapshot ->
+                        if(querySnapshot.isSuccessful){
+                            //se a votacao foi encerrada
+                            /*
+                            for(document in querySnapshot.result){
+                                //se a colecao existe e tem documentos
+                                //vamos recuperar cada documento e adicionar no nosso objeto da model
+                                val poll = document.toObject(com.example.codeclubapp.model.Poll::class.java)
+
+                                //listPollEnd.add(poll)
+                            }
+                             */
+                            existPoll = false
+                            println(" votação foi encerrada: $existPoll ")
+                            return@addOnCompleteListener
+                        }
+
+                    }
+                }
+
+            }
+        }
+
+        //se a votacao nao foi iniciada -> null
+        queryNull!!.addSnapshotListener { snapshot, e ->
+            //se retornou um erro
+            if (e != null) error = true
+            else {
+                if (snapshot != null && snapshot.documents.isNotEmpty()) {
+                    queryNull.get().addOnCompleteListener{
+                            querySnapshot ->
+                        if(querySnapshot.isSuccessful){
+                            //se nenhuma votacao foi iniciada
+                            /*
+                            for(document in querySnapshot.result){
+                                //se a colecao existe e tem documentos
+                                //vamos recuperar cada documento e adicionar no nosso objeto da model
+                                val poll = document.toObject(com.example.codeclubapp.model.Poll::class.java)
+                                //listPollNull.add(poll)
+                            }
+                             */
+                            existPoll = false
+                            println(" nenhuma votação foi iniciada: $existPoll ")
+                            return@addOnCompleteListener
+                        }
+                    }
+                }
+            }
+        }
+
+        //if((queryNull.get().isSuccessful || query.get().isSuccessful) /*&& ListPollOn.isEmpty()*/ /*!queryPollOn.get().isSuccessful*/) existPoll = false
+
+        //se existe uma votacao em andamento
+        queryPollOn!!.addSnapshotListener { snapshot, e ->
+            //se retornou um erro
+            if (e != null) error = true
+            else {
+                if (snapshot != null && snapshot.documents.isNotEmpty()) {
+                    queryPollOn.get().addOnCompleteListener {
+                            querySnapshot ->
+                        if(querySnapshot.isSuccessful){
+
+                            for(document in querySnapshot.result){
+                                //se a colecao existe e tem documentos
+                                //vamos recuperar cada documento e adicionar no nosso objeto da model
+                                val poll = document.toObject(com.example.codeclubapp.model.Poll::class.java)
+                                ListPollOn.add(poll)
+                            }
+
+                            existPoll = true
+                            println(" votação está em andamento: $existPoll ")
+                            return@addOnCompleteListener
+                        }
+                    }
+                }
+            }
+        }
+
+        println("\n DataSource: existPoll = $existPoll ")
+
+        /*
+        if(queryPollOn.get().isSuccessful || queryPollOn.get().isComplete){
+            return true
+        } else {
+            if(ListPollOn.isNotEmpty()){
+                return true
+            }
+            return false
+        }
+
+         */
+        //if(/*ListPollOn.isNotEmpty() &&*/ queryPollOn.get().isSuccessful) existPoll = true
+        //else existPoll = true
+
+        /*
+        val refPoll = FirebaseFirestore.getInstance().collection("poll")
+        val query = refPoll.whereEqualTo("endPoll", true).get().addOnCompleteListener{
+                querySnapshot ->
+            if(querySnapshot.isSuccessful){
+                //se a votacao foi encerrada
+                for(document in querySnapshot.result){
+                    //se a colecao existe e tem documentos
+                    //vamos recuperar cada documento e adicionar no nosso objeto da model
+                    val poll = document.toObject(com.example.codeclubapp.model.Poll::class.java)
+                    listPoll.add(poll)
+                }
+                existPoll = false
+            }
+        }
+
+        val queryNull = refPoll.whereEqualTo("endPoll", null).get().addOnCompleteListener{
+                querySnapshot ->
+            if(querySnapshot.isSuccessful){
+                //se a votacao nao foi iniciada
+                for(document in querySnapshot.result){
+                    //se a colecao existe e tem documentos
+                    //vamos recuperar cada documento e adicionar no nosso objeto da model
+                    val poll = document.toObject(com.example.codeclubapp.model.Poll::class.java)
+                    listPoll.add(poll)
+                }
+                existPoll = false
+            }
+        }
+         */
+
+        /*
+                if(pollRepository.getPoll().toList().isNullOrEmpty() ||  (listPoll.isNotEmpty() && query.isSuccessful) ) {
+                    //pollDialog()
+                    existPoll = false
+                } else {
+                    existPoll = true
+                }
+
+         */
+        println("\n Datasource: existPoll = ${queryPollOn.get().isSuccessful}")
+       // return existPoll
+        return queryPollOn.get().isSuccessful
+    }
+
+    fun returnOnPoll(): MutableList<Poll> {
+        val listPoll: MutableList<Poll> = mutableListOf()
+        //listar todas as votacoes cadastradas
+        db.collection("poll").whereEqualTo("endPoll", false).get().addOnCompleteListener{
+                querySnapshot ->
+            if(querySnapshot.isSuccessful){
+                for(document in querySnapshot.result){
+                    //se a colecao existe e tem documentos
+                    //vamos recuperar cada documento e adicionar no nosso objeto da model
+                    val poll = document.toObject(Poll::class.java)
+                    listPoll.add(poll)
+                    _allPolls.value = listPoll
+                }
+            }
+        }
+        return allPolls.value
     }
 } //DataSource
 

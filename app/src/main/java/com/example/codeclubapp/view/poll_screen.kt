@@ -44,6 +44,7 @@ import com.example.codeclubapp.model.Poll
 import com.example.codeclubapp.model.Project
 import com.example.codeclubapp.model.Student
 import com.example.codeclubapp.model.Team
+import com.example.codeclubapp.repository.PollRepository
 import com.example.codeclubapp.repository.TeamRepository
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -82,6 +83,8 @@ fun Poll(navController: NavController){
         mutableStateOf("")
     }
 
+    val pollRepository = PollRepository()
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -103,136 +106,136 @@ fun Poll(navController: NavController){
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 18.sp
-
             )
         }
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp,0.dp,5.dp,0.dp,),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            //inserir codigo de validacao
-            MyTextBoxInput(
-                //codigo
-                value = codigoState,
-                onValueChange = {
-                    codigoState = it
-                },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(5.dp),
-                label = "codigo",
-                maxLines = 1
-            )
-        }
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            Text(
-                text = "escolha alguém para votar:",
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 18.sp
+                    .padding(5.dp,0.dp,5.dp,0.dp,),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                //inserir codigo de validacao
+                MyTextBoxInput(
+                    //codigo
+                    value = codigoState,
+                    onValueChange = {
+                        codigoState = it
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp),
+                    label = "codigo",
+                    maxLines = 1
+                )
+            }
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Text(
+                    text = "escolha alguém para votar:",
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 18.sp
 
-            )
+                )
 
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(1f)
-                //.height(122.dp)
-                .fillMaxHeight(0.90f)
-        ) {
-            Card(
+            }
+            Row(
                 modifier = Modifier
                     .fillMaxWidth(1f)
-                    .fillMaxHeight(1f)
-                    .padding(5.dp)
-                //.background(MaterialTheme.colorScheme.tertiary)
+                    //.height(122.dp)
+                    .fillMaxHeight(0.90f)
             ) {
-                //preencher a lista
-                val teamstList: MutableList<Team> = teamRepository.getTeam().collectAsState(
-                    //se o estado da lista for vazio vai retornar uma mutableListOf
-                    //se a lista tiver preenchida vai retornar os valores dos documentos
-                    mutableListOf()
-                ).value
-
-                //componente de listagem
-                LazyColumn(
+                Card(
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-
+                        .fillMaxWidth(1f)
+                        .fillMaxHeight(1f)
+                        .padding(5.dp)
+                    //.background(MaterialTheme.colorScheme.tertiary)
                 ) {
-                    itemsIndexed(teamstList) { position, _ ->
-                        VotesTeam(
-                            position = position,
-                            listItem = teamstList,
-                            selectedItem = myTeams,
-                            context = context,
-                            navController = navController
-                        )
+                    //preencher a lista
+                    val teamstList: MutableList<Team> = teamRepository.getTeam().collectAsState(
+                        //se o estado da lista for vazio vai retornar uma mutableListOf
+                        //se a lista tiver preenchida vai retornar os valores dos documentos
+                        mutableListOf()
+                    ).value
+
+                    //componente de listagem
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+
+                    ) {
+                        itemsIndexed(teamstList) { position, _ ->
+                            VotesTeam(
+                                position = position,
+                                listItem = teamstList,
+                                selectedItem = myTeams,
+                                context = context,
+                                navController = navController
+                            )
+                        }
                     }
                 }
             }
-        }
 
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            /*
-            MyButton(
-                text = "", //nome do projeto
-                route = "home", //voto concluido
-                navController = navController,
-                modifier = Modifier.fillMaxWidth().padding(10.dp),
-                onValueChange = {
-                    loginStudent
-                    loginTeacher
-                }
-            )
-             */
-            MyLoginButton(
-                text = "votar",
+            Row (
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(12.dp)
-                    .background(MaterialTheme.colorScheme.secondary),
-                onClick = {
-                    //verificar codigo de votacao
-                    //confirmar voto em alert -> salvar voto
-                    //logout
-
-                    if(codigoState.isNotEmpty() && codigoState == myPoll.codeVal.toString())
-
-                    if(myTeams.isNotEmpty()){
-                        Toast.makeText(context, "voto salvo com sucesso!" , Toast.LENGTH_SHORT).show()
-                        Firebase.auth.signOut()
-                        if(Firebase.auth.currentUser == null){
-                            print("sing out")
-                            navController.navigate("home")
-                        } else {
-                            Firebase.auth.signOut()
-                        }
-                    }else{
-                        Toast.makeText(context, "selecione uma equipe para votar!" , Toast.LENGTH_SHORT).show()
+                    .padding(5.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                /*
+                MyButton(
+                    text = "", //nome do projeto
+                    route = "home", //voto concluido
+                    navController = navController,
+                    modifier = Modifier.fillMaxWidth().padding(10.dp),
+                    onValueChange = {
+                        loginStudent
+                        loginTeacher
                     }
+                )
+                 */
+                MyLoginButton(
+                    text = "votar",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp)
+                        .background(MaterialTheme.colorScheme.secondary),
+                    onClick = {
+                        //verificar codigo de votacao
+                        //confirmar voto em alert -> salvar voto
+                        //logout
 
-                })
+                        if(codigoState.isNotEmpty() && codigoState == myPoll.codeVal.toString())
 
+                        if(myTeams.isNotEmpty()){
+                            Toast.makeText(context, "voto salvo com sucesso!" , Toast.LENGTH_SHORT).show()
+                            Firebase.auth.signOut()
+                            if(Firebase.auth.currentUser == null){
+                                print("sing out")
+                                navController.navigate("home")
+                            } else {
+                                Firebase.auth.signOut()
+                            }
+                        }else{
+                            Toast.makeText(context, "selecione uma equipe para votar!" , Toast.LENGTH_SHORT).show()
+                        }
+
+                    })
+
+            }
         }
-    }
+
 }
 
 @Composable
