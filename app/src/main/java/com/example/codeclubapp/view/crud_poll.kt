@@ -146,8 +146,13 @@ fun ManagePolls(navController: NavController){
     val idLogPoll = LogPoll().id
 
     fun startPoll(){
+        //add methodo para verificar se existe alguma votacao encerrada antes de iniciar uma nova
+        //se existir uma votacao encerrada -> excluir ela antes de iniciar a nova votacao
+        //todos os dados dela serao salvos no log
+
         val refPoll = FirebaseFirestore.getInstance().collection("poll")
         val query = refPoll.whereEqualTo("endPoll", false)
+        //val query2 = refPoll.whereEqualTo("endPoll", true)
 
         query!!.addSnapshotListener { snapshot, e ->
             if (e != null) error = true
@@ -156,6 +161,7 @@ fun ManagePolls(navController: NavController){
                 if (snapshot != null && snapshot.documents.isNotEmpty()) {
                     newPoll = false
                 } else {
+
                     repository.savePoll(
                         model.id, /*model.codeVal*/
                         codeVal,
@@ -169,8 +175,36 @@ fun ManagePolls(navController: NavController){
                         "votação iniciada em $dateTime",
                         "a votação está acontecendo, quando terminar, vamos publicar o resultado!"
                     )
-                    repository.saveLog(idLogPoll, "votação ${model.id} iniciada ", "votação iniciada em $dateTime, quantidade de votos: ${model.qtdTotalVotes}, equipes: $teamsVoted")
+                    repository.saveLog(idLogPoll, "votação ${model.id} iniciada ", "votação iniciada em $dateTime, quantidade de votos: ${model.qtdTotalVotes}, integrantes: ${teamsVoted.size}")
+
+                    /*
+                    query2!!.addSnapshotListener { snapshot, e ->
+                        if(e != null) error = true
+                        else {
+                            error = false
+                            if(snapshot != null && snapshot.documents.isNotEmpty()){
+                                query2!!.get().addOnCompleteListener{
+                                        querySnapshot ->
+                                    if(querySnapshot.isSuccessful){
+                                        //se existem votacoes finalizadas
+                                        for(document in querySnapshot.result){
+                                            //se a colecao existe e tem documentos
+                                            //vamos recuperar cada documento e adicionar no nosso objeto da model
+                                            val poll = document.toObject(Poll::class.java)
+                                            val idPollEnd = poll.id
+                                            repository.saveLog(idLogPoll, "votação $idPollEnd finalizada e excluída", "votação excluída em $dateTime, quantidade de votos: ${model.qtdTotalVotes}, integrantes: ${teamsVoted.size}")
+                                            repository.deletePoll(idPollEnd)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    */
+
                 }
+
+
                 print("*** VOTAÇÃO INICIADA ***")
                 newPoll = true
 
@@ -178,6 +212,30 @@ fun ManagePolls(navController: NavController){
         }
 
     }
+
+    /*
+    //add dialog para iniciar votacao
+    fun startPollDialog(){
+        val alertDialog = AlertDialog.Builder(context)
+        alertDialog.setTitle("INICIAR VOTAÇÃO")
+            .setMessage("tem certeza que quer iniciar uma nova VOTAÇÃO ?")
+            .setPositiveButton("Sim"){
+                    _, _, ->
+
+                scope.launch(Dispatchers.IO){
+                    //verificar se não tem nenhuma outra votação acontecendo
+                    //se tiver, nao vai deixar criar uma nova antes da atual ser encerrada
+                    //if(this.isActive) {
+                    //}
+                    startPoll()
+                }
+            }
+            .setNegativeButton("Não"){
+                    _, _, ->
+            }
+            .show()
+    }
+     */
 
     Column(
         modifier = Modifier
@@ -220,6 +278,7 @@ fun ManagePolls(navController: NavController){
                     //click = true
                     //println(" verifyStatusPoll = $verifyStatusPoll; existPoll.id = ${existPoll.id}; model.id = ${model.id}; empty? ${getPoll.isEmpty()}")
                     //verificações usando coroutines scope -> iniciar votacao
+                    //startPollDialog()
                     scope.launch(Dispatchers.IO){
                         //verificar se não tem nenhuma outra votação acontecendo
                         //se tiver, nao vai deixar criar uma nova antes da atual ser encerrada
@@ -503,6 +562,8 @@ fun MyListPolls(
                             repository.saveLog(idLogPoll, "votação $idPoll encerrada ", "votação finalizada em $dateTime, quantidade de votos: $qtdVotesPoll")
                             endPoll = true
                             print("*** VOTAÇÃO FINALIZADA ***")
+                            //repository.saveLog(idLogPoll, "votação $idPoll finalizada e excluída", "votação excluída em $dateTime, quantidade de votos: $qtdVotesPoll")
+                            //repository.deletePoll(idPoll)
                         } else print("*** VOTAÇÃO NÃO PODE SER FINALIZADA ***")
                     }
                 } else {
@@ -608,6 +669,8 @@ fun MyListPolls(
                         if (error) Toast.makeText(context, "aconteceu um problema!", Toast.LENGTH_SHORT).show()
                         if(updatePoll == true || endPoll == true){
                             navController.navigate("teacher")
+                            repository.saveLog(idLogPoll, "votação $idPoll encerrada e excluída", "votação excluída em $dateTime, quantidade de votos: $qtdVotesPoll")
+                            repository.deletePoll(idPoll)
                             Toast.makeText(context, "votação finalizada!", Toast.LENGTH_SHORT).show()
                         } else {
                             Toast.makeText(context, "não foi possível encerrar a votação.", Toast.LENGTH_SHORT).show()

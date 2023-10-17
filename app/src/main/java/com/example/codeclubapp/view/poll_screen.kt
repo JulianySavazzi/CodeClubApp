@@ -216,7 +216,9 @@ fun Poll(navController: NavController){
                         //confirmar voto em alert -> salvar voto
                         //logout
 
-                        if(codigoState.isNotEmpty() && codigoState == myPoll.codeVal.toString())
+                        if(codigoState.isNotEmpty() && codigoState == myPoll.codeVal.toString()){
+
+                        }
 
                         if(myTeams.isNotEmpty()){
                             Toast.makeText(context, "voto salvo com sucesso!" , Toast.LENGTH_SHORT).show()
@@ -230,6 +232,8 @@ fun Poll(navController: NavController){
                         }else{
                             Toast.makeText(context, "selecione uma equipe para votar!" , Toast.LENGTH_SHORT).show()
                         }
+
+
 
                     })
 

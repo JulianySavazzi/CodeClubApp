@@ -98,7 +98,7 @@ fun Home(navController: NavController){
         //aviso
         val alertDialog = AlertDialog.Builder(context)
         alertDialog.setTitle("NÃO É POSSÍVEL VOTAR!")
-            .setMessage("nenhuma votação está disponível no momento.")
+            .setMessage("nenhuma votação está disponível no momento, aguarde...")
             .setPositiveButton("OK"){
                     _, _, ->
 
@@ -128,6 +128,8 @@ fun Home(navController: NavController){
                 Toast.makeText(context, "abrindo votação...", Toast.LENGTH_SHORT).show()
             } else {
                 //existPoll = false
+                auth.signOut()
+                navController.navigate("home")
                 pollDialog()
                 println(" pollDialog -> existPoll = $existPoll \n")
             }
