@@ -696,25 +696,14 @@ class DataSource {
     }
 
     fun updateVoteTeamByName(
-        name: String,
-        members: MutableList<Student>,
-        projects: MutableList<Project>,
+        title: String,
         vote: Int
     ){
-        //mapeamento para salvar todos os campos
-        val teamUpMap = hashMapOf(
-            "name" to name,
-            "members" to members,
-            "projects" to projects,
-            "vote" to vote
-        )
-
-        if(members == members && projects == projects && name == name){
-            db.collection("team").document(name).update( "members", members)
-            db.collection("team").document(name).update( "projects", projects)
-            db.collection("team").document(name).update(teamUpMap)
+        //update team votes
+        db.collection("team").document(title).update("vote", vote).
+        addOnCompleteListener{
+            Log.d(TAG, " team ${team.name} votes: ${team.vote} ")
         }
-
     }
 
 
@@ -843,6 +832,25 @@ class DataSource {
 
     }
 
+    fun returnOnPoll(): MutableList<Poll> {
+        val listPoll: MutableList<Poll> = mutableListOf()
+        //listar todas as votacoes cadastradas
+        db.collection("poll").whereEqualTo("endPoll", false).get().addOnCompleteListener{
+                querySnapshot ->
+            if(querySnapshot.isSuccessful){
+                for(document in querySnapshot.result){
+                    //se a colecao existe e tem documentos
+                    //vamos recuperar cada documento e adicionar no nosso objeto da model
+                    val poll = document.toObject(Poll::class.java)
+                    listPoll.add(poll)
+                    _allPolls.value = listPoll
+                }
+            }
+        }
+        return allPolls.value
+    }
+
+/*
     //verify poll
 
     /*
@@ -1009,23 +1017,9 @@ class DataSource {
         return queryPollOn.get().isSuccessful
     }
 
-    fun returnOnPoll(): MutableList<Poll> {
-        val listPoll: MutableList<Poll> = mutableListOf()
-        //listar todas as votacoes cadastradas
-        db.collection("poll").whereEqualTo("endPoll", false).get().addOnCompleteListener{
-                querySnapshot ->
-            if(querySnapshot.isSuccessful){
-                for(document in querySnapshot.result){
-                    //se a colecao existe e tem documentos
-                    //vamos recuperar cada documento e adicionar no nosso objeto da model
-                    val poll = document.toObject(Poll::class.java)
-                    listPoll.add(poll)
-                    _allPolls.value = listPoll
-                }
-            }
-        }
-        return allPolls.value
-    }
+ */
+
+
 } //DataSource
 
 

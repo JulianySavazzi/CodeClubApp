@@ -595,16 +595,7 @@ fun MyListPolls(
                     repository.saveLog(idLogPoll, "votação $idPoll -> novo codigo de validação foi adicionado em $dateTime: ", "$code")
                     Toast.makeText(context, "código salvo!", Toast.LENGTH_SHORT).show()
                     navController.navigate("teacher")
-                    //println(" saveCode = $saveCode")
                 }
-                /*
-                try {
-                    scope.launch(Dispatchers.IO){
-                        saveCode()
-                    }
-                } catch(e: Exception){
-
-                }*/
 
             }.show()
     }

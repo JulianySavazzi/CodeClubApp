@@ -70,6 +70,8 @@ fun Poll(navController: NavController){
     //adicionar equipe selecionada nessa lista para salvar no banco -> contabilizar as votações
     val myTeams: MutableList<Team> = mutableListOf()
 
+    //var selectedTeam: MutableList<Team> = mutableListOf()
+
     val teamRepository = TeamRepository()
 
     //coroutines trabalham com threads
@@ -89,6 +91,8 @@ fun Poll(navController: NavController){
     var error = false
 
     var existCode = false
+
+    var i = 0
 
     Column(
         modifier = Modifier
@@ -217,10 +221,11 @@ fun Poll(navController: NavController){
                         .padding(12.dp)
                         .background(MaterialTheme.colorScheme.secondary),
                     onClick = {
-                        //verificar codigo de votacao
+                        //verificar codigo de votacao -> usar logs (codigo existe -> log descricao; dodigo ja foi usado -> log nome)
                         //confirmar voto em alert -> salvar voto
                         //logout
 
+                        /*
                         scope.launch(Dispatchers.IO){
                             val refPoll = FirebaseFirestore.getInstance().collection("poll")
                             val query = refPoll.whereEqualTo("codVal", codigoState).whereEqualTo("endPoll", false)
@@ -241,16 +246,18 @@ fun Poll(navController: NavController){
                                 }
                             }
                         }
+                         */
 
-                        if(codigoState.isNotEmpty() && /*codigoState == myPoll.codeVal.toString()*/ existCode == true){
-                            //se o codigo for valido ele sera utilizado
-                            //se o codigo for utilizado, gerar um log dizendo que ele nao pode ser usado novamente nessa votacao
-                        }
 
                         if(myTeams.isNotEmpty()){
-
-                            Toast.makeText(context, "voto salvo com sucesso!" , Toast.LENGTH_SHORT).show()
-                            Firebase.auth.signOut()
+                            if(codigoState.isNotEmpty() && /*codigoState == myPoll.codeVal.toString()*/ existCode == true){
+                                //se o codigo for valido ele sera utilizado
+                                //se o codigo for utilizado, gerar um log dizendo que ele nao pode ser usado novamente nessa votacao
+                                //adicionar voto para equipe votada e atualizar o total de votos de cada equipe e o total de votos da votacao
+                                //teamRepository.updateVoteTeamByName(myTeams)
+                                Toast.makeText(context, "voto salvo com sucesso!" , Toast.LENGTH_SHORT).show()
+                                Firebase.auth.signOut()
+                            }
                             if(Firebase.auth.currentUser == null){
                                 print("sing out")
                                 navController.navigate("home")
@@ -312,36 +319,6 @@ fun VotesTeam(
                 //txtProjects,
                 check
             ) = createRefs()
-
-            /*
-
-            var selected by remember {
-                mutableStateOf(false)
-            }
-
-            Checkbox(
-                checked = selected,
-                onCheckedChange =  {
-                        selected_ ->
-                    selected = selected_
-                    //selected = true
-                    //adicionar item selecionado na lista
-                    if(selected){
-                        selectedItem.add(listItem[position])
-                        print("projeto selecionado: $selectedItem")
-                    }
-                },
-                colors = CheckboxDefaults.colors(
-                    checkedColor = Color.Red
-                ),
-                modifier = Modifier
-                    .constrainAs(check) {
-                        top.linkTo(parent.top, margin = 10.dp)
-                        start.linkTo(parent.start, margin = 10.dp)
-                    }
-            )
-
-             */
 
             RadioButton(
                 selected = selectedOption,

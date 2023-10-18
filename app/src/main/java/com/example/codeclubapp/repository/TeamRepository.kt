@@ -37,12 +37,10 @@ class TeamRepository() {
         return dataSource.deleteTeam(title)
     }
 
-    fun updateTeamByName(
+    fun updateVoteTeamByName(
         name: String,
-        members: MutableList<Student>,
-        projects: MutableList<Project>,
         vote: Int
     ){
-        return dataSource.updateVoteTeamByName(name, members, projects, vote)
+        return dataSource.updateVoteTeamByName(name, vote)
     }
 }
