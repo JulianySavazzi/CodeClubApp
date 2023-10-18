@@ -39,6 +39,13 @@ class PollRepository {
         return dataSource.updatePoll(id, endPoll)
     }
 
+    fun updateCodValPoll(
+        id: Int,
+        codeVal: MutableList<Long>
+    ){
+        return dataSource.updateCodValPoll(id, codeVal)
+    }
+
     fun getPoll(): Flow<MutableList<Poll>> {
         return dataSource.getPoll()
     }

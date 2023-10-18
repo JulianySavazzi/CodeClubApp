@@ -831,7 +831,15 @@ class DataSource {
                 }
     }
 
-    fun updateCodValPoll(){
+    fun updateCodValPoll(
+        id: Int,
+        codeVal: MutableList<Long>
+    ){
+        //update poll codeVal
+        db.collection("poll").document(id.toString()).update("codeVal", codeVal).
+        addOnCompleteListener{
+            Log.d(TAG, "endPoll: ${currentPoll.codeVal}, add code to this poll")
+        }
 
     }
 

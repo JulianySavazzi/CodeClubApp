@@ -47,6 +47,7 @@ import com.example.codeclubapp.model.Team
 import com.example.codeclubapp.repository.PollRepository
 import com.example.codeclubapp.repository.TeamRepository
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -84,6 +85,10 @@ fun Poll(navController: NavController){
     }
 
     val pollRepository = PollRepository()
+
+    var error = false
+
+    var existCode = false
 
     Column(
         modifier = Modifier
@@ -216,11 +221,34 @@ fun Poll(navController: NavController){
                         //confirmar voto em alert -> salvar voto
                         //logout
 
-                        if(codigoState.isNotEmpty() && codigoState == myPoll.codeVal.toString()){
+                        scope.launch(Dispatchers.IO){
+                            val refPoll = FirebaseFirestore.getInstance().collection("poll")
+                            val query = refPoll.whereEqualTo("codVal", codigoState).whereEqualTo("endPoll", false)
+                            query!!.addSnapshotListener { snapshot, e ->
+                                if (e != null) error = true
+                                else {
+                                    error = false
+                                    if (snapshot != null && snapshot.documents.isNotEmpty()) {
+                                        query.get().addOnCompleteListener { querySnapshot ->
+                                            //se existe um documento com esse codigo
+                                            if(querySnapshot.isSuccessful) {
+                                                //codigo existe
+                                                existCode = true
+                                            }
+                                        }
+                                    }
 
+                                }
+                            }
+                        }
+
+                        if(codigoState.isNotEmpty() && /*codigoState == myPoll.codeVal.toString()*/ existCode == true){
+                            //se o codigo for valido ele sera utilizado
+                            //se o codigo for utilizado, gerar um log dizendo que ele nao pode ser usado novamente nessa votacao
                         }
 
                         if(myTeams.isNotEmpty()){
+
                             Toast.makeText(context, "voto salvo com sucesso!" , Toast.LENGTH_SHORT).show()
                             Firebase.auth.signOut()
                             if(Firebase.auth.currentUser == null){

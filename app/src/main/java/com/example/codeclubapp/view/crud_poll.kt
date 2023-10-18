@@ -64,6 +64,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.random.Random.Default.nextLong
 
 //EXAMPLE FOR DATETIME
 /*
@@ -339,7 +340,7 @@ fun ManagePolls(navController: NavController){
 
             MyLoginButton(
                 text = "exibir log das votações",
-                modifier =  Modifier
+                modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
                     .background(MaterialTheme.colorScheme.secondary),
@@ -504,18 +505,29 @@ fun MyListPolls(
     val dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMM dd yyyy, hh:mm:ss a"))
     val feedModel = Feed()
 
+    var codeList: MutableList<Long> = mutableListOf()
+
     var updatePoll = false
 
     var endPoll = false
 
     var error = false
 
-    val refPoll = FirebaseFirestore.getInstance().collection("poll")
-    val query = refPoll.whereEqualTo("endPoll", false)
+    var saveCode by remember {
+        mutableStateOf(false)
+    }
 
+    val refPoll = FirebaseFirestore.getInstance().collection("poll")
+    val query = refPoll.whereEqualTo("endPoll", false).whereEqualTo("id", idPoll)
+
+    /*
     var click by remember{
         mutableStateOf(false)
     }
+
+     */
+
+    val code = nextLong()
 
     fun deleteDialog(){
         //deletar estudante
@@ -572,6 +584,90 @@ fun MyListPolls(
             }
         }
     }
+
+    fun alertCode(){
+        val alertDialog = AlertDialog.Builder(context)
+        alertDialog.setTitle("CÓDIGO PARA VALIDAR VOTAÇÃO!")
+            .setMessage("copie esse código e insira na tela de votação para confirmar seu voto: $code")
+            .setPositiveButton("OK"){
+                    _, _, ->
+                scope.launch(Dispatchers.Main){
+                    repository.saveLog(idLogPoll, "votação $idPoll -> novo codigo de validação foi adicionado em $dateTime: ", "$code")
+                    Toast.makeText(context, "código salvo!", Toast.LENGTH_SHORT).show()
+                    navController.navigate("teacher")
+                    //println(" saveCode = $saveCode")
+                }
+                /*
+                try {
+                    scope.launch(Dispatchers.IO){
+                        saveCode()
+                    }
+                } catch(e: Exception){
+
+                }*/
+
+            }.show()
+    }
+
+    fun saveCode(){
+        val query = refPoll.whereEqualTo("codVal", code).whereEqualTo("endPoll", false).whereEqualTo("id", idPoll)
+
+        //try{
+            query!!.addSnapshotListener { snapshot, e ->
+                if (e != null) error = true
+                else {
+                    error = false
+                    if (snapshot != null && snapshot.documents.isNotEmpty()) {
+                        query.get().addOnCompleteListener { querySnapshot ->
+                            //se existe um documento com essas caracteristicas
+                            if(querySnapshot.isSuccessful) {
+                                saveCode = false
+                                println(" isSuccessful , saveCode = $saveCode")
+                            }
+                        }
+                    } else {
+                        codeList.add(code)
+                        repository.updateCodValPoll(idPoll, codeList)
+                        //gerar log com o codigo e a votacao
+                        alertCode()
+                        saveCode = true
+                        println(" bad snapshot1 saveCode = $saveCode")
+                        /*
+                        refPoll!!.whereEqualTo("endPoll", false).whereEqualTo("id", idPoll).addSnapshotListener {
+                                snapshot, e ->
+                            if (e != null) error = true
+                            else{
+                                error = false
+                                if (snapshot != null && snapshot.documents.isNotEmpty()) {
+                                    refPoll.whereEqualTo("endPoll", false).get().addOnCompleteListener {
+                                            querySnapshot ->
+                                        if(querySnapshot.isSuccessful) {
+                                            codeList.add(code)
+                                            repository.updateCodValPoll(idPoll, codeList)
+                                            //gerar log com o codigo e a votacao
+                                            alertCode()
+                                            saveCode = true
+                                            println(" bad snapshot1 saveCode = $saveCode")
+                                        }
+                                    }
+                                }
+                            }
+
+                         */
+                       // saveCode = true
+                    }
+
+                }
+            }
+        //} catch(e: Exception){
+            //Toast.makeText(context, "não foi possível salvar o código!", Toast.LENGTH_SHORT).show()
+            //navController.navigate("teacher")
+        //}
+
+        println(" fun saveCode = $saveCode ")
+    }
+
+
 
     Divider(
         thickness = 15.dp,
@@ -698,7 +794,16 @@ fun MyListPolls(
                     //atualiza atributo codVal do documento da votação -> insere o codigo na lista
                     //esse codigo vai verificar se o usuario pode votar ou não
                     //o codigo so pode ser gerado se a votacao ja foi iniciada  e nao foi finalizada
-                          println("tentando cadastrar código...")
+                    println(" tentando cadastrar código... ")
+
+                    saveCode()
+
+                    println(" saveCode = $saveCode ")
+                    scope.launch(Dispatchers.Main){
+                        //atualizar codigo
+                        //println(" scope main -> saveCode = $saveCode ")
+                        if (error) Toast.makeText(context, "aconteceu um problema!", Toast.LENGTH_SHORT).show()
+                    }
 
                 },
                 modifier = Modifier.constrainAs(navBarCod) {

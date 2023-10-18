@@ -573,7 +573,7 @@ fun LoginFormTeacher(navController: NavController){
                     //mostrar mensagem usando o escopo do app -> context Main
                     scope.launch(Dispatchers.Main){
                         if(save){
-                            println("\nsalvo com sucesso, save = $save \n")
+                            println("\n teacher login feito com sucesso, save = $save \n")
                             Toast.makeText(context, "tudo ok", Toast.LENGTH_SHORT).show()
                             navController.navigate("teacher")
                         } else {
