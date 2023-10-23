@@ -66,6 +66,8 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.random.Random.Default.nextLong
 
+//fun nextLong(until: Long): Long
+
 //EXAMPLE FOR DATETIME
 /*
 import java.time.LocalDateTime
@@ -527,7 +529,8 @@ fun MyListPolls(
 
      */
 
-    val code = nextLong()
+    //limitar codigo a numeros positivos de 6 digitos de 100000 até 999999
+    val code = nextLong(100000, 999999)
 
     fun deleteDialog(){
         //deletar estudante
