@@ -25,7 +25,9 @@ import com.example.codeclubapp.components.MyAppBarBottom
 import com.example.codeclubapp.components.MyAppBarTop
 import com.example.codeclubapp.components.MyLoginButton
 import com.example.codeclubapp.model.Student
+import com.example.codeclubapp.repository.ProjectRepository
 import com.example.codeclubapp.repository.StudentRepository
+import com.example.codeclubapp.repository.TeamRepository
 import com.example.codeclubapp.ui.theme.GreenLightCode
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -47,11 +49,15 @@ fun Student(navController: NavController){
     //utilizar firebase auth
     val auth = FirebaseAuth.getInstance()
 
+    val teamsRepo = TeamRepository()
+
+    val projectRepo = ProjectRepository()
+
     val repository = StudentRepository()
 
-    val student: Student = repository.getSudentByEmail(Firebase.auth.currentUser?.email.toString())
+    val student: Student = repository.getSudentByEmail(auth.currentUser?.email.toString())
 
-    var nameStudent = student.name
+    //var nameStudent = student.name
 
     Column(
         modifier = Modifier
@@ -95,8 +101,9 @@ fun Student(navController: NavController){
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.Bottom
             ){
+                //Arrays.toString(arrayName)
                 Text(
-                    text = "minhas equipes: ",
+                    text = "minhas equipes: ${teamsRepo.getStudentTeam(student.name.toString())}",
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 18.sp
@@ -116,7 +123,7 @@ fun Student(navController: NavController){
                 verticalAlignment = Alignment.Bottom
             ){
                 Text(
-                    text = "meu perfil:\n email: ${Firebase.auth.currentUser?.email}\n nome: $nameStudent",
+                    text = "meu perfil:\n email: ${Firebase.auth.currentUser?.email}\n nome: ${student.name}",
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 18.sp

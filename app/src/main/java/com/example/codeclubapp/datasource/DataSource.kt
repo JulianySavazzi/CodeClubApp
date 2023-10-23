@@ -658,6 +658,24 @@ class DataSource {
         return allTeams.value
     }
 
+    fun getStudentTeam(members: String): MutableList<Team>{
+        val listTeam: MutableList<Team> = mutableListOf()
+        //listar todos os projetos cadastrados
+        db.collection("team").whereIn("members", listOf(members)).get().addOnCompleteListener{
+                querySnapshot ->
+            if(querySnapshot.isSuccessful){
+                for(document in querySnapshot.result){
+                    //se a colecao existe e tem documentos
+                    //vamos recuperar cada documento e adicionar no nosso objeto da model
+                    val team = document.toObject(Team::class.java)
+                    listTeam.add(team)
+                    _allTeams.value = listTeam
+                }
+            }
+        }
+        return allTeams.value
+    }
+
     fun getTeamByName(name: String): Team{
         db.collection("team")
             .whereIn("name", listOf(name))

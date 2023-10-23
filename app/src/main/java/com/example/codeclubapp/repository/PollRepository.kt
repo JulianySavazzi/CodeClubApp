@@ -62,9 +62,12 @@ class PollRepository {
         return dataSource.returnOnPoll()
     }
 
+    /*
     fun verifyPoll():Boolean{
         return  dataSource.verifyPoll()
     }
+     */
+
     fun verifyStatusPoll(
         id: Int,
         codeVal: MutableList<Long>,

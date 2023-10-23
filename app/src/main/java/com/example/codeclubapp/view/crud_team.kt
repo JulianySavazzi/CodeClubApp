@@ -71,6 +71,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.lang.reflect.Array
+import java.util.Arrays
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -670,6 +672,14 @@ fun MyListTeams(
     val projectsTeam = listItem[position].projects
     val membersTeam = listItem[position].members
 
+    var nameProjects: MutableList<String> = mutableListOf()
+    var nameMembers: MutableList<String> = mutableListOf()
+
+    var i: Int = membersTeam!!.size
+    var j: Int = projectsTeam!!.size
+    //var i:Int = 0
+    //var j: Int = 0
+
     fun deleteDialog(){
         //deletar estudante
         val alertDialog = AlertDialog.Builder(context)
@@ -692,6 +702,15 @@ fun MyListTeams(
                     _, _, ->
             }
             .show()
+    }
+
+    for (j in projectsTeam.indices) {
+        nameProjects.add(projectsTeam[j].name.toString())
+    }
+
+    for(i in membersTeam.indices){
+     //selectedItem.add(listItem[position])
+        nameMembers.add(membersTeam[i].name.toString())
     }
 
     Divider(
@@ -724,21 +743,54 @@ fun MyListTeams(
             )
 
             Text(
-                text = "projetos: ${projectsTeam!![0].name.toString()} ...",
+                //text = "projetos: ${projectsTeam!![0].name.toString()} ...",
+                text = "projetos: ${listOf(nameProjects.toString())} ",
                 modifier = Modifier.constrainAs(txtProjects) {
                     top.linkTo(txtTitle.bottom, margin = 15.dp)
                     start.linkTo(parent.start, margin = 15.dp)
                 }
             )
 
+            /*
+            for(j in projectsTeam.indices){
+                nameProjects[j] = projectsTeam[j].name.toString()
+
+                Text(
+                    //text = "projetos: ${projectsTeam!![0].name.toString()} ...",
+                    text = "projetos: ${nameProjects[j]} ",
+                    modifier = Modifier.constrainAs(txtProjects) {
+                        top.linkTo(txtTitle.bottom, margin = 15.dp)
+                        start.linkTo(parent.start, margin = 15.dp)
+                    }
+                )
+            }
+
+             */
+
+            /*
+            for(i in membersTeam.indices){
+                Text(
+                    //Arrays.toString(arrayName)
+                    //text = "membros: ${membersTeam!![0].name.toString()} ...",
+                    text = "membros: ${membersTeam[i].name.toString()} ",
+                    //text = "membros: ${nameMembers.indices} ",
+                    modifier = Modifier.constrainAs(txtMembers) {
+                        top.linkTo(txtProjects.bottom, margin = 15.dp)
+                        start.linkTo(parent.start, margin = 15.dp)
+                    }
+                )
+            }
+
+             */
+
             Text(
-                text = "membros: ${membersTeam!![0].name.toString()} ...",
+                //Arrays.toString(arrayName)
+                text = "membros: ${listOf(nameMembers.toString())} ",
                 modifier = Modifier.constrainAs(txtMembers) {
                     top.linkTo(txtProjects.bottom, margin = 15.dp)
                     start.linkTo(parent.start, margin = 15.dp)
                 }
             )
-
 
             IconButton(
                 onClick = { /*TODO*/ },
