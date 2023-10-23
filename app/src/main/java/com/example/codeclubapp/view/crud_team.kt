@@ -353,6 +353,7 @@ fun ManageTeams(navController: NavController){
                         } else {
                             println("\nalgo deu errado \n")
                             Toast.makeText(context, "algo deu errado, preencha todos os campos!" , Toast.LENGTH_SHORT).show()
+                            navController.navigate("teacher")
                         }
                     }
                 })
@@ -677,8 +678,7 @@ fun MyListTeams(
 
     var i: Int = membersTeam!!.size
     var j: Int = projectsTeam!!.size
-    //var i:Int = 0
-    //var j: Int = 0
+
 
     fun deleteDialog(){
         //deletar estudante
@@ -750,38 +750,6 @@ fun MyListTeams(
                     start.linkTo(parent.start, margin = 15.dp)
                 }
             )
-
-            /*
-            for(j in projectsTeam.indices){
-                nameProjects[j] = projectsTeam[j].name.toString()
-
-                Text(
-                    //text = "projetos: ${projectsTeam!![0].name.toString()} ...",
-                    text = "projetos: ${nameProjects[j]} ",
-                    modifier = Modifier.constrainAs(txtProjects) {
-                        top.linkTo(txtTitle.bottom, margin = 15.dp)
-                        start.linkTo(parent.start, margin = 15.dp)
-                    }
-                )
-            }
-
-             */
-
-            /*
-            for(i in membersTeam.indices){
-                Text(
-                    //Arrays.toString(arrayName)
-                    //text = "membros: ${membersTeam!![0].name.toString()} ...",
-                    text = "membros: ${membersTeam[i].name.toString()} ",
-                    //text = "membros: ${nameMembers.indices} ",
-                    modifier = Modifier.constrainAs(txtMembers) {
-                        top.linkTo(txtProjects.bottom, margin = 15.dp)
-                        start.linkTo(parent.start, margin = 15.dp)
-                    }
-                )
-            }
-
-             */
 
             Text(
                 //Arrays.toString(arrayName)
