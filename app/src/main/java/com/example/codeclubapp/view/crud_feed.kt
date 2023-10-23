@@ -196,6 +196,7 @@ fun ManageFeed(navController: NavController){
                             "algo deu errado, preencha todos os campos!",
                             Toast.LENGTH_SHORT
                         ).show()
+                        navController.navigate("feed_teacher")
                     }
                 }
 

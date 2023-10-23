@@ -127,6 +127,9 @@ fun ManageTeams(navController: NavController){
     //adicionar estudante selecionado nessa lista para salvar no banco
     val myMembers: MutableList<Student> = mutableListOf()
 
+    //var i: Int = myMembers!!.size
+    //var j: Int = myProjects!!.size
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -308,6 +311,9 @@ fun ManageTeams(navController: NavController){
 
         var idTeam = teamRepository.getTeamByName(nameState).id
 
+        var nameProjects: MutableList<String> = mutableListOf()
+        var nameMembers: MutableList<String> = mutableListOf()
+
         Row (
             modifier = Modifier
                 .fillMaxWidth()
@@ -333,6 +339,19 @@ fun ManageTeams(navController: NavController){
                             if(teamRepository.getTeamByName(nameState).id != model.id){
                                 teamRepository.saveTeam(model.id, nameState, myMembers, myProjects, model.vote)
                                 println("team is not null, id: $idTeam != ${model.id}, $myMembers , $myProjects")
+
+                                for (j in myProjects.indices) {
+                                    nameProjects.add(myProjects[j].name.toString())
+                                }
+
+                                for(i in myMembers.indices){
+                                    nameMembers.add(myMembers[i].name.toString())
+                                }
+
+                                feedRepository.saveFeed(
+                                    feedModel.id,
+                                    "nova equipe cadastrada: $nameState - id ${model.id}", "nova equipe cadastrada: \n nome: $nameState \n projetos: ${listOf(nameProjects.toString())} ...\n membros: ${listOf(nameMembers.toString())}"
+                                )
                                 save = true
                                 isNull = false
                             } else {
@@ -347,7 +366,6 @@ fun ManageTeams(navController: NavController){
                     scope.launch(Dispatchers.Main){
                         if(save == true && isNull == false){
                             println("\nequipe salva com sucesso \n")
-                            feedRepository.saveFeed(feedModel.id, "nova equipe cadastrada: $nameState ", "nova equipe cadastrada: $nameState \n, projetos: ${myProjects[0].name} ...\n, membros: ${myMembers[0].name}...")
                             navController.navigate("teacher")
                             Toast.makeText(context, "salvo com sucesso ", Toast.LENGTH_SHORT).show()
                         } else {
@@ -432,8 +450,6 @@ fun mySelectedProjects(mutableListProjects: MutableList<Project>): StateFlow<Mut
     return  listProjects
 }
  */
-
-
 
 //CHECKBOX PROJECTS
 @Composable
