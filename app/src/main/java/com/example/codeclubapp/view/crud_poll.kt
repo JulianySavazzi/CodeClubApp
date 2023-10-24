@@ -247,7 +247,7 @@ fun ManagePolls(navController: NavController){
             .verticalScroll(rememberScrollState()) //barra de rolagem
             .background(MaterialTheme.colorScheme.background)
     ){
-        MyAppBarTop(title = "criar votação")
+        MyAppBarTop(title = "gerenciar votação")
         //Rows -> corpo do app\
         Row (
             modifier = Modifier
@@ -309,6 +309,7 @@ fun ManagePolls(navController: NavController){
             )
 
         }
+
         Row (
             modifier = Modifier
                 .fillMaxWidth()
@@ -316,20 +317,6 @@ fun ManagePolls(navController: NavController){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom
         ){
-            /*
-            MyLoginButton(
-                text = "gerar código de validação",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-                    .background(MaterialTheme.colorScheme.secondary),
-                onClick = {
-                    //atualiza atributo codVal do documento da votação -> insere o codigo na lista
-                    //esse codigo vai verificar se o usuario pode votar ou não
-                    //o codigo so pode ser gerado se a votacao ja foi iniciada
-                }
-            )
-             */
 
         }
         Row (
@@ -351,66 +338,6 @@ fun ManagePolls(navController: NavController){
                 }
             )
 
-            /*
-            MyLoginButton(
-                text = "encerrar votação",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-                    .background(MaterialTheme.colorScheme.secondary),
-                onClick = {
-                    //atualiza atributo endPoll do documento da votação para true
-                    //contabiliza o resultado da votação e salva uma publicação com o resultado
-                    //colocar data e hora no titulo da publicacao
-                    scope.launch(Dispatchers.IO) {
-                        query!!.addSnapshotListener{ snapshot, e ->
-                            if(e != null) error = true
-                            else{
-                                error = false
-                                if(snapshot != null && snapshot.documents.isNotEmpty()){
-                                    //se existe uma votação em andamento
-                                    query.get().addOnCompleteListener { querySnapshot ->
-                                        if (querySnapshot.isSuccessful) {
-                                            for (document in querySnapshot.result) {
-                                                var thisPoll = document.toObject(Poll::class.java)
-                                                if(thisPoll.endPoll == false && thisPoll.endPoll != null && thisPoll.endPoll != true){
-                                                    Log.d(
-                                                        ControlsProviderService.TAG,
-                                                        "endPoll: ${thisPoll.endPoll}, this poll may be finished!"
-                                                    )
-                                                    repository.updatePoll(thisPoll.id, true)
-                                                    break
-                                                } else break
-                                                return@addOnCompleteListener
-                                            }
-                                        }
-                                    }
-                                    feedRepository.saveFeed(
-                                        feedModel.id, "votação finalizada em $dateTime", "a votação foi encerrada!"
-                                    )
-                                    endPoll = true
-                                    print("*** VOTAÇÃO FINALIZADA ***")
-                                } else {
-                                    endPoll = false
-                                }
-                            }
-                        }
-                    }
-
-                    scope.launch(Dispatchers.Main){
-                        if (error) Toast.makeText(context, "aconteceu um problema!", Toast.LENGTH_SHORT).show()
-                        if(endPoll == true){
-                            navController.navigate("teacher")
-                            Toast.makeText(context, "votação finalizada!", Toast.LENGTH_SHORT).show()
-                        } else {
-                            Toast.makeText(context, "não foi possível encerrar a votação.", Toast.LENGTH_SHORT).show()
-                            navController.navigate("managePolls")
-                        }
-                    }
-
-                }
-            )
-             */
         }
 
         Divider(
@@ -475,7 +402,11 @@ fun ManagePolls(navController: NavController){
 
 }
 
-//mostrar as votações cadastradas
+/*
+* mostrar as votações cadastradas:
+* listar todas as votações que estao no bd
+ */
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MyListPolls(
@@ -526,7 +457,6 @@ fun MyListPolls(
     var click by remember{
         mutableStateOf(false)
     }
-
      */
 
     //limitar codigo a numeros positivos de 6 digitos de 100000 até 999999
@@ -604,10 +534,8 @@ fun MyListPolls(
     }
 
     fun saveCode(){
-        val query = refPoll.whereEqualTo("codVal", code).whereEqualTo("endPoll", false).whereEqualTo("id", idPoll)
-
-        //try{
-            query!!.addSnapshotListener { snapshot, e ->
+        refPoll.whereEqualTo("codVal", code).whereEqualTo("endPoll", false).whereEqualTo("id", idPoll)!!.addSnapshotListener {
+                snapshot, e ->
                 if (e != null) error = true
                 else {
                     error = false
@@ -626,37 +554,10 @@ fun MyListPolls(
                         alertCode()
                         saveCode = true
                         println(" bad snapshot1 saveCode = $saveCode")
-                        /*
-                        refPoll!!.whereEqualTo("endPoll", false).whereEqualTo("id", idPoll).addSnapshotListener {
-                                snapshot, e ->
-                            if (e != null) error = true
-                            else{
-                                error = false
-                                if (snapshot != null && snapshot.documents.isNotEmpty()) {
-                                    refPoll.whereEqualTo("endPoll", false).get().addOnCompleteListener {
-                                            querySnapshot ->
-                                        if(querySnapshot.isSuccessful) {
-                                            codeList.add(code)
-                                            repository.updateCodValPoll(idPoll, codeList)
-                                            //gerar log com o codigo e a votacao
-                                            alertCode()
-                                            saveCode = true
-                                            println(" bad snapshot1 saveCode = $saveCode")
-                                        }
-                                    }
-                                }
-                            }
-
-                         */
-                       // saveCode = true
                     }
 
                 }
             }
-        //} catch(e: Exception){
-            //Toast.makeText(context, "não foi possível salvar o código!", Toast.LENGTH_SHORT).show()
-            //navController.navigate("teacher")
-        //}
 
         println(" fun saveCode = $saveCode ")
     }

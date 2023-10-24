@@ -108,6 +108,8 @@ fun Home(navController: NavController){
                     navController.navigate("home")
                     Toast.makeText(context, "nenhuma votação está disponível", Toast.LENGTH_SHORT).show()
                 }
+            }.setNegativeButton("[fechar aviso]"){
+                _, _, ->
             }.show()
     }
 
