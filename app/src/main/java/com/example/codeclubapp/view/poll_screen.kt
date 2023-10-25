@@ -94,7 +94,8 @@ fun Poll(navController: NavController){
 
     val refPoll = FirebaseFirestore.getInstance().collection("poll")
     //se a votacao nao foi encerrada e o codigo digitado esta cadastrado na votacao
-    val query = refPoll.whereEqualTo("endPoll", false).whereEqualTo("codeVal", codigoState)
+    //val query = refPoll.whereEqualTo("endPoll", false).whereEqualTo("codeVal", listOfNotNull(codigoState))
+    val query = refPoll.whereEqualTo("endPoll", false)
 
     var error = false
 
@@ -103,33 +104,7 @@ fun Poll(navController: NavController){
     //adicionar os codigos salvos para a votacao
     var codesList: MutableList<Long> = mutableListOf()
 
-    var i = 0
-
-    query!!.addSnapshotListener { snapshot, e ->
-        if (e != null) error = true
-        else {
-            error = false
-            if (snapshot != null && snapshot.documents.isNotEmpty()) {
-                //se encontrou um documento que atende a query -> votacao nao foi encerrada e o codigo digitado esta cadastrado na votacao
-                query.get().addOnCompleteListener { querySnapshot ->
-                    if(querySnapshot.isSuccessful){
-                        for(document in querySnapshot.result){
-                            var i = 0
-                            myPoll = document.toObject(Poll::class.java)
-                            //se o codigo existe, vamos adicionar ele na lista de codigos
-                            codesList.add(i, myPoll.codeVal!![i])
-                            i++
-                            Log.d(TAG, " this codes: ${listOf(codesList.toString())} ")
-                            return@addOnCompleteListener
-                        }
-                    } else {
-                        Log.d(TAG, " this code: is invalid ")
-                    }
-                }
-            }
-
-        }
-    }
+    //var i = 0
 
     /*
     fun getCode(){
@@ -326,17 +301,48 @@ fun Poll(navController: NavController){
                         // O PROBLEMA ESTÁ EM SALVAR O CODIGO OBTIDO DA QUERY -> ADICIONAR O CODIGO NA LISTA DE CODIGOS
 
                         if(myTeams.isNotEmpty()){
+
+                            query!!.addSnapshotListener { snapshot, e ->
+                                if (e != null) error = true
+                                else {
+                                    error = false
+                                    if (snapshot != null && snapshot.documents.isNotEmpty()) {
+                                        //se encontrou um documento que atende a query -> votacao nao foi encerrada
+                                        query.get().addOnCompleteListener { querySnapshot ->
+                                            if(querySnapshot.isSuccessful){
+                                                for(document in querySnapshot.result){
+                                                    //var i = 0
+                                                    myPoll = document.toObject(Poll::class.java)
+                                                    //se o codigo existe, vamos adicionar ele na lista de codigos
+                                                    //codesList.add(i, myPoll.codeVal!![i])
+                                                    for (element in myPoll.codeVal!!){
+                                                        codesList.add(element)
+                                                        println(element.toString())
+                                                    }
+                                                    //i++
+                                                    Log.d(TAG, " this codes: ${listOf(codesList.toString())} ")
+                                                    return@addOnCompleteListener
+                                                }
+                                            } else {
+                                                Log.d(TAG, " this code: is invalid ")
+                                            }
+                                        }
+                                    }
+
+                                }
+                            }
+
                             println(" codes = ${codesList.toString()} ")
-                            if(codesList.isNotEmpty() && !codesList.isNullOrEmpty()) existCode = true
+                            if(codesList.isNotEmpty()) existCode = true
                             else existCode = false
                             println(" existCode = $existCode ")
                             if(codigoState.isNotEmpty() && /*codigoState == myPoll.codeVal.toString()*/ existCode == true){
                                 //se o codigo for valido ele sera utilizado
                                 //se o codigo for utilizado, gerar um log dizendo que ele nao pode ser usado novamente nessa votacao
                                 //adicionar voto para equipe votada e atualizar o total de votos de cada equipe e o total de votos da votacao
-                                //teamRepository.updateVoteTeamByName(myTeams)
                                 println(" existe code = $existCode ")
                                 if(codesList.toString().contains(codigoState.toString())) {
+                                    //teamRepository.updateVoteTeamByName(myTeams)
                                     Toast.makeText(context, " codigo -> ${codesList.toString()} == ${codigoState.toString()} \n voto salvo com sucesso! " , Toast.LENGTH_SHORT).show()
                                     //Toast.makeText(context, "voto salvo com sucesso!" , Toast.LENGTH_SHORT).show()
                                     Firebase.auth.signOut()
