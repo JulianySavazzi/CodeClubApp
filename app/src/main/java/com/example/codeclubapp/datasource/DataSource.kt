@@ -364,9 +364,11 @@ class DataSource {
 
         db.collection("log").document(name).set(feedMap).addOnCompleteListener {
             //salvo com sucesso
+            Log.d(TAG, " save log success ")
             print("success save log")
         }.addOnFailureListener {
             //erro ao salvar
+            Log.d(TAG, " save log fail ")
             print("fail save log")
         }
 
@@ -720,8 +722,11 @@ class DataSource {
         //update team votes
         db.collection("team").document(title).update("vote", vote).
         addOnCompleteListener{
-            Log.d(TAG, " team ${team.name} votes: ${team.vote} ")
+            Log.d(TAG, " save vote for team ${team.name} votes: ${team.vote} ")
+        }.addOnFailureListener{
+            Log.d(TAG, " error: team ${team.name} votes: ${team.vote} ")
         }
+
     }
 
 
