@@ -43,6 +43,7 @@ import androidx.navigation.NavController
 import com.example.codeclubapp.components.MyAppBarTop
 import com.example.codeclubapp.components.MyLoginButton
 import com.example.codeclubapp.components.MyTextBoxInput
+import com.example.codeclubapp.model.LogPoll
 import com.example.codeclubapp.model.Poll
 import com.example.codeclubapp.model.Project
 import com.example.codeclubapp.model.Student
@@ -83,6 +84,7 @@ fun Poll(navController: NavController){
     val context = LocalContext.current
 
     var myPoll = Poll()
+    var myLog = LogPoll()
 
     //criar estado para as caixas de texto:
     var codigoState by remember {
@@ -92,10 +94,17 @@ fun Poll(navController: NavController){
 
     val pollRepository = PollRepository()
 
+    var idLogPoll = LogPoll().id
+
     val refPoll = FirebaseFirestore.getInstance().collection("poll")
+    val refLog = FirebaseFirestore.getInstance().collection("log")
     //se a votacao nao foi encerrada e o codigo digitado esta cadastrado na votacao
     //val query = refPoll.whereEqualTo("endPoll", false).whereEqualTo("codeVal", listOfNotNull(codigoState))
     val query = refPoll.whereEqualTo("endPoll", false)
+    //se o codigo foi cadastrado na votacao
+    val queryLogCode = refLog.whereEqualTo("name", codigoState)
+    //se o codigo ja foi usado
+    val queryLogInvalidCode = refLog.whereEqualTo("description", codigoState)
 
     var error = false
 
@@ -103,6 +112,8 @@ fun Poll(navController: NavController){
 
     //adicionar os codigos salvos para a votacao
     var codesList: MutableList<Long> = mutableListOf()
+    var codesLogList: MutableList<String> = mutableListOf()
+    var codesLogInvList: MutableList<String> = mutableListOf()
 
     //var i = 0
 
@@ -332,8 +343,71 @@ fun Poll(navController: NavController){
                                 }
                             }
 
-                            println(" codes = ${codesList.toString()} ")
-                            if(codesList.isNotEmpty()) existCode = true
+                            //se o codigo foi adicionado a votacao
+                            queryLogCode.addSnapshotListener { snapshot, e ->
+                                if (e != null) error = true
+                                else {
+                                    error = false
+                                    if (snapshot != null && snapshot.documents.isNotEmpty()) {
+                                        //se encontrou um documento que atende a query -> votacao nao foi encerrada
+                                        queryLogCode.get().addOnCompleteListener { querySnapshot ->
+                                            if(querySnapshot.isSuccessful){
+                                                for(document in querySnapshot.result){
+                                                    //var i = 0
+                                                    myLog = document.toObject(LogPoll::class.java)
+                                                    //se o codigo existe, vamos adicionar ele na lista de codigos
+                                                    //codesList.add(i, myPoll.codeVal!![i])
+                                                    if(myLog.name != null){
+                                                        codesLogList.add(myLog.name!!)
+                                                        println(codesLogList.toString())
+                                                    }
+                                                    //i++
+                                                    Log.d(TAG, " this codes: ${listOf(codesLogList.toString())} ")
+                                                    return@addOnCompleteListener
+                                                }
+                                            } else {
+                                                Log.d(TAG, " this code: is invalid ")
+                                            }
+                                        }
+                                    }
+
+                                }
+                            }
+
+                            //se o codigo ja foi usado
+                            queryLogInvalidCode.addSnapshotListener { snapshot, e ->
+                                if (e != null) error = true
+                                else {
+                                    error = false
+                                    if (snapshot != null && snapshot.documents.isNotEmpty()) {
+                                        //se encontrou um documento que atende a query -> votacao nao foi encerrada
+                                        queryLogInvalidCode.get().addOnCompleteListener { querySnapshot ->
+                                            if(querySnapshot.isSuccessful){
+                                                for(document in querySnapshot.result){
+                                                    //var i = 0
+                                                    myLog = document.toObject(LogPoll::class.java)
+                                                    //se o codigo existe, vamos adicionar ele na lista de codigos
+                                                    //codesList.add(i, myPoll.codeVal!![i])
+                                                    if(myLog.description != null){
+                                                        codesLogInvList.add(myLog.description!!)
+                                                        println(codesLogInvList.toString())
+                                                    }
+                                                    //i++
+                                                    Log.d(TAG, " this codes: ${listOf(codesLogInvList.toString())} ")
+                                                    return@addOnCompleteListener
+                                                }
+                                            } else {
+                                                Log.d(TAG, " this code: is invalid ")
+                                            }
+                                        }
+                                    }
+
+                                }
+                            }
+
+                            println(" codes = ${codesList.toString()} || ${codesLogList.toString()} ")
+                            println(" invalid codes = ${codesLogInvList.toString()} ")
+                            if(codesList.isNotEmpty() || codesLogList.isNotEmpty()) existCode = true
                             else existCode = false
                             println(" existCode = $existCode ")
                             if(codigoState.isNotEmpty() && /*codigoState == myPoll.codeVal.toString()*/ existCode == true){
@@ -341,19 +415,24 @@ fun Poll(navController: NavController){
                                 //se o codigo for utilizado, gerar um log dizendo que ele nao pode ser usado novamente nessa votacao
                                 //adicionar voto para equipe votada e atualizar o total de votos de cada equipe e o total de votos da votacao
                                 println(" existe code = $existCode ")
-                                if(codesList.toString().contains(codigoState.toString())) {
-                                    //teamRepository.updateVoteTeamByName(myTeams)
-                                    Toast.makeText(context, " codigo -> ${codesList.toString()} == ${codigoState.toString()} \n voto salvo com sucesso! " , Toast.LENGTH_SHORT).show()
-                                    //Toast.makeText(context, "voto salvo com sucesso!" , Toast.LENGTH_SHORT).show()
-                                    Firebase.auth.signOut()
-                                    if(Firebase.auth.currentUser == null){
-                                        println(" sing out poll ")
-                                        navController.navigate("home")
-                                    } else {
+                                if( codesList.toString().contains(codigoState.toString()) || codesLogList.toString().contains(codigoState.toString()) ) {
+                                    if(codesLogInvList.toString().contains(codigoState.toString())){
+                                        Toast.makeText(context, " ERRO: codigo inválido -> ${codesLogInvList.toString()} == ${codigoState.toString()} \n esse código já foi utilizado! " , Toast.LENGTH_SHORT).show()
+                                    }else {
+                                        //teamRepository.updateVoteTeamByName(myTeams)
+                                        Toast.makeText(context, " codigo -> ${codesList.toString()} || ${codesLogList.toString()} == ${codigoState.toString()} \n voto salvo com sucesso! " , Toast.LENGTH_SHORT).show()
+                                        //Toast.makeText(context, "voto salvo com sucesso!" , Toast.LENGTH_SHORT).show()
+                                        pollRepository.saveLog(idLogPoll, "código: $codigoState já foi utilizado! ", "$codigoState")
                                         Firebase.auth.signOut()
-                                        println(" sing out poll ")
+                                        if(Firebase.auth.currentUser == null){
+                                            println(" sing out poll ")
+                                            navController.navigate("home")
+                                        } else {
+                                            Firebase.auth.signOut()
+                                            println(" sing out poll ")
+                                        }
                                     }
-                                } else Toast.makeText(context, " algo deu errado: codigo -> ${codesList.toString()} != ${codigoState.toString()} " , Toast.LENGTH_SHORT).show()
+                                } else Toast.makeText(context, " algo deu errado: codigo -> ${codesList.toString()} || ${codesLogList.toString()} != ${codigoState.toString()} " , Toast.LENGTH_SHORT).show()
 
                             }
                         }else{

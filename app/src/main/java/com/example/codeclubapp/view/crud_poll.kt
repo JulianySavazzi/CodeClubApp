@@ -525,7 +525,7 @@ fun MyListPolls(
             .setPositiveButton("OK"){
                     _, _, ->
                 scope.launch(Dispatchers.Main){
-                    repository.saveLog(idLogPoll, "votação $idPoll -> novo codigo de validação foi adicionado em $dateTime: ", "$code")
+                    //repository.saveLog(idLogPoll, "votação $idPoll -> novo codigo de validação foi adicionado em $dateTime: ", "$code")
                     Toast.makeText(context, "código salvo!", Toast.LENGTH_SHORT).show()
                     navController.navigate("teacher")
                 }
@@ -551,6 +551,7 @@ fun MyListPolls(
                         codeList.add(code)
                         repository.updateCodValPoll(idPoll, codeList)
                         //gerar log com o codigo e a votacao
+                        repository.saveLog(idLogPoll, "$code", "código $code criado com sucesso!")
                         alertCode()
                         saveCode = true
                         println(" bad snapshot1 saveCode = $saveCode")

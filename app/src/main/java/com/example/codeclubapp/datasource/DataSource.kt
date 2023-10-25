@@ -842,8 +842,15 @@ class DataSource {
         id: Int,
         codeVal: MutableList<Long>
     ){
+        /*
+        val codeMap = hashMapOf(
+            "codeVal" to codeVal
+        )
+         */
+
         //update poll codeVal
         db.collection("poll").document(id.toString()).update("codeVal", codeVal).
+        //db.collection("poll").document(id.toString()).set(codeMap).
         addOnCompleteListener{
             Log.d(TAG, "endPoll: ${currentPoll.codeVal}, add code to this poll")
         }
