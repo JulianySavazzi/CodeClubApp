@@ -862,6 +862,30 @@ class DataSource {
 
     }
 
+    //"qtdTotalVotes" to qtdTotalVotes,
+    // "teamsVoted" to teamsVoted,
+    fun updateVotesPoll(
+        id: Int,
+        qtdTotalVotes: Int,
+        teamsVoted: MutableList<Team>
+    ){
+        db.collection("poll").document(id.toString()).update("qtdTotalVotes", qtdTotalVotes).
+        addOnCompleteListener{
+            Log.d(TAG, "qtdTotalVotes: ${currentPoll.qtdTotalVotes}, updated")
+        }.addOnFailureListener {
+            Log.d(TAG, "fail to update votes in this poll")
+        }
+
+        db.collection("poll").document(id.toString()).update("teamsVoted", teamsVoted).
+        addOnCompleteListener{
+            Log.d(TAG, "teamsVoted: ${currentPoll.teamsVoted}, updated")
+        }.addOnFailureListener {
+            Log.d(TAG, "fail to update teams voted in this poll")
+        }
+
+    }
+
+
     fun returnOnPoll(): MutableList<Poll> {
         val listPoll: MutableList<Poll> = mutableListOf()
         //listar todas as votacoes cadastradas
