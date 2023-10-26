@@ -58,6 +58,10 @@ class PollRepository {
         return dataSource.getPoll()
     }
 
+    fun getPollById(id: Int): Poll{
+        return dataSource.getPollById(id)
+    }
+
     fun getLogs(): Flow<MutableList<LogPoll>>{
         return dataSource.getLogs()
     }

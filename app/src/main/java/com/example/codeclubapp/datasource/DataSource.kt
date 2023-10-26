@@ -807,6 +807,32 @@ class DataSource {
         return allPolls.value
     }
 
+    fun getPollById(id: Int): Poll{
+        db.collection("poll").whereEqualTo("id", id)
+            .get().addOnCompleteListener { querySnapshot ->
+                if (querySnapshot.isSuccessful) {
+                    for (document in querySnapshot.result) {
+                        currentPoll = document.toObject(Poll::class.java)
+                        Log.d(
+                            TAG,
+                            "team by name: ${querySnapshot.result}, $currentPoll by name: ${currentPoll.id.toString()}, ${currentPoll.qtdTotalVotes.toString()} "
+                        )
+                        return@addOnCompleteListener
+                    }
+                } else {
+                    db.collection("team")
+                        .document(id.toString()).get().addOnSuccessListener { documentSnapshot ->
+                            val myPoll = documentSnapshot.toObject<Poll>()
+                            currentPoll = myPoll!!
+                            Log.d(TAG, "poll by name: ${currentPoll.id.toString()}, ${currentPoll.qtdTotalVotes.toString()} ")
+                            //Log.d(TAG, "project by name: $team")
+                        }
+                }
+            }
+
+        return currentPoll
+    }
+
     fun verifyStatusPoll(
         id: Int,
         codeVal: MutableList<Long>,

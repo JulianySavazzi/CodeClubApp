@@ -661,6 +661,7 @@ fun MyListPolls(
                         if (error) Toast.makeText(context, "aconteceu um problema!", Toast.LENGTH_SHORT).show()
                         if(updatePoll == true || endPoll == true){
                             navController.navigate("teacher")
+                            //savar resultado da votação em log e no feed
                             repository.saveLog(idLogPoll, "votação $idPoll encerrada e excluída", "votação excluída em $dateTime, quantidade de votos: $qtdVotesPoll")
                             repository.deletePoll(idPoll)
                             Toast.makeText(context, "votação finalizada!", Toast.LENGTH_SHORT).show()
