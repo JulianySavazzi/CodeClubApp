@@ -127,7 +127,7 @@ fun Poll(navController: NavController){
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp,20.dp,10.dp,10.dp),
+                .padding(10.dp, 20.dp, 10.dp, 10.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ){
@@ -141,7 +141,7 @@ fun Poll(navController: NavController){
         Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(5.dp,0.dp,5.dp,0.dp,),
+                    .padding(5.dp, 0.dp, 5.dp, 0.dp,),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ){
@@ -261,9 +261,6 @@ fun Poll(navController: NavController){
                             val votes: Int = teamRepository.getTeamByName(nameTeam).vote
                             var myVote: Int = (votes + 1)
 
-                            //atalizar total de votos na votacao
-                            var myPollId: MutableList<Int> = mutableListOf()
-
                             query!!.addSnapshotListener { snapshot, e ->
                                 if (e != null) error = true
                                 else {
@@ -276,14 +273,11 @@ fun Poll(navController: NavController){
                                                     //var i = 0
                                                     myPoll = document.toObject(Poll::class.java)
                                                     //se o codigo existe, vamos adicionar ele na lista de codigos
-                                                    //codesList.add(i, myPoll.codeVal!![i])
                                                     for (element in myPoll.codeVal!!){
                                                         codesList.add(element)
                                                         println(element.toString())
                                                     }
-                                                    myPollId.add(myPoll.id)
-                                                    //i++
-                                                    Log.d(TAG, " id poll: ${myPollId.toString()} - this codes: ${listOf(codesList.toString())} ")
+                                                    Log.d(TAG, " id poll: ${myPoll.id} - this codes: ${listOf(codesList.toString())} ")
                                                     return@addOnCompleteListener
                                                 }
                                             } else {
@@ -343,6 +337,7 @@ fun Poll(navController: NavController){
                                                     if(myLog.description != null){
                                                         codesLogInvList.add(myLog.description!!)
                                                         println(codesLogInvList.toString())
+                                                        pollRepository.saveLog(myLog.id, "código: ${myLog.description} já foi utilizado! ", "${myLog.description}")
                                                     }
                                                     //i++
                                                     Log.d(TAG, " this codes: ${listOf(codesLogInvList.toString())} in invalid codes list")
@@ -358,9 +353,10 @@ fun Poll(navController: NavController){
                             }
 
                             println(" *** team selected: $nameTeam - votes: $votes - updated votes: $myVote *** ")
+                            //println(" ID POLL: ${myPollId.toString()}")
                             println(" codes = ${codesList.toString()} || ${codesLogList.toString()} ")
                             println(" invalid codes = ${codesLogInvList.toString()} ")
-                            println("ID POLL: ${myPollId.toString()}")
+
 
                             if(codesList.isNotEmpty() || codesLogList.isNotEmpty()){
                                 existCode = true
@@ -377,7 +373,6 @@ fun Poll(navController: NavController){
                                             println(" user ${Firebase.auth.currentUser} - existCode = $existCode : try update votes and save log... ")
                                             Firebase.auth.signOut()
                                             if(Firebase.auth.currentUser == null){
-                                                //pollRepository.updateVotesPoll()
                                                 Toast.makeText(context, " OK: codigo -> ${codesList.toString()} || ${codesLogList.toString()} == ${codigoState.toString()} \n voto salvo com sucesso! " , Toast.LENGTH_SHORT).show()
                                                 println(" sing out poll 1 - update vote and save log ")
                                                 navController.navigate("home")
@@ -398,34 +393,6 @@ fun Poll(navController: NavController){
                                 existCode = false
                                 println(" existCode = $existCode ")
                             }
-
-
-
-                            /*
-                            scope.launch(Dispatchers.IO) {
-                                if(existCode == true){
-                                    //salvar voto
-                                    teamRepository.updateVoteTeamByName(nameTeam, myVote)
-                                    pollRepository.saveLog(myLog.id, "código: $codigoState já foi utilizado! ", "$codigoState")
-                                    Firebase.auth.signOut()
-                                }
-                            }
-
-                            scope.launch(Dispatchers.Main) {
-                                if(Firebase.auth.currentUser == null){
-                                    Toast.makeText(context, " OK: codigo -> ${codesList.toString()} || ${codesLogList.toString()} == ${codigoState.toString()} \n voto salvo com sucesso! " , Toast.LENGTH_SHORT).show()
-                                    println(" sing out poll 1 - update vote and save log ")
-                                    navController.navigate("home")
-                                } else {
-                                    Firebase.auth.signOut()
-                                    Toast.makeText(context, " AVISO: codigo -> ${codesList.toString()} || ${codesLogList.toString()} == ${codigoState.toString()} \n não conseguimos salvar seu voto! " , Toast.LENGTH_SHORT).show()
-                                    println(" sing out poll 2 - fail ")
-                                    navController.navigate("home")
-                                }
-                            }
-
-                             */
-
                         }else{
                             Toast.makeText(context, "selecione uma equipe para votar!" , Toast.LENGTH_SHORT).show()
                         }

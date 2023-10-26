@@ -1,6 +1,10 @@
 package com.example.codeclubapp.view
 
+import android.net.ConnectivityManager
+import android.net.NetworkRequest
+import android.service.controls.ControlsProviderService.NETWORK_STATS_SERVICE
 import android.service.controls.ControlsProviderService.TAG
+import android.telephony.AccessNetworkConstants.AccessNetworkType
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
@@ -44,12 +48,17 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.auth.FirebaseAppCheckTokenProvider
+import com.google.firebase.firestore.auth.FirebaseAuthCredentialsProvider
+import com.google.firebase.firestore.core.FirestoreClient
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import okhttp3.internal.wait
 import org.checkerframework.checker.nullness.qual.NonNull
+import java.nio.channels.NetworkChannel
 
 //aluno entrar com usuario e senha
 @OptIn(ExperimentalMaterial3Api::class)
@@ -200,7 +209,7 @@ fun UserAndPassStudent(navController: NavController){
 
                 //mostrar mensagem usando o escopo do app -> context Main
                 scope.launch(Dispatchers.Main) {
-                    if (save == true) {
+                    if ((save == true) && (auth.currentUser!!.email.toString() == userState)) {
                         println("\nsalvo com sucesso \n")
                         Toast.makeText(context, "tudo ok", Toast.LENGTH_SHORT).show()
                         navController.navigate("student")
@@ -572,7 +581,7 @@ fun LoginFormTeacher(navController: NavController){
 
                     //mostrar mensagem usando o escopo do app -> context Main
                     scope.launch(Dispatchers.Main){
-                        if(save){
+                        if(save  && (auth.currentUser!!.email.toString() == userState)){
                             println("\n teacher login feito com sucesso, save = $save \n")
                             Toast.makeText(context, "tudo ok", Toast.LENGTH_SHORT).show()
                             navController.navigate("teacher")

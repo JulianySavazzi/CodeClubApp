@@ -142,7 +142,7 @@ fun Login(navController: NavController){
                             Toast.makeText(context, "cadastrado com sucesso", Toast.LENGTH_SHORT).show()
                         } else {
                             println("\nalgo deu errado \n")
-                            Toast.makeText(context, "algo deu errado ao fazer login com o Google", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, /* algo deu errado ao fazer login com o Google */ "funcionalidade de login com Google indisponível no momento...", Toast.LENGTH_SHORT).show()
                         }
                     }
 
