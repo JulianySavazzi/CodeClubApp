@@ -30,6 +30,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -54,9 +55,11 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.internal.wait
+import kotlin.coroutines.coroutineContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -368,44 +371,105 @@ fun Poll(navController: NavController){
                             println(" codes = ${codesList.toString()} || ${codesLogList.toString()} ")
                             println(" invalid codes = ${codesLogInvList.toString()} ")
 
+                            //var verifyInputCode: Boolean = codesList.toString().contains(codigoState) || codesLogList.toString().contains(codigoState)
 
-                            if(codesList.isNotEmpty() || codesLogList.isNotEmpty()){
-                                existCode = true
-                                if(codigoState.isNotEmpty()){
-                                    if(codesList.toString().contains(codigoState) || codesLogList.toString().contains(codigoState) && existCode == true) {
-                                        //se o codigo for valido ele sera utilizado
-                                        //se o codigo for utilizado, gerar um log dizendo que ele nao pode ser usado novamente nessa votacao
-                                        //adicionar voto para equipe votada e atualizar o total de votos de cada equipe e o total de votos da votacao
-                                        println(" existe code = $existCode - input code = $codigoState ")
-                                        if(!codesLogInvList.toString().contains(codigoState)){
-                                            //salvar voto
-                                            teamRepository.updateVoteTeamByName(nameTeam, myVote)
-                                            //pollRepository.updateVotesPoll()
-                                            pollRepository.saveLog(myLog.id, "código: $codigoState já foi utilizado! ", "$codigoState")
-                                            println(" user ${Firebase.auth.currentUser} - existCode = $existCode : try update votes and save log... ")
-                                            Firebase.auth.signOut()
-                                            if(Firebase.auth.currentUser == null){
-                                                saveVoteTeam = true
-                                                Toast.makeText(context, " OK: codigo -> ${codesList.toString()} || ${codesLogList.toString()} == ${codigoState.toString()} \n voto salvo com sucesso! " , Toast.LENGTH_SHORT).show()
-                                                println(" sing out poll 1 - update vote and save log ")
-                                                navController.navigate("home")
-                                            } else {
-                                                Firebase.auth.signOut()
-                                                Toast.makeText(context, " AVISO: codigo -> ${codesList.toString()} || ${codesLogList.toString()} == ${codigoState.toString()} \n não conseguimos salvar seu voto! " , Toast.LENGTH_SHORT).show()
-                                                println(" sing out poll 2 - fail ")
-                                                navController.navigate("home")
+                            /*
+                            scope.launch(Dispatchers.Main){
+                                if(codesList.isNotEmpty() || codesLogList.isNotEmpty()){
+                                    existCode = true
+                                    if(codigoState.isNotEmpty()){
+                                        if(verifyInputCode == true && existCode == true) {
+                                            //se o codigo for valido ele sera utilizado
+                                            //se o codigo for utilizado, gerar um log dizendo que ele nao pode ser usado novamente nessa votacao
+                                            //adicionar voto para equipe votada e atualizar o total de votos de cada equipe e o total de votos da votacao
+                                            println(" existe code = $existCode - input code = $codigoState - verify code = $verifyInputCode ")
+                                            if(!codesLogInvList.toString().contains(codigoState)){
+                                                println(" user ${Firebase.auth.currentUser} - existCode = $existCode : try update votes and save log... ")
+                                                if(Firebase.auth.currentUser == null){
+                                                    saveVoteTeam = true
+                                                    Toast.makeText(context, " OK: codigo -> ${codesList.toString()} || ${codesLogList.toString()} == ${codigoState.toString()} \n voto salvo com sucesso! " , Toast.LENGTH_SHORT).show()
+                                                    println(" sing out poll 1 - update vote and save log - currentUser ${Firebase.auth.currentUser}")
+                                                    navController.navigate("home")
+                                                } else {
+                                                    Firebase.auth.signOut()
+                                                    Toast.makeText(context, " AVISO: codigo -> ${codesList.toString()} || ${codesLogList.toString()} == ${codigoState.toString()} \n não conseguimos salvar seu voto! " , Toast.LENGTH_SHORT).show()
+                                                    println(" sing out poll 2 - fail - currentUser ${Firebase.auth.currentUser} ")
+                                                    navController.navigate("home")
+                                                }
+
+                                            }else {
+                                                Toast.makeText(context, " ERRO: codigo inválido -> ${codesLogInvList.toString()} == ${codigoState.toString()} \n esse código já foi utilizado! " , Toast.LENGTH_SHORT).show()
                                             }
+                                        } else Toast.makeText(context, " algo deu errado: codigo -> ${codesList.toString()} || ${codesLogList.toString()} != ${codigoState.toString()} " , Toast.LENGTH_SHORT).show()
 
-                                        }else {
-                                            Toast.makeText(context, " ERRO: codigo inválido -> ${codesLogInvList.toString()} == ${codigoState.toString()} \n esse código já foi utilizado! " , Toast.LENGTH_SHORT).show()
-                                        }
-                                    } else Toast.makeText(context, " algo deu errado: codigo -> ${codesList.toString()} || ${codesLogList.toString()} != ${codigoState.toString()} " , Toast.LENGTH_SHORT).show()
-
-                                } else Toast.makeText(context, "o código de validação não pode ser vazio!" , Toast.LENGTH_SHORT).show()
-                            } else {
-                                existCode = false
-                                println(" existCode = $existCode ")
+                                    } else Toast.makeText(context, "o código de validação não pode ser vazio!" , Toast.LENGTH_SHORT).show()
+                                } else {
+                                    existCode = false
+                                    println(" existCode = $existCode ")
+                                }
                             }
+
+                             */
+
+                            if(codigoState.isNotEmpty()){
+                                if(codesList.isNotEmpty() || codesLogList.isNotEmpty()){
+                                    existCode = true
+                                        if(/*verifyInputCode == true*/ codesList.toString().contains(codigoState) || codesLogList.toString().contains(codigoState) && existCode == true) {
+                                            //se o codigo for valido ele sera utilizado
+                                            //se o codigo for utilizado, gerar um log dizendo que ele nao pode ser usado novamente nessa votacao
+                                            //adicionar voto para equipe votada e atualizar o total de votos de cada equipe e o total de votos da votacao
+                                            println(" existe code = $existCode - input code = $codigoState ")
+                                            if(!codesLogInvList.toString().contains(codigoState)){
+                                               /* try {
+                                                    //if(codigoState.isNotEmpty() && (existCode == true && verifyInputCode == true) && (!codesLogInvList.toString().contains(codigoState))){ }
+                                                    //salvar voto
+                                                    teamRepository.updateVoteTeamByName(nameTeam, myVote)
+                                                    pollRepository.saveLog(myLog.id, "código: $codigoState já foi utilizado! ", "$codigoState")
+                                                    Firebase.auth.signOut()
+                                                    if(saveVoteTeam ==  false) saveVoteTeam = true
+                                                }catch(e: Exception){
+                                                    println(" ! Exception: $e ! ")
+                                                }
+                                                */
+                                                println(" user ${Firebase.auth.currentUser} - existCode = $existCode : try update votes and save log... ")
+                                                if(Firebase.auth.currentUser == null){
+                                                    saveVoteTeam = true
+                                                    Toast.makeText(context, " OK: codigo -> ${codesList.toString()} || ${codesLogList.toString()} == ${codigoState.toString()} \n voto salvo com sucesso! " , Toast.LENGTH_SHORT).show()
+                                                    println(" sing out poll 1 - update vote and save log - currentUser ${Firebase.auth.currentUser}")
+                                                    navController.navigate("home")
+                                                } else {
+                                                    Firebase.auth.signOut()
+                                                    Toast.makeText(context, " AVISO: codigo -> ${codesList.toString()} || ${codesLogList.toString()} == ${codigoState.toString()} \n não conseguimos salvar seu voto! " , Toast.LENGTH_SHORT).show()
+                                                    println(" sing out poll 2 - fail - currentUser ${Firebase.auth.currentUser} ")
+                                                    navController.navigate("home")
+                                                }
+
+                                            }else {
+                                                Toast.makeText(context, " ERRO: codigo inválido -> ${codesLogInvList.toString()} == ${codigoState.toString()} \n esse código já foi utilizado! " , Toast.LENGTH_SHORT).show()
+                                            }
+                                        } else Toast.makeText(context, " algo deu errado: codigo -> ${codesList.toString()} || ${codesLogList.toString()} != ${codigoState.toString()} " , Toast.LENGTH_SHORT).show()
+
+                                } else {
+                                    existCode = false
+                                    println(" existCode = $existCode ")
+                                    Toast.makeText(context, "nenhum código de validação está disponível!" , Toast.LENGTH_SHORT).show()
+                                }
+                            } else Toast.makeText(context, "o código de validação não pode ser vazio!" , Toast.LENGTH_SHORT).show()
+
+                            /*
+                            println(" ... vamos tentar executar o Dispatchers.IO ... ")
+                            scope.launch(Dispatchers.IO){
+                                if(codigoState.isNotEmpty() && (existCode == true && verifyInputCode == true) && (!codesLogInvList.toString().contains(codigoState))){
+                                    //salvar voto
+                                    teamRepository.updateVoteTeamByName(nameTeam, myVote)
+                                    pollRepository.saveLog(myLog.id, "código: $codigoState já foi utilizado! ", "$codigoState")
+                                    Firebase.auth.signOut()
+                                    if(saveVoteTeam ==  false) saveVoteTeam = true
+                                }
+                            }
+
+                             */
+
                         }else{
                             Toast.makeText(context, "selecione uma equipe para votar!" , Toast.LENGTH_SHORT).show()
                         }

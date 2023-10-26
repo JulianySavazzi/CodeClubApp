@@ -82,7 +82,8 @@ dependencies {
     implementation("androidx.compose.material3:material3-window-size-class:1.0.1")
     implementation("androidx.compose.runtime:runtime-livedata:1.3.2")
     // Import the Firebase BoM
-    implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
+    //implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
+    implementation(platform("com.google.firebase:firebase-bom:32.4.0"))
     // Add the dependencies for Firebase products you want to use
     // When using the BoM, don't specify versions in Firebase dependencies
     // https://firebase.google.com/docs/android/setup#available-libraries
@@ -97,4 +98,8 @@ dependencies {
     //implementation("androidx.constraintlayout:constraintlayout:2.2.0-alpha07")
     // To use constraintlayout in compose
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
+    // Add the dependencies for the App Check libraries
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation("com.google.firebase:firebase-appcheck-playintegrity")
+    implementation("com.google.firebase:firebase-appcheck-ktx")
 }
