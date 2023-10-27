@@ -121,30 +121,16 @@ fun Poll(navController: NavController){
     var codesLogList: MutableList<String> = mutableListOf()
     var codesLogInvList: MutableList<String> = mutableListOf()
 
-    //var n: String = ""
-    //var v: Int = 0
-
     /*
     fun trySaveVotesTeam(/*save: Boolean,*/ nameTeam: String, myVote: Int): Boolean{
         println(" *|* tentando atualizar - team $nameTeam - votos $myVote - user uid: ${Firebase.auth.uid} *|* ")
-        /*
-        val oldVote = teamRepository.getTeamByName(nameTeam).vote
-        teamRepository.updateVoteTeamByName(nameTeam, myVote)
-        val newVote = teamRepository.getTeamByName(nameTeam).vote
-        println(" voto antigo = $oldVote - voto atualizado = $newVote ")
-        if( oldVote != newVote){
-            println(" ! TEAM $nameTeam atualizada com sucesso ! ")
-            Firebase.auth.signOut()
-        }
-         */
-        val oldVote = teamRepository.getTeamByName(nameTeam).vote
-        val newVote = teamRepository.getTeamByName(nameTeam).vote
+
         if(oldVote == newVote){
             teamRepository.updateVoteTeamByName(nameTeam, myVote)
         }
         println(" < voto antigo = $oldVote - voto atualizado = $newVote > ")
         if(oldVote != newVote){
-            println(" <! TEAM $nameTeam atualizada com sucesso !> ")
+
             saveVoteTeam = true
             return true
         }
@@ -153,68 +139,27 @@ fun Poll(navController: NavController){
 
      */
 
-    /*
-    fun getNameTeam(nameTeam: String): String{
-        return nameTeam
-    }
-
-    fun getVotesTeam(votes: Int): Int{
-         return votes
-    }
-
-     */
-
     fun getIdPoll(id: Int, name: String, vote: Int):Int {
+        val oldVote = teamRepository.getTeamByName(name).vote
         val totalVotesPoll = pollRepository.getPollById(id).qtdTotalVotes
         var myVotes: Int = totalVotesPoll + 1
         //println(" < get name team = $n - get votes team updated = $v > ")
+
         if(saveVoteTeam == true) {
             teamRepository.updateVoteTeamByName(name, vote)
             pollRepository.updateVotesPoll(id, myVotes, myTeams)
             pollRepository.saveLog(myLog.id, "código: $codigoState já foi utilizado! ", "$codigoState")
             Firebase.auth.signOut()
         }
+
+        if(oldVote == vote){
+            println(" <! TEAM $name atualizada com sucesso !> ")
+        }
+
         println(" < TEAM: $name - UPDATED VOTES: $vote > \n * POLL ID $id updating total votes: $totalVotesPoll -> $myVotes - salvo: $saveVoteTeam * ")
+
         return id
     }
-
-    /*
-    *
-    * EXEMPLO
-    val query = refPoll.whereEqualTo("endPoll", false).whereEqualTo("id", idPoll)
-    fun updateStatusPoll(){
-        query!!.addSnapshotListener { snapshot, e ->
-            if (e != null) error = true
-            else {
-                error = false
-                if (snapshot != null && snapshot.documents.isNotEmpty()) {
-                    //se existe uma votação em andamento -> endPoll = false
-                    query.get().addOnCompleteListener { querySnapshot ->
-                        updatePoll = if(querySnapshot.isSuccessful) querySnapshot.isSuccessful
-                        else false
-                        print(" updatePoll = $updatePoll ")
-                        if(updatePoll){
-                            repository.updatePoll(idPoll, true)
-                            feedRepository.saveFeed(
-                                feedModel.id,
-                                "votação finalizada em $dateTime",
-                                "a votação foi encerrada!"
-                            )
-                            repository.saveLog(idLogPoll, "votação $idPoll encerrada ", "votação finalizada em $dateTime, quantidade de votos: $qtdVotesPoll")
-                            endPoll = true
-                            print("*** VOTAÇÃO FINALIZADA ***")
-                            //repository.saveLog(idLogPoll, "votação $idPoll finalizada e excluída", "votação excluída em $dateTime, quantidade de votos: $qtdVotesPoll")
-                            //repository.deletePoll(idPoll)
-                        } else print("*** VOTAÇÃO NÃO PODE SER FINALIZADA ***")
-                    }
-                } else {
-                    endPoll = false
-                }
-            }
-        }
-    }
-    *
-    * */
 
     Column(
         modifier = Modifier
@@ -443,10 +388,7 @@ fun Poll(navController: NavController){
                                 }
                             }
 
-                            //var verifyInputCode: Boolean = codesList.toString().contains(codigoState) || codesLogList.toString().contains(codigoState)
-
                             println(" *** team selected: $nameTeam - votes: $votes - updated votes: $myVote *** ")
-                            //println(" ID POLL: ${myPollId.toString()}")
                             println(" codes = ${codesList.toString()} || ${codesLogList.toString()} - verify input codes...  ")
                             println(" invalid codes = ${codesLogInvList.toString()} ")
 
@@ -461,21 +403,7 @@ fun Poll(navController: NavController){
                                         println(" -> existe code = $existCode - input code = $codigoState <- ")
                                         if(!codesLogInvList.toString().contains(codigoState)){
                                             //salvar voto
-                                            //teamRepository.updateVoteTeamByName(nameTeam, myVote)
-                                            //pollRepository.saveLog(myLog.id, "código: $codigoState já foi utilizado! ", "$codigoState")
-                                            //Firebase.auth.signOut()
-                                            //if(saveVoteTeam ==  false) saveVoteTeam = true
                                             println(" *** TRY SAVE VOTES TEAM -> TEAM $nameTeam - VOTES $myVote *** ")
-                                            //n = getNameTeam(nameTeam)
-                                            //v = getVotesTeam(myVote)
-                                            /*
-                                            trySaveVotesTeam(nameTeam, myVote)
-                                            val check = trySaveVotesTeam(/*true,*/ nameTeam, myVote)
-                                            if(check == true) {
-                                                saveVoteTeam = true
-                                            }
-
-                                             */
                                             saveVoteTeam = true
                                             println(" user ${Firebase.auth.currentUser} - existCode = $existCode : try update votes and save log... ")
                                             if(Firebase.auth.currentUser == null){
@@ -529,10 +457,8 @@ fun VotesTeam(
     //val projectsTeam = listItem[position].projects
 
     //coroutines trabalham com threads
-    val scope = rememberCoroutineScope()
-    val context = LocalContext.current
-
-
+    //val scope = rememberCoroutineScope()
+    //val context = LocalContext.current
 
     //enviar equipe selecionada para a funcao de salvar voto
     Divider(

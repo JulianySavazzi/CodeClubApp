@@ -427,12 +427,12 @@ fun MyListPolls(
     //val teamsPoll = listItem[position].teamsVoted
     val statusPoll = listItem[position].endPoll
     val idLogPoll = LogPoll().id
+    val idFeed = Feed().id
 
     val repository = PollRepository()
 
     //coroutines trabalham com threads
     val scope = rememberCoroutineScope()
-    val scopeCodVal = rememberCoroutineScope()
 
     val feedRepository = FeedRepository()
     val dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMM dd yyyy, hh:mm:ss a"))
@@ -597,17 +597,6 @@ fun MyListPolls(
                 }
             )
 
-            /*
-            Text(
-                text = "códigos de validação: ${codValPoll!![0]} ...",
-                modifier = Modifier.constrainAs(txtCodVal) {
-                    top.linkTo(txtId.bottom, margin = 15.dp)
-                    start.linkTo(parent.start, margin = 15.dp)
-                }
-            )
-
-             */
-
             Text(
                 text = "quantidade de votos: $qtdVotesPoll ...",
                 modifier = Modifier.constrainAs(txtQtdVotes) {
@@ -615,16 +604,6 @@ fun MyListPolls(
                     start.linkTo(parent.start, margin = 15.dp)
                 }
             )
-
-            /*
-            Text(
-                text = "equipes elegíveis: ${teamsPoll!![0]} ...",
-                modifier = Modifier.constrainAs(txtTeams) {
-                    top.linkTo(txtQtdVotes.bottom, margin = 15.dp)
-                    start.linkTo(parent.start, margin = 15.dp)
-                }
-            )
-             */
 
             Text(
                 text = "status da votação: encerrada -> $statusPoll ...",
@@ -663,6 +642,7 @@ fun MyListPolls(
                             navController.navigate("teacher")
                             //savar resultado da votação em log e no feed
                             repository.saveLog(idLogPoll, "votação $idPoll encerrada e excluída", "votação excluída em $dateTime, quantidade de votos: $qtdVotesPoll")
+                            feedRepository.saveFeed(idFeed, "ATENÇÃO, VOTAÇÃO $idPoll ENCERRADA!", "votação finalizada em $dateTime, \n quantidade de votos: $qtdVotesPoll \n ")
                             repository.deletePoll(idPoll)
                             Toast.makeText(context, "votação finalizada!", Toast.LENGTH_SHORT).show()
                         } else {
