@@ -563,8 +563,6 @@ fun MyListPolls(
         println(" fun saveCode = $saveCode ")
     }
 
-
-
     Divider(
         thickness = 15.dp,
         modifier = Modifier.fillMaxWidth(),

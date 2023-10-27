@@ -1,5 +1,7 @@
 package com.example.codeclubapp.view
 
+import android.content.ContentValues
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,13 +26,16 @@ import androidx.navigation.NavController
 import com.example.codeclubapp.components.MyAppBarBottom
 import com.example.codeclubapp.components.MyAppBarTop
 import com.example.codeclubapp.components.MyLoginButton
+import com.example.codeclubapp.model.Project
 import com.example.codeclubapp.model.Student
+import com.example.codeclubapp.model.Team
 import com.example.codeclubapp.repository.ProjectRepository
 import com.example.codeclubapp.repository.StudentRepository
 import com.example.codeclubapp.repository.TeamRepository
 import com.example.codeclubapp.ui.theme.GreenLightCode
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 
 @Composable
@@ -51,13 +56,97 @@ fun Student(navController: NavController){
 
     val teamsRepo = TeamRepository()
 
-    val projectRepo = ProjectRepository()
+    //val projectRepo = ProjectRepository()
 
     val repository = StudentRepository()
 
-    val student: Student = repository.getSudentByEmail(auth.currentUser?.email.toString())
+    var studentList: MutableList<Student> = mutableListOf()
 
-    //var nameStudent = student.name
+    var membersTeam: MutableList<Team> = mutableListOf()
+
+    var error = false
+
+    //mostrar projetos e equipes
+    var nameStudent = ""
+    var nameProjects: MutableList<String> = mutableListOf()
+    var nameTeams: MutableList<String> = mutableListOf()
+
+    var i: Int = membersTeam!!.size
+
+    //pegar nome das equipes e projetos que esse aluno participa
+    val refTeam = FirebaseFirestore.getInstance().collection("team")
+    val refStudent = FirebaseFirestore.getInstance().collection("student")
+
+    val queryStudent = refStudent.whereEqualTo("email", auth.currentUser?.email).whereEqualTo("isStudent", true)
+
+    /*
+    for (i in studentList.indices){
+        nameStudent = studentList[i].name.toString()
+    }
+
+     */
+
+    fun getNameStudent(name: String):String{
+        nameStudent = name
+        println("student $nameStudent")
+        val queryTeam = refTeam.whereEqualTo("members", listOf(nameStudent))
+
+        queryTeam!!.addSnapshotListener { snapshot, e ->
+            if (e != null) error = true
+            else {
+                error = false
+                if (snapshot != null && snapshot.documents.isNotEmpty()) {
+                    //se encontrou um documento que atende a query -> votacao nao foi encerrada
+                    queryTeam.get().addOnCompleteListener { querySnapshot ->
+                        if(querySnapshot.isSuccessful){
+                            for(document in querySnapshot.result){
+                                //var i = 0
+                                val myTeam = document.toObject(Team::class.java)
+                                membersTeam.add(myTeam)
+                                Log.d(ContentValues.TAG, " team: ${nameTeams.toString()} - projects: ${nameProjects.toString()} ")
+                                return@addOnCompleteListener
+                            }
+                        } else {
+                            Log.d(ContentValues.TAG, " team is not found ")
+                        }
+                    }
+                }
+
+            }
+        }
+
+        for(i in membersTeam.indices){
+            //selectedItem.add(listItem[position])
+            nameTeams.add(membersTeam[i].name.toString())
+            nameProjects.add(membersTeam[i].projects.toString())
+        }
+
+        return name
+    }
+
+    queryStudent!!.addSnapshotListener {snapshot, e ->
+        if (e != null) error = true
+        else {
+            error = false
+            if (snapshot != null && snapshot.documents.isNotEmpty()) {
+                //se encontrou um documento que atende a query -> votacao nao foi encerrada
+                queryStudent.get().addOnCompleteListener {
+                        querySnapshot ->
+                    if(querySnapshot.isSuccessful){
+                        for(document in querySnapshot.result){
+                            val myStudent = document.toObject(Student::class.java)
+                            studentList.add(myStudent)
+                            getNameStudent(myStudent.name.toString())
+                            Log.d(ContentValues.TAG, " student: ${studentList.toString()}  ")
+                            return@addOnCompleteListener
+                        }
+                    } else {
+                        Log.d(ContentValues.TAG, " student is not found ")
+                    }
+                }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -74,6 +163,7 @@ fun Student(navController: NavController){
                 .verticalScroll(rememberScrollState()) //barra de rolagem
         ) {
             //Rows -> corpo do app
+           /*
             Row (
                 modifier = Modifier
                     .fillMaxWidth()
@@ -82,7 +172,7 @@ fun Student(navController: NavController){
                 verticalAlignment = Alignment.Bottom
             ){
                 Text(
-                    text = "meus projetos: ",
+                    text = "meus projetos: ${listOf(nameProjects.toString())}",
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 18.sp
@@ -94,6 +184,8 @@ fun Student(navController: NavController){
                 modifier = Modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.onBackground
             )
+            */
+
             Row (
                 modifier = Modifier
                     .fillMaxWidth()
@@ -103,7 +195,7 @@ fun Student(navController: NavController){
             ){
                 //Arrays.toString(arrayName)
                 Text(
-                    text = "minhas equipes: ${teamsRepo.getStudentTeam(student.name.toString())}",
+                    text = "minhas equipes: ${listOf(nameTeams.toString())}",
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 18.sp
@@ -115,6 +207,7 @@ fun Student(navController: NavController){
                 modifier = Modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.onBackground
             )
+
             Row (
                 modifier = Modifier
                     .fillMaxWidth()
@@ -123,7 +216,8 @@ fun Student(navController: NavController){
                 verticalAlignment = Alignment.Bottom
             ){
                 Text(
-                    text = "meu perfil:\n email: ${Firebase.auth.currentUser?.email}\n nome: ${student.name}",
+                    text = "meu perfil:\n email: ${Firebase.auth.currentUser?.email}\n " +
+                            "nome: $nameStudent",
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 18.sp
@@ -171,3 +265,4 @@ fun Student(navController: NavController){
         }
     }
 }
+

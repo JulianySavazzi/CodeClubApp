@@ -216,6 +216,14 @@ class DataSource {
                         Log.d(TAG, "student by name: $querySnapshot, $student")
                         return@addOnCompleteListener
                     }
+                }else {
+                    db.collection("student")
+                        .document(name).get().addOnSuccessListener {
+                                documentSnapshot ->
+                            val myStudent = documentSnapshot.toObject<Student>()
+                            student = myStudent!!
+                        }
+
                 }
             }
         return student
@@ -233,6 +241,13 @@ class DataSource {
                         Log.d(TAG, "student by email: $querySnapshot, ${student.name}")
                         return@addOnCompleteListener
                     }
+                } else {
+                    db.collection("student").whereEqualTo("email", email).get()
+                        .addOnCompleteListener {
+                                documentSnapshot ->
+                            val myStudent = documentSnapshot.result.toObjects(Student::class.java)
+                            student = myStudent[myStudent.size - 1]
+                        }
                 }
             }
         return student
