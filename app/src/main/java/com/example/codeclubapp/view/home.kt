@@ -101,7 +101,7 @@ fun Home(navController: NavController){
         val alertDialog = AlertDialog.Builder(context)
         alertDialog.setTitle("NÃO É POSSÍVEL VOTAR!")
             .setMessage("nenhuma votação está disponível no momento, aguarde...")
-            .setPositiveButton("DESISTIR"){
+            .setPositiveButton("OK"){
                     _, _, ->
 
                 scope.launch(Dispatchers.Main){
@@ -110,7 +110,7 @@ fun Home(navController: NavController){
                     navController.navigate("home")
                     Toast.makeText(context, "nenhuma votação está disponível", Toast.LENGTH_SHORT).show()
                 }
-            }.setNegativeButton("[fechar aviso]"){
+            }.setNegativeButton(" "){
                 _, _, ->
             }.show()
     }

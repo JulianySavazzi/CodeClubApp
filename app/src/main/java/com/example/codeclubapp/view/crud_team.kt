@@ -695,7 +695,6 @@ fun MyListTeams(
     var i: Int = membersTeam!!.size
     var j: Int = projectsTeam!!.size
 
-
     fun deleteDialog(){
         //deletar estudante
         val alertDialog = AlertDialog.Builder(context)
@@ -777,7 +776,11 @@ fun MyListTeams(
             )
 
             IconButton(
-                onClick = { /*TODO*/ },
+                onClick = {
+                    /*TODO*/
+                    println(" * testando funcao de atualizar votos * ")
+                    //repository.updateVoteTeamByName(titleTeam.toString(), 10)
+                          },
                 modifier = Modifier.constrainAs(navBarItemEdit) {
                     top.linkTo(txtMembers.bottom, margin = 15.dp)
                     start.linkTo(parent.start, margin = 15.dp)

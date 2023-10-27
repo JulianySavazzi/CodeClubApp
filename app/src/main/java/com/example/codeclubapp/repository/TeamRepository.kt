@@ -42,9 +42,9 @@ class TeamRepository() {
     }
 
     fun updateVoteTeamByName(
-        name: String,
+        title: String,
         vote: Int
     ){
-        return dataSource.updateVoteTeamByName(name, vote)
+        return dataSource.updateVoteTeamByName(title, vote)
     }
 }
