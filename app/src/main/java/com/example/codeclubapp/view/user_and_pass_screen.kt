@@ -127,7 +127,7 @@ fun UserAndPassStudent(navController: NavController){
             .verticalScroll(rememberScrollState()) //barra de rolagem
             .background(MaterialTheme.colorScheme.background)
     ){
-        MyAppBarTop(title = "entrar no app")
+        MyAppBarTop(title = "entrar no app estudante")
         Row (
             modifier = Modifier
                 .fillMaxWidth(2f)
@@ -290,7 +290,7 @@ fun UserAndPassTeacher(navController: NavController){
             .verticalScroll(rememberScrollState()) //barra de rolagem
             .background(MaterialTheme.colorScheme.background)
     ){
-        MyAppBarTop(title = "entrar no app")
+        MyAppBarTop(title = "criar conta")
         //Rows -> corpo do app
         Row (
             modifier = Modifier
@@ -472,7 +472,7 @@ fun LoginFormTeacher(navController: NavController){
             .verticalScroll(rememberScrollState()) //barra de rolagem
             .background(MaterialTheme.colorScheme.background)
     ){
-        MyAppBarTop(title = "entrar no app")
+        MyAppBarTop(title = "entrar no app prof")
         //Rows -> corpo do app
         Row (
             modifier = Modifier

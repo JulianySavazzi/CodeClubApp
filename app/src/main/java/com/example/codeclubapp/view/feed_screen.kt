@@ -204,30 +204,6 @@ fun MyListFeed(
                 }
             )
 
-            /*
-            IconButton(
-                onClick = { /*TODO*/ },
-                modifier = Modifier.constrainAs(navBarItemEdit) {
-                    top.linkTo(txtDescription.bottom, margin = 15.dp)
-                    start.linkTo(parent.start, margin = 15.dp)
-                },
-            ) {
-                //Text(text = "editar"),
-                Image(imageVector = ImageVector.vectorResource(id = R.drawable.icon_edit_24), contentDescription ="editar")
-            }
-
-            IconButton(
-                onClick = { /*TODO*/ },
-                modifier = Modifier.constrainAs(navBarItemDelete) {
-                    top.linkTo(txtDescription.bottom, margin = 15.dp)
-                    start.linkTo(navBarItemEdit.end, margin = 15.dp)
-                    end.linkTo(parent.end, margin = 15.dp)
-                }
-            ) {
-                //Text(text = "excluir")
-                Image(imageVector = ImageVector.vectorResource(id = R.drawable.icon_delete_24), contentDescription ="excluir")
-            }
-             */
         }
     }
     Divider(
