@@ -416,15 +416,8 @@ fun MyListPolls(
     navController: NavController
 ){
     //ligar a view com a model
-    //var id: Int = identifier++,
-    //var codeVal: MutableList<Long> = listCodeVal,
-    //var qtdTotalVotes: Int = qtdTotal,
-    //var teamsForVotes: MutableList<Team> = listTeams,
-    //var endPoll: Boolean? = null,
     val idPoll = listItem[position].id
-    //val codValPoll = listItem[position].codeVal
     val qtdVotesPoll = listItem[position].qtdTotalVotes
-    //val teamsPoll = listItem[position].teamsVoted
     val statusPoll = listItem[position].endPoll
     val idLogPoll = LogPoll().id
     val idFeed = Feed().id
@@ -438,7 +431,11 @@ fun MyListPolls(
     val dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMM dd yyyy, hh:mm:ss a"))
     val feedModel = Feed()
 
+    val teamRepo = TeamRepository()
+
     var codeList: MutableList<Long> = mutableListOf()
+
+    var teamsList: MutableList<Team> = mutableListOf()
 
     var updatePoll = false
 
@@ -453,14 +450,25 @@ fun MyListPolls(
     val refPoll = FirebaseFirestore.getInstance().collection("poll")
     val query = refPoll.whereEqualTo("endPoll", false).whereEqualTo("id", idPoll)
 
-    /*
-    var click by remember{
-        mutableStateOf(false)
-    }
-     */
+    val getTeams = teamRepo.returnTeam()
+
+    var resultList: MutableList<String> = mutableListOf()
 
     //limitar codigo a numeros positivos de 6 digitos de 100000 até 999999
     val code = nextLong(100000, 999999)
+
+    fun countVotesPollByTeam(): String{
+        //pegar todas as votações salvas no banco
+        if(getTeams.isNotEmpty()){
+            for(i in getTeams.indices){
+                teamsList.add(getTeams[i])
+                resultList.add(" equipe: ${getTeams[i].name} - votos: ${getTeams[i].vote}")
+            }
+            println(" ***** ${listOf(teamsList.toString())} - ${listOf(resultList.toString())}  ***** ")
+            repository.saveLog(idLogPoll, "resultado da votação $idPoll", " $dateTime \n resultado: ${listOf(resultList.toString())}")
+        }
+        return "${listOf(resultList.toString())}"
+    }
 
     fun deleteDialog(){
         //deletar estudante
@@ -499,12 +507,16 @@ fun MyListPolls(
                         print(" updatePoll = $updatePoll ")
                         if(updatePoll){
                             repository.updatePoll(idPoll, true)
+                            countVotesPollByTeam()
+                            /*
                             feedRepository.saveFeed(
                                 feedModel.id,
                                 "votação finalizada em $dateTime",
                                 "a votação foi encerrada!"
                             )
-                            repository.saveLog(idLogPoll, "votação $idPoll encerrada ", "votação finalizada em $dateTime, quantidade de votos: $qtdVotesPoll")
+                             */
+                            repository.saveLog(idLogPoll, "votação $idPoll encerrada ", "votação finalizada em $dateTime, quantidade de votos: $qtdVotesPoll, \n resultado: ${countVotesPollByTeam()}")
+                            feedRepository.saveFeed(idFeed, "ATENÇÃO, VOTAÇÃO $idPoll ENCERRADA!", "votação finalizada em $dateTime, \n quantidade de votos: $qtdVotesPoll \n resultado: ${countVotesPollByTeam()} ")
                             endPoll = true
                             print("*** VOTAÇÃO FINALIZADA ***")
                             //repository.saveLog(idLogPoll, "votação $idPoll finalizada e excluída", "votação excluída em $dateTime, quantidade de votos: $qtdVotesPoll")
@@ -631,6 +643,7 @@ fun MyListPolls(
                     //atualiza atributo endPoll do documento da votação para true
                     //contabiliza o resultado da votação e salva uma publicação com o resultado
                     //colocar data e hora no titulo da publicacao
+                    countVotesPollByTeam()
                     updateStatusPoll()
 
                     println("\nupdatePoll = $updatePoll, endPoll = $endPoll")
@@ -640,7 +653,6 @@ fun MyListPolls(
                             navController.navigate("teacher")
                             //savar resultado da votação em log e no feed
                             repository.saveLog(idLogPoll, "votação $idPoll encerrada e excluída", "votação excluída em $dateTime, quantidade de votos: $qtdVotesPoll")
-                            feedRepository.saveFeed(idFeed, "ATENÇÃO, VOTAÇÃO $idPoll ENCERRADA!", "votação finalizada em $dateTime, \n quantidade de votos: $qtdVotesPoll \n ")
                             repository.deletePoll(idPoll)
                             Toast.makeText(context, "votação finalizada!", Toast.LENGTH_SHORT).show()
                         } else {

@@ -84,10 +84,8 @@ fun Poll(navController: NavController){
     //adicionar equipe selecionada nessa lista para salvar no banco -> contabilizar as votações
     val myTeams: MutableList<Team> = mutableListOf()
 
-    //var selectedTeam: MutableList<Team> = mutableListOf()
-
     //coroutines trabalham com threads
-    val scope = rememberCoroutineScope()
+    //val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
     var myPoll = Poll()
@@ -99,12 +97,9 @@ fun Poll(navController: NavController){
         mutableStateOf("")
     }
 
-    //var idLogPoll = LogPoll().id
-
     val refPoll = FirebaseFirestore.getInstance().collection("poll")
     val refLog = FirebaseFirestore.getInstance().collection("log")
-    //se a votacao nao foi encerrada e o codigo digitado esta cadastrado na votacao
-    //val query = refPoll.whereEqualTo("endPoll", false).whereEqualTo("codeVal", listOfNotNull(codigoState))
+    //se a votacao nao foi encerrada
     val query = refPoll.whereEqualTo("endPoll", false)
     //se o codigo foi cadastrado na votacao
     val queryLogCode = refLog.whereEqualTo("name", codigoState)
@@ -120,24 +115,6 @@ fun Poll(navController: NavController){
     var codesList: MutableList<Long> = mutableListOf()
     var codesLogList: MutableList<String> = mutableListOf()
     var codesLogInvList: MutableList<String> = mutableListOf()
-
-    /*
-    fun trySaveVotesTeam(/*save: Boolean,*/ nameTeam: String, myVote: Int): Boolean{
-        println(" *|* tentando atualizar - team $nameTeam - votos $myVote - user uid: ${Firebase.auth.uid} *|* ")
-
-        if(oldVote == newVote){
-            teamRepository.updateVoteTeamByName(nameTeam, myVote)
-        }
-        println(" < voto antigo = $oldVote - voto atualizado = $newVote > ")
-        if(oldVote != newVote){
-
-            saveVoteTeam = true
-            return true
-        }
-        else return false
-    }
-
-     */
 
     fun getIdPoll(id: Int, name: String, vote: Int):Int {
         val oldVote = teamRepository.getTeamByName(name).vote
@@ -305,7 +282,6 @@ fun Poll(navController: NavController){
                                         query.get().addOnCompleteListener { querySnapshot ->
                                             if(querySnapshot.isSuccessful){
                                                 for(document in querySnapshot.result){
-                                                    //var i = 0
                                                     myPoll = document.toObject(Poll::class.java)
                                                     //se o codigo existe, vamos adicionar ele na lista de codigos
                                                     for (element in myPoll.codeVal!!){
@@ -335,7 +311,6 @@ fun Poll(navController: NavController){
                                         queryLogCode.get().addOnCompleteListener { querySnapshot ->
                                             if(querySnapshot.isSuccessful){
                                                 for(document in querySnapshot.result){
-                                                    //var i = 0
                                                     myLog = document.toObject(LogPoll::class.java)
                                                     //se o codigo existe, vamos adicionar ele na lista de codigos
                                                     //codesList.add(i, myPoll.codeVal!![i])
@@ -343,7 +318,6 @@ fun Poll(navController: NavController){
                                                         codesLogList.add(myLog.name!!)
                                                         println(codesLogList.toString())
                                                     }
-                                                    //i++
                                                     Log.d(TAG, " this codes: ${listOf(codesLogList.toString())} ")
                                                     return@addOnCompleteListener
                                                 }
@@ -366,7 +340,6 @@ fun Poll(navController: NavController){
                                         queryLogInvalidCode.get().addOnCompleteListener { querySnapshot ->
                                             if(querySnapshot.isSuccessful){
                                                 for(document in querySnapshot.result){
-                                                    //var i = 0
                                                     myLog = document.toObject(LogPoll::class.java)
                                                     //se o codigo existe, vamos adicionar ele na lista de codigos
                                                     //codesList.add(i, myPoll.codeVal!![i])
@@ -375,7 +348,6 @@ fun Poll(navController: NavController){
                                                         println(codesLogInvList.toString())
                                                         pollRepository.saveLog(myLog.id, "código: ${myLog.description} já foi utilizado! ", "${myLog.description}")
                                                     }
-                                                    //i++
                                                     Log.d(TAG, " this codes: ${listOf(codesLogInvList.toString())} in invalid codes list")
                                                     return@addOnCompleteListener
                                                 }
@@ -454,11 +426,6 @@ fun VotesTeam(
 
     //ligar a view com a model
     val titleTeam = listItem[position].name
-    //val projectsTeam = listItem[position].projects
-
-    //coroutines trabalham com threads
-    //val scope = rememberCoroutineScope()
-    //val context = LocalContext.current
 
     //enviar equipe selecionada para a funcao de salvar voto
     Divider(
@@ -476,7 +443,6 @@ fun VotesTeam(
             // Create references for the composables to constrain
             val (
                 txtTitle,
-                //txtProjects,
                 check
             ) = createRefs()
 
