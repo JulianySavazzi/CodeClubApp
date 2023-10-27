@@ -447,26 +447,51 @@ fun MyListPolls(
         mutableStateOf(false)
     }
 
+    var getTeams: MutableList<Team> = mutableListOf()
+
     val refPoll = FirebaseFirestore.getInstance().collection("poll")
     val query = refPoll.whereEqualTo("endPoll", false).whereEqualTo("id", idPoll)
 
-    val getTeams = teamRepo.returnTeam()
+    val refTeam = FirebaseFirestore.getInstance().collection("team")
 
     var resultList: MutableList<String> = mutableListOf()
 
     //limitar codigo a numeros positivos de 6 digitos de 100000 até 999999
     val code = nextLong(100000, 999999)
 
-    fun countVotesPollByTeam(): String{
+    fun countVotesPollByTeam(myTeamstList: MutableList<Team>): String{
         //pegar todas as votações salvas no banco
-        if(getTeams.isNotEmpty()){
-            for(i in getTeams.indices){
-                teamsList.add(getTeams[i])
-                resultList.add(" equipe: ${getTeams[i].name} - votos: ${getTeams[i].vote}")
+
+        if(myTeamstList.isNotEmpty()){
+            for(i in myTeamstList!!.indices){
+                teamsList.add(myTeamstList[i])
+                resultList.add("\n | equipe: ${teamsList[i].name} - votos: ${teamsList[i].vote} |  \n")
             }
-            println(" ***** ${listOf(teamsList.toString())} - ${listOf(resultList.toString())}  ***** ")
             repository.saveLog(idLogPoll, "resultado da votação $idPoll", " $dateTime \n resultado: ${listOf(resultList.toString())}")
+        } else {
+            refTeam!!.get().addOnCompleteListener {
+                    querySnapshot ->
+                if(querySnapshot.isSuccessful){
+                    for(document in querySnapshot.result){
+                        //se a colecao existe e tem documentos
+                        //vamos recuperar cada documento e adicionar no nosso objeto da model
+                        val team = document.toObject(Team::class.java)
+                        getTeams.add(team)
+                        return@addOnCompleteListener
+                    }
+                    if(getTeams.isNotEmpty()){
+                        for(i in getTeams!!.indices){
+                            teamsList.add(getTeams[i])
+                            resultList.add(" \n | equipe: ${teamsList[i].name} - votos: ${teamsList[i].vote} |  \n")
+                        }
+                        repository.saveLog(idLogPoll, "resultado da votação $idPoll", " $dateTime \n resultado: ${listOf(resultList.toString())}")
+                    }
+                    println(" ***** ${listOf(teamsList.toString())} - ${listOf(resultList.toString())}  ***** ")
+                }
+            }
         }
+        println(" ***** ${listOf(teamsList.toString())} - ${listOf(resultList.toString())}  ***** ")
+
         return "${listOf(resultList.toString())}"
     }
 
@@ -507,7 +532,7 @@ fun MyListPolls(
                         print(" updatePoll = $updatePoll ")
                         if(updatePoll){
                             repository.updatePoll(idPoll, true)
-                            countVotesPollByTeam()
+                            //countVotesPollByTeam(myTeamstList)
                             /*
                             feedRepository.saveFeed(
                                 feedModel.id,
@@ -515,8 +540,7 @@ fun MyListPolls(
                                 "a votação foi encerrada!"
                             )
                              */
-                            repository.saveLog(idLogPoll, "votação $idPoll encerrada ", "votação finalizada em $dateTime, quantidade de votos: $qtdVotesPoll, \n resultado: ${countVotesPollByTeam()}")
-                            feedRepository.saveFeed(idFeed, "ATENÇÃO, VOTAÇÃO $idPoll ENCERRADA!", "votação finalizada em $dateTime, \n quantidade de votos: $qtdVotesPoll \n resultado: ${countVotesPollByTeam()} ")
+                            repository.saveLog(idLogPoll, "votação $idPoll encerrada ", "votação finalizada em $dateTime, quantidade de votos: $qtdVotesPoll")
                             endPoll = true
                             print("*** VOTAÇÃO FINALIZADA ***")
                             //repository.saveLog(idLogPoll, "votação $idPoll finalizada e excluída", "votação excluída em $dateTime, quantidade de votos: $qtdVotesPoll")
@@ -599,6 +623,13 @@ fun MyListPolls(
                 navBarCod
             ) = createRefs()
 
+            //preencher a lista
+            val myTeamstList: MutableList<Team> = teamRepo.getTeam().collectAsState(
+                //se o estado da lista for vazio vai retornar uma mutableListOf
+                //se a lista tiver preenchida vai retornar os valores dos documentos
+                mutableListOf()
+            ).value
+
             Text(
                 text = "id da votação: $idPoll",
                 modifier = Modifier.constrainAs(txtId) {
@@ -643,8 +674,10 @@ fun MyListPolls(
                     //atualiza atributo endPoll do documento da votação para true
                     //contabiliza o resultado da votação e salva uma publicação com o resultado
                     //colocar data e hora no titulo da publicacao
-                    countVotesPollByTeam()
+                    println(" resultado da votação -> ${listOf(resultList.toString())} ")
+                    countVotesPollByTeam(myTeamstList)
                     updateStatusPoll()
+                    feedRepository.saveFeed(idFeed, "ATENÇÃO, VOTAÇÃO $idPoll ENCERRADA!", "votação finalizada em $dateTime, \n quantidade de votos: $qtdVotesPoll \n RESULTADO: ${listOf(resultList.toString())} ")
 
                     println("\nupdatePoll = $updatePoll, endPoll = $endPoll")
                     scope.launch(Dispatchers.Main){
