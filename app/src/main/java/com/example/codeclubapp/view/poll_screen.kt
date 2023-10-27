@@ -121,24 +121,60 @@ fun Poll(navController: NavController){
     var codesLogList: MutableList<String> = mutableListOf()
     var codesLogInvList: MutableList<String> = mutableListOf()
 
-    fun trySaveVotesTeam(/*save: Boolean,*/ nameTeam: String, myVote: Int){
-        println(" * tentando atualizar - team $nameTeam - votos $myVote * ")
+    //var n: String = ""
+    //var v: Int = 0
+
+    /*
+    fun trySaveVotesTeam(/*save: Boolean,*/ nameTeam: String, myVote: Int): Boolean{
+        println(" *|* tentando atualizar - team $nameTeam - votos $myVote - user uid: ${Firebase.auth.uid} *|* ")
+        /*
         val oldVote = teamRepository.getTeamByName(nameTeam).vote
         teamRepository.updateVoteTeamByName(nameTeam, myVote)
         val newVote = teamRepository.getTeamByName(nameTeam).vote
         println(" voto antigo = $oldVote - voto atualizado = $newVote ")
         if( oldVote != newVote){
-            pollRepository.saveLog(myLog.id, "código: $codigoState já foi utilizado! ", "$codigoState")
             println(" ! TEAM $nameTeam atualizada com sucesso ! ")
             Firebase.auth.signOut()
         }
+         */
+        val oldVote = teamRepository.getTeamByName(nameTeam).vote
+        val newVote = teamRepository.getTeamByName(nameTeam).vote
+        if(oldVote == newVote){
+            teamRepository.updateVoteTeamByName(nameTeam, myVote)
+        }
+        println(" < voto antigo = $oldVote - voto atualizado = $newVote > ")
+        if(oldVote != newVote){
+            println(" <! TEAM $nameTeam atualizada com sucesso !> ")
+            saveVoteTeam = true
+            return true
+        }
+        else return false
     }
 
-    fun getIdPoll(id: Int):Int {
+     */
+
+    /*
+    fun getNameTeam(nameTeam: String): String{
+        return nameTeam
+    }
+
+    fun getVotesTeam(votes: Int): Int{
+         return votes
+    }
+
+     */
+
+    fun getIdPoll(id: Int, name: String, vote: Int):Int {
         val totalVotesPoll = pollRepository.getPollById(id).qtdTotalVotes
         var myVotes: Int = totalVotesPoll + 1
-        if(saveVoteTeam == true) pollRepository.updateVotesPoll(id, myVotes, myTeams)
-        println(" * POLL ID $id updating total votes: $totalVotesPoll -> $myVotes * ")
+        //println(" < get name team = $n - get votes team updated = $v > ")
+        if(saveVoteTeam == true) {
+            teamRepository.updateVoteTeamByName(name, vote)
+            pollRepository.updateVotesPoll(id, myVotes, myTeams)
+            pollRepository.saveLog(myLog.id, "código: $codigoState já foi utilizado! ", "$codigoState")
+            Firebase.auth.signOut()
+        }
+        println(" < TEAM: $name - UPDATED VOTES: $vote > \n * POLL ID $id updating total votes: $totalVotesPoll -> $myVotes - salvo: $saveVoteTeam * ")
         return id
     }
 
@@ -331,7 +367,7 @@ fun Poll(navController: NavController){
                                                         codesList.add(element)
                                                         println(element.toString())
                                                     }
-                                                    getIdPoll(myPoll.id)
+                                                    getIdPoll(myPoll.id, nameTeam, myVote)
                                                     Log.d(TAG, " id poll: ${myPoll.id} - this codes: ${listOf(codesList.toString())} ")
                                                     return@addOnCompleteListener
                                                 }
@@ -429,18 +465,28 @@ fun Poll(navController: NavController){
                                             //pollRepository.saveLog(myLog.id, "código: $codigoState já foi utilizado! ", "$codigoState")
                                             //Firebase.auth.signOut()
                                             //if(saveVoteTeam ==  false) saveVoteTeam = true
-                                            println(" ** TRY SAVE VOTES TEAM -> TEAM $nameTeam - VOTES $myVote ** ")
-                                            trySaveVotesTeam(/*true,*/ nameTeam, myVote)
+                                            println(" *** TRY SAVE VOTES TEAM -> TEAM $nameTeam - VOTES $myVote *** ")
+                                            //n = getNameTeam(nameTeam)
+                                            //v = getVotesTeam(myVote)
+                                            /*
+                                            trySaveVotesTeam(nameTeam, myVote)
+                                            val check = trySaveVotesTeam(/*true,*/ nameTeam, myVote)
+                                            if(check == true) {
+                                                saveVoteTeam = true
+                                            }
+
+                                             */
+                                            saveVoteTeam = true
                                             println(" user ${Firebase.auth.currentUser} - existCode = $existCode : try update votes and save log... ")
                                             if(Firebase.auth.currentUser == null){
-                                                saveVoteTeam = true
+                                                //saveVoteTeam = true
                                                 Toast.makeText(context, " OK: codigo -> ${codesList.toString()} || ${codesLogList.toString()} == ${codigoState.toString()} \n voto salvo com sucesso! " , Toast.LENGTH_SHORT).show()
                                                 println(" sing out poll 1 - update vote and save log - currentUser ${Firebase.auth.currentUser}")
                                                 navController.navigate("home")
                                             } else {
                                                 Firebase.auth.signOut()
-                                                Toast.makeText(context, " AVISO: codigo -> ${codesList.toString()} || ${codesLogList.toString()} == ${codigoState.toString()} \n não conseguimos salvar seu voto! " , Toast.LENGTH_SHORT).show()
-                                                println(" sing out poll 2 - fail - currentUser ${Firebase.auth.currentUser} ")
+                                                Toast.makeText(context, " AVISO: codigo -> ${codesList.toString()} || ${codesLogList.toString()} == ${codigoState.toString()} \n voto salvo com sucesso! " , Toast.LENGTH_SHORT).show()
+                                                println(" sing out poll 2 - check - currentUser ${Firebase.auth.currentUser} ")
                                                 navController.navigate("home")
                                             }
 
