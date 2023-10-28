@@ -348,8 +348,8 @@ fun Student(navController: NavController){
 
             Card(
                 modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .fillMaxHeight(0.9f)
+                    .fillMaxWidth()
+                    .fillMaxHeight()
                     .padding(10.dp),
             ){
                 Row(

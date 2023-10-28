@@ -46,7 +46,7 @@ fun Teacher(navController: NavController){
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight()
+            .fillMaxHeight(1f)
             .background(MaterialTheme.colorScheme.background)
     ){
         MyAppBarTop(title = "professor(a)")
@@ -69,7 +69,7 @@ fun Teacher(navController: NavController){
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.85f)
+                .fillMaxHeight(0.90f)
                 .padding(10.dp)
                 .verticalScroll(rememberScrollState()) //barra de rolagem
         ){

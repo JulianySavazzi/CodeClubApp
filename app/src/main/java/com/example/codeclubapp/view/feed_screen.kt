@@ -92,7 +92,7 @@ fun Feed(navController: NavController){
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight()
+            .fillMaxHeight(1f)
             .background(MaterialTheme.colorScheme.background)
     ){
         MyAppBarTop(title = "feed de notícias")
@@ -116,7 +116,7 @@ fun Feed(navController: NavController){
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.85f)
+                .fillMaxHeight(0.90f)
                 .padding(10.dp)
             //.background(MaterialTheme.colorScheme.tertiary)
         ){
@@ -234,7 +234,7 @@ fun FeedTeacher(navController: NavController){
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight()
+            .fillMaxHeight(1f)
             .background(MaterialTheme.colorScheme.background)
     ){
         MyAppBarTop(title = "feed de notícias")
@@ -259,7 +259,7 @@ fun FeedTeacher(navController: NavController){
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.85f)
+                    .fillMaxHeight(0.90f)
                     .padding(10.dp)
                 //.background(MaterialTheme.colorScheme.tertiary)
             ){

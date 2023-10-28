@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,36 +38,48 @@ fun Notifications(navController: NavController){
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight()
+            .fillMaxHeight(1f)
             .background(MaterialTheme.colorScheme.background)
     ){
         MyAppBarTop(title = "notificações")
-        //Rows -> corpo do app
-        Row (
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(56.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ){
+                .fillMaxHeight(0.90f)
+                .padding(10.dp)
+                .verticalScroll(rememberScrollState()) //barra de rolagem
+        ) {
+            //Rows -> corpo do app
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(56.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
 
-            Text(
-                text = "veja todas as notificações do feed",
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 18.sp
+                Text(
+                    text = "veja todas as notificações do feed",
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 18.sp
 
-            )
+                )
 
+            }
         }
-        Row (
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom
-        ){
-            MyAppBarBottom(navController = navController, loginTeacher = loginTeacher, loginStudent = loginStudent)
+        ) {
+            MyAppBarBottom(
+                navController = navController,
+                loginTeacher = loginTeacher,
+                loginStudent = loginStudent
+            )
         }
     }
 
@@ -87,37 +101,48 @@ fun NotificationsTeacher(navController: NavController){
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight()
+            .fillMaxHeight(1f)
             .background(MaterialTheme.colorScheme.background)
     ){
         MyAppBarTop(title = "notificações")
-        //Rows -> corpo do app
-        Row (
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(56.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ){
+                .fillMaxHeight(0.90f)
+                .padding(10.dp)
+                .verticalScroll(rememberScrollState()) //barra de rolagem
+        ) {
+            //Rows -> corpo do app
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(56.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
 
-            Text(
-                text = "veja todas as notificações do feed",
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 18.sp
+                Text(
+                    text = "veja todas as notificações do feed",
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 18.sp
 
-            )
+                )
 
+            }
         }
-        Row (
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom
-        ){
-            MyAppBarBottom(navController = navController, loginTeacher = loginTeacher, loginStudent = loginStudent)
+        ) {
+            MyAppBarBottom(
+                navController = navController,
+                loginTeacher = loginTeacher,
+                loginStudent = loginStudent
+            )
         }
     }
-
 }
