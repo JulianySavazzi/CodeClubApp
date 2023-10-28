@@ -360,7 +360,9 @@ fun Student(navController: NavController){
                     verticalAlignment = Alignment.Bottom
                 ){
                     Text(
-                        text = " Não se esqueça de olhar o feed, no menu abaixo. \n Lá ficam os recados da(o) prof! ",
+                        text = " Não se esqueça de olhar o feed e as notificações, no menu abaixo. " +
+                                "\n Lá ficam os recados da(o) prof! " +
+                                "\n Você também vai ficar sabendo o resultado do game challenge por lá!",
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 18.sp

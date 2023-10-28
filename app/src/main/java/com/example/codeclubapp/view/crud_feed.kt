@@ -214,8 +214,8 @@ fun ManageFeed(navController: NavController){
                         titleState = ""
                         contentState = ""
                         //show notification
-                        firebaseMessagingService.onMessageSent("")
-                        myFirebaseMessagingService.generateNotification("nova publicação","${titleState} \n ${contentState}")
+                        //firebaseMessagingService.onMessageSent("")
+                        //myFirebaseMessagingService.generateNotification("nova publicação","${titleState} \n ${contentState}")
                         // mostra publicacao -> feed_teacher
                         Toast.makeText(context, "salvo com sucesso ", Toast.LENGTH_SHORT).show()
                         navController.navigate("feed_teacher")
