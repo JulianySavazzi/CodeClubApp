@@ -23,7 +23,6 @@ import com.example.codeclubapp.view.ManageProjects
 import com.example.codeclubapp.view.ManageStudents
 import com.example.codeclubapp.view.ManageTeams
 import com.example.codeclubapp.view.Notifications
-import com.example.codeclubapp.view.NotificationsTeacher
 import com.example.codeclubapp.view.Poll
 import com.example.codeclubapp.view.Student
 import com.example.codeclubapp.view.Teacher
@@ -40,13 +39,13 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Firebase.initialize(context = this)
+        Firebase.appCheck.installAppCheckProviderFactory(
+            PlayIntegrityAppCheckProviderFactory.getInstance(),
+        )
         setContent {
             CodeClubAppTheme {
                 //main é a primeira tela renderizada pelo app
-                Firebase.initialize(context = this)
-                Firebase.appCheck.installAppCheckProviderFactory(
-                    PlayIntegrityAppCheckProviderFactory.getInstance(),
-                )
                 //configurar rotas do app -> navegacao entre telas
                 val navController = rememberNavController()
                 NavHost(navController = navController, startDestination = "home"){
@@ -155,7 +154,8 @@ class MainActivity : ComponentActivity() {
                         //notificacoes -> notification_screen
                         route = "notifications_teacher"
                     ){
-                        NotificationsTeacher(navController)
+                        //NotificationsTeacher(navController)
+                        LogsPoll(navController)
                     }
                     composable(
                         //logs das votacoes -> logs_poll_screen
@@ -167,6 +167,7 @@ class MainActivity : ComponentActivity() {
 
             }
         }
+
     }
 
     override fun onStart() {
@@ -175,6 +176,7 @@ class MainActivity : ComponentActivity() {
         if(userIsPresent == null) {
             print(" $userIsPresent ")
         }
+
     }
 
     // Declare the launcher at the top of your Activity/Fragment:

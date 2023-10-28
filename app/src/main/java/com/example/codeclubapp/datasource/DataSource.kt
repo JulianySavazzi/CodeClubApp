@@ -10,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.example.codeclubapp.model.Feed
 import com.example.codeclubapp.model.LogPoll
+import com.example.codeclubapp.model.NotificationFeed
 import com.example.codeclubapp.model.Poll
 import com.example.codeclubapp.model.Project
 import com.example.codeclubapp.model.Student
@@ -63,13 +64,19 @@ class DataSource {
     //allFeeds -> observa todos os dados que foram atribuidos para ela
     private val allFeeds: StateFlow<MutableList<Feed>> = _allFeeds
 
+    //flow -> recuperar todo fluxo de tarefas NOTIFICATIONFEED
+    //_allMessages -> estado de fluxo assincrono
+    private val _allMessages = MutableStateFlow<MutableList<NotificationFeed>>(mutableListOf())
+    //allMessages -> observa todos os dados que foram atribuidos para ela
+    private val allMessages: StateFlow<MutableList<NotificationFeed>> = _allMessages
+
     //flow -> recuperar todo fluxo de tarefas LOGPOLL
     //_allLogs -> estado de fluxo assincrono
     private val _allLogs = MutableStateFlow<MutableList<LogPoll>>(mutableListOf())
     //allLogs -> observa todos os dados que foram atribuidos para ela
     private val allLogs: StateFlow<MutableList<LogPoll>> = _allLogs
 
-            //flow -> recuperar todo fluxo de tarefas POLL
+    //flow -> recuperar todo fluxo de tarefas POLL
     //_allPolls -> estado de fluxo assincrono
     private val _allPolls = MutableStateFlow<MutableList<Poll>>(mutableListOf())
     //allPolls -> observa todos os dados que foram atribuidos para ela
@@ -167,42 +174,6 @@ class DataSource {
         }
         return allStudents.value
     }
-
-    //exemplo:
-    /*
-        val docRef = db.collection("cities").document("SF")
-        docRef.addSnapshotListener { snapshot, e ->
-            if (e != null) {
-                Log.w(TAG, "Listen failed.", e)
-                return@addSnapshotListener
-            }
-
-            if (snapshot != null && snapshot.exists()) {
-                Log.d(TAG, "Current data: ${snapshot.data}")
-            } else {
-                Log.d(TAG, "Current data: null")
-            }
-        }
-
-
-
-
-        val docRef = db.collection("cities").document("SF")
-        docRef.addSnapshotListener { snapshot, e ->
-            if (e != null) {
-                Log.w(TAG, "Listen failed.", e)
-                return@addSnapshotListener
-            }
-
-            if (snapshot != null && snapshot.exists()) {
-                Log.d(TAG, "Current data: ${snapshot.data}")
-            } else {
-                Log.d(TAG, "Current data: null")
-            }
-        }
-
-    * */
-
 
     fun getSudentByName(name: String): Student {
         db.collection("student")
@@ -364,6 +335,7 @@ class DataSource {
 
     //*************************************************** LOG_POLL ***************************************************
     //save logs -> logPoll_screen ->
+    //use poll repository
     fun saveLog(
         id: Int,
         name: String,
@@ -407,6 +379,46 @@ class DataSource {
             }
         }
         return allLogs
+    }
+
+    //*************************************************** NOTIFICATION_FEED ***************************************************
+    //save message -> content: String
+    //use feed repository
+    fun saveMessage(
+        id: Int,
+        content: String
+    ){
+        //mapeamento para salvar todos os campos
+        val messageMap = hashMapOf(
+            "id" to id,
+            "content" to content
+        )
+
+        db.collection("message").document(id.toString()).set(messageMap).addOnCompleteListener {
+            //salvo com sucesso
+            print("success save notification feed")
+        }.addOnFailureListener {
+            //erro ao salvar
+            print("fail save notification feed")
+        }
+    }
+
+    fun getMessage(): Flow<MutableList<NotificationFeed>>{
+        val listMessages: MutableList<NotificationFeed> = mutableListOf()
+        //listar todas as mensagens cadastradas
+        db.collection("message").get().addOnCompleteListener{
+                querySnapshot ->
+            if(querySnapshot.isSuccessful){
+                for(document in querySnapshot.result){
+                    //se a colecao existe e tem documentos
+                    //vamos recuperar cada documento e adicionar no nosso objeto da model
+                    val message = document.toObject(NotificationFeed::class.java)
+                    listMessages.add(message)
+                    _allMessages.value = listMessages
+                }
+            }
+        }
+        return allMessages
     }
 
     //*************************************************** FEED ***************************************************

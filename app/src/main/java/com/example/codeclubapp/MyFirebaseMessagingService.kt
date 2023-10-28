@@ -46,6 +46,7 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
             .setOnlyAlertOnce(true)
             .setContentIntent(pendingIntent)
 
+        //use getRemoteView
         builder = builder.setContent(getRemoteView(title, message))
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
