@@ -380,12 +380,12 @@ fun Poll(navController: NavController){
                                             println(" user ${Firebase.auth.currentUser} - existCode = $existCode : try update votes and save log... ")
                                             if(Firebase.auth.currentUser == null){
                                                 //saveVoteTeam = true
-                                                Toast.makeText(context, " OK: codigo -> ${codesList.toString()} || ${codesLogList.toString()} == ${codigoState.toString()} \n voto salvo com sucesso! " , Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, " OK: codigo -> {codesList.toString()} || {codesLogList.toString()} == ${codigoState.toString()} \n voto salvo com sucesso! " , Toast.LENGTH_SHORT).show()
                                                 println(" sing out poll 1 - update vote and save log - currentUser ${Firebase.auth.currentUser}")
                                                 navController.navigate("home")
                                             } else {
                                                 Firebase.auth.signOut()
-                                                Toast.makeText(context, " AVISO: codigo -> ${codesList.toString()} || ${codesLogList.toString()} == ${codigoState.toString()} \n voto salvo com sucesso! " , Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, " AVISO: codigo -> {codesList.toString()} || {codesLogList.toString()} == ${codigoState.toString()} \n voto salvo com sucesso! " , Toast.LENGTH_SHORT).show()
                                                 println(" sing out poll 2 - check - currentUser ${Firebase.auth.currentUser} ")
                                                 navController.navigate("home")
                                             }
@@ -393,7 +393,7 @@ fun Poll(navController: NavController){
                                         }else {
                                             Toast.makeText(context, " ERRO: codigo inválido -> ${codesLogInvList.toString()} == ${codigoState.toString()} \n esse código já foi utilizado! " , Toast.LENGTH_SHORT).show()
                                         }
-                                    } else Toast.makeText(context, " algo deu errado: codigo -> ${codesList.toString()} || ${codesLogList.toString()} != ${codigoState.toString()} " , Toast.LENGTH_SHORT).show()
+                                    } else Toast.makeText(context, " algo deu errado: codigo -> {codesList.toString()} || {codesLogList.toString()} != ${codigoState.toString()} " , Toast.LENGTH_SHORT).show()
 
                                 } else {
                                     existCode = false

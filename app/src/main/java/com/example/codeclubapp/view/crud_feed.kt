@@ -28,8 +28,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.work.Worker
+import androidx.work.WorkerParameters
 import com.example.codeclubapp.MainActivity
 import com.example.codeclubapp.MyFirebaseMessagingService
+import com.example.codeclubapp.NotificationWorkManager
 import com.example.codeclubapp.components.MyAppBarBottom
 import com.example.codeclubapp.components.MyAppBarTop
 import com.example.codeclubapp.components.MyButton
@@ -49,6 +52,7 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
+import okhttp3.internal.notify
 import okhttp3.internal.wait
 
 //cadastrar noticias
@@ -80,7 +84,8 @@ fun ManageFeed(navController: NavController){
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    val myFirebaseMessagingService = MyFirebaseMessagingService()
+    //val notificationWorkManager = NotificationWorkManager()
+    //val myFirebaseMessagingService = MyFirebaseMessagingService()
     val firebaseMessagingService = FirebaseMessagingService()
 
     //iniciar repositorio para salvar os dados no bd
@@ -214,7 +219,7 @@ fun ManageFeed(navController: NavController){
                         titleState = ""
                         contentState = ""
                         //show notification
-                        //firebaseMessagingService.onMessageSent("")
+                        //firebaseMessagingService.notify()
                         //myFirebaseMessagingService.generateNotification("nova publicação","${titleState} \n ${contentState}")
                         // mostra publicacao -> feed_teacher
                         Toast.makeText(context, "salvo com sucesso ", Toast.LENGTH_SHORT).show()

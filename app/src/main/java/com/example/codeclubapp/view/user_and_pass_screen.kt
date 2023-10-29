@@ -111,7 +111,7 @@ fun UserAndPassStudent(navController: NavController){
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
-
+    var er = ""
 
     //var isNull = false
 
@@ -196,8 +196,8 @@ fun UserAndPassStudent(navController: NavController){
                 scope.launch(Dispatchers.IO) {
                     //verificar o estado dos campos
                     if (userState.isEmpty() || password.value.isEmpty()) {
-                        //email.isEmpty() || pass.isEmpty()
                         //save = false
+                        er = "preencha todos os campos!"
                     } else if (userState.isNotEmpty() && password.value.isNotEmpty()) {
                         var pass = password.value
                         repository.verifyStudent(userState, pass)
@@ -217,8 +217,8 @@ fun UserAndPassStudent(navController: NavController){
                         println("\nalgo deu errado  \n")
                         Toast.makeText(
                             context,
-                            "algo deu errado ao fazer login, tente novamente ",
-                            Toast.LENGTH_SHORT
+                            "algo deu errado ao fazer login, $er tente novamente...  ",
+                            Toast.LENGTH_LONG
                         ).show()
                         //if (isNull == true) navController.navigate("user_student")
                     }
@@ -251,6 +251,8 @@ fun UserAndPassTeacher(navController: NavController){
     //se salvou ou nao
     var save = false
 
+    var er = ""
+
     /*
     //apenas o usuario do tipo professor tem acesso a essa tela
     val loginTeacher = remember {
@@ -282,6 +284,8 @@ fun UserAndPassTeacher(navController: NavController){
         //a senha fica invisiível
         mutableStateOf(false)
     }
+
+    var errorMessage = false
 
     Column(
         modifier = Modifier
@@ -392,7 +396,9 @@ fun UserAndPassTeacher(navController: NavController){
                                     else -> "erro ao cadastrar usuário"
                                 }
                                 save = false
-                                Toast.makeText(context, " $errorMensage", Toast.LENGTH_SHORT).show()
+                                errorMessage = true
+                                er = errorMensage
+                                //Toast.makeText(context, " $errorMensage", Toast.LENGTH_SHORT).show()
                             }
 
                         }
@@ -400,13 +406,15 @@ fun UserAndPassTeacher(navController: NavController){
 
                     //mostrar mensagem usando o escopo do app -> context Main
                     scope.launch(Dispatchers.Main){
-                       if(save == true){
+                       if(save == true && errorMessage == false){
                            println("\nsalvo com sucesso \n")
                            Toast.makeText(context, "cadastrado com sucesso ", Toast.LENGTH_SHORT).show()
                            navController.navigate("teacher")
                        } else {
-                           println("\nalgo deu errado \n")
-                           Toast.makeText(context, "algo deu errado" , Toast.LENGTH_SHORT).show()
+                          if(save == false && errorMessage == true){
+                              println("\nalgo deu errado $er \n")
+                              Toast.makeText(context, "algo deu errado: $er" , Toast.LENGTH_LONG).show()
+                          } else Toast.makeText(context, "tente novamente... $er" , Toast.LENGTH_SHORT).show()
                        }
                     }
                 })
@@ -464,6 +472,10 @@ fun LoginFormTeacher(navController: NavController){
         //a senha fica invisiível
         mutableStateOf(false)
     }
+
+    var i = 0
+
+    var er = ""
 
     Column(
         modifier = Modifier
@@ -544,50 +556,24 @@ fun LoginFormTeacher(navController: NavController){
                         if(userState.isEmpty() || password.value.isEmpty()){
                             //email.isEmpty() || pass.isEmpty()
                             save = false
+                            er = "preencha todos os campos!"
                         } else if(userState.isNotEmpty() && password.value.isNotEmpty()){
                             var pass = password.value.toString()
                             teacherRepository.verifyTeacherLogin(userState, pass)
                             if(auth.currentUser != null) save = true
-
-                            /*
-                            auth.signInWithEmailAndPassword(userState, pass).addOnCompleteListener{
-                                //resultado do cadastro
-                                    crud ->
-                                if(crud.isSuccessful){
-                                    save = true
-                                    var name = auth.currentUser.toString()
-                                } else {
-                                    save = false
-                                }
-                            }.addOnFailureListener{
-                                //tratamento de exceções -> mensagens de erro
-                                    exception ->
-                                val errorMensage = when(exception) {
-                                    is FirebaseAuthEmailException -> "digite um email válido"
-                                    is FirebaseAuthInvalidCredentialsException -> "digite um email válido"
-                                    is FirebaseAuthWeakPasswordException -> "senha inválida"
-                                    is FirebaseAuthUserCollisionException -> "essa conta não existe"
-                                    is FirebaseNetworkException -> "problemas com a internet"
-                                    else -> "erro ao cadastrar usuário"
-                                }
-                                save = false
-                                Toast.makeText(context, " $errorMensage", Toast.LENGTH_SHORT).show()
-                            }
-
-                             */
-
                         }
                     }
 
                     //mostrar mensagem usando o escopo do app -> context Main
                     scope.launch(Dispatchers.Main){
+                        println(" count $i -> ${auth.currentUser}")
                         if(save  && (auth.currentUser!!.email.toString() == userState)){
                             println("\n teacher login feito com sucesso, save = $save \n")
                             Toast.makeText(context, "tudo ok", Toast.LENGTH_SHORT).show()
                             navController.navigate("teacher")
                         } else {
-                            println("\nalgo deu errado, save = false $save \n")
-                            Toast.makeText(context, "algo deu errado ao fazer login, tente novamente" , Toast.LENGTH_SHORT).show()
+                            println("\nalgo deu errado, save = false $save , $er \n")
+                            Toast.makeText(context, "algo deu errado ao fazer login, $er tente novamente ..." , Toast.LENGTH_LONG).show()
                         }
                     }
                 })

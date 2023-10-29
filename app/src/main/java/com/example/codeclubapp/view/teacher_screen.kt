@@ -189,7 +189,7 @@ fun Teacher(navController: NavController){
             }
             Divider(
                 thickness = 1.dp,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(10.dp),
                 color = MaterialTheme.colorScheme.onBackground
             )
             Row (
