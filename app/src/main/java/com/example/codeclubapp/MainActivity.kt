@@ -16,28 +16,36 @@ import com.example.codeclubapp.view.FeedTeacher
 import com.example.codeclubapp.view.Home
 import com.example.codeclubapp.view.Login
 import com.example.codeclubapp.view.LoginFormTeacher
+import com.example.codeclubapp.view.LogsPoll
 import com.example.codeclubapp.view.ManageFeed
 import com.example.codeclubapp.view.ManagePolls
 import com.example.codeclubapp.view.ManageProjects
 import com.example.codeclubapp.view.ManageStudents
 import com.example.codeclubapp.view.ManageTeams
 import com.example.codeclubapp.view.Notifications
-import com.example.codeclubapp.view.NotificationsTeacher
 import com.example.codeclubapp.view.Poll
 import com.example.codeclubapp.view.Student
 import com.example.codeclubapp.view.Teacher
 import com.example.codeclubapp.view.UserAndPassStudent
 import com.example.codeclubapp.view.UserAndPassTeacher
+import com.google.firebase.appcheck.ktx.appCheck
+import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.ktx.initialize
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Firebase.initialize(context = this)
+        Firebase.appCheck.installAppCheckProviderFactory(
+            PlayIntegrityAppCheckProviderFactory.getInstance(),
+        )
         setContent {
             CodeClubAppTheme {
-                //mani é a primeira tela renderizada pelo app
+                //main é a primeira tela renderizada pelo app
                 //configurar rotas do app -> navegacao entre telas
                 val navController = rememberNavController()
                 NavHost(navController = navController, startDestination = "home"){
@@ -146,12 +154,20 @@ class MainActivity : ComponentActivity() {
                         //notificacoes -> notification_screen
                         route = "notifications_teacher"
                     ){
-                        NotificationsTeacher(navController)
+                        //NotificationsTeacher(navController)
+                        LogsPoll(navController)
+                    }
+                    composable(
+                        //logs das votacoes -> logs_poll_screen
+                        route = "logsPoll"
+                    ){
+                        LogsPoll(navController)
                     }
                 } //NaviHost -> navegacao
 
             }
         }
+
     }
 
     override fun onStart() {
@@ -160,6 +176,7 @@ class MainActivity : ComponentActivity() {
         if(userIsPresent == null) {
             print(" $userIsPresent ")
         }
+
     }
 
     // Declare the launcher at the top of your Activity/Fragment:
@@ -173,28 +190,5 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    //Firebase.auth.signOut()
-
-    // [START ask_post_notifications]
-    /*
-    private fun askNotificationPermission() {
-        // This is only necessary for API level >= 33 (TIRAMISU)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
-                PackageManager.PERMISSION_GRANTED
-            ) {
-                // FCM SDK (and your app) can post notifications.
-            } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
-                // TODO: display an educational UI explaining to the user the features that will be enabled
-                //       by them granting the POST_NOTIFICATION permission. This UI should provide the user
-                //       "OK" and "No thanks" buttons. If the user selects "OK," directly request the permission.
-                //       If the user selects "No thanks," allow the user to continue without notifications.
-            } else {
-                // Directly ask for the permission
-                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }
-    }*/
-    // [END ask_post_notifications]
 }
 

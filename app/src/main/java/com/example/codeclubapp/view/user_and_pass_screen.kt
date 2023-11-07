@@ -1,6 +1,10 @@
 package com.example.codeclubapp.view
 
+import android.net.ConnectivityManager
+import android.net.NetworkRequest
+import android.service.controls.ControlsProviderService.NETWORK_STATS_SERVICE
 import android.service.controls.ControlsProviderService.TAG
+import android.telephony.AccessNetworkConstants.AccessNetworkType
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
@@ -44,12 +48,17 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.auth.FirebaseAppCheckTokenProvider
+import com.google.firebase.firestore.auth.FirebaseAuthCredentialsProvider
+import com.google.firebase.firestore.core.FirestoreClient
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import okhttp3.internal.wait
 import org.checkerframework.checker.nullness.qual.NonNull
+import java.nio.channels.NetworkChannel
 
 //aluno entrar com usuario e senha
 @OptIn(ExperimentalMaterial3Api::class)
@@ -102,7 +111,7 @@ fun UserAndPassStudent(navController: NavController){
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
-
+    var er = ""
 
     //var isNull = false
 
@@ -118,7 +127,7 @@ fun UserAndPassStudent(navController: NavController){
             .verticalScroll(rememberScrollState()) //barra de rolagem
             .background(MaterialTheme.colorScheme.background)
     ){
-        MyAppBarTop(title = "entrar no app")
+        MyAppBarTop(title = "entrar no app estudante")
         Row (
             modifier = Modifier
                 .fillMaxWidth(2f)
@@ -187,8 +196,8 @@ fun UserAndPassStudent(navController: NavController){
                 scope.launch(Dispatchers.IO) {
                     //verificar o estado dos campos
                     if (userState.isEmpty() || password.value.isEmpty()) {
-                        //email.isEmpty() || pass.isEmpty()
                         //save = false
+                        er = "preencha todos os campos!"
                     } else if (userState.isNotEmpty() && password.value.isNotEmpty()) {
                         var pass = password.value
                         repository.verifyStudent(userState, pass)
@@ -200,7 +209,7 @@ fun UserAndPassStudent(navController: NavController){
 
                 //mostrar mensagem usando o escopo do app -> context Main
                 scope.launch(Dispatchers.Main) {
-                    if (save == true) {
+                    if ((save == true) && (auth.currentUser!!.email.toString() == userState)) {
                         println("\nsalvo com sucesso \n")
                         Toast.makeText(context, "tudo ok", Toast.LENGTH_SHORT).show()
                         navController.navigate("student")
@@ -208,8 +217,8 @@ fun UserAndPassStudent(navController: NavController){
                         println("\nalgo deu errado  \n")
                         Toast.makeText(
                             context,
-                            "algo deu errado ao fazer login, tente novamente ",
-                            Toast.LENGTH_SHORT
+                            "algo deu errado ao fazer login, $er tente novamente...  ",
+                            Toast.LENGTH_LONG
                         ).show()
                         //if (isNull == true) navController.navigate("user_student")
                     }
@@ -241,6 +250,8 @@ fun UserAndPassTeacher(navController: NavController){
 
     //se salvou ou nao
     var save = false
+
+    var er = ""
 
     /*
     //apenas o usuario do tipo professor tem acesso a essa tela
@@ -274,6 +285,8 @@ fun UserAndPassTeacher(navController: NavController){
         mutableStateOf(false)
     }
 
+    var errorMessage = false
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -281,7 +294,7 @@ fun UserAndPassTeacher(navController: NavController){
             .verticalScroll(rememberScrollState()) //barra de rolagem
             .background(MaterialTheme.colorScheme.background)
     ){
-        MyAppBarTop(title = "entrar no app")
+        MyAppBarTop(title = "criar conta")
         //Rows -> corpo do app
         Row (
             modifier = Modifier
@@ -383,7 +396,9 @@ fun UserAndPassTeacher(navController: NavController){
                                     else -> "erro ao cadastrar usuário"
                                 }
                                 save = false
-                                Toast.makeText(context, " $errorMensage", Toast.LENGTH_SHORT).show()
+                                errorMessage = true
+                                er = errorMensage
+                                //Toast.makeText(context, " $errorMensage", Toast.LENGTH_SHORT).show()
                             }
 
                         }
@@ -391,13 +406,15 @@ fun UserAndPassTeacher(navController: NavController){
 
                     //mostrar mensagem usando o escopo do app -> context Main
                     scope.launch(Dispatchers.Main){
-                       if(save == true){
+                       if(save == true && errorMessage == false){
                            println("\nsalvo com sucesso \n")
                            Toast.makeText(context, "cadastrado com sucesso ", Toast.LENGTH_SHORT).show()
                            navController.navigate("teacher")
                        } else {
-                           println("\nalgo deu errado \n")
-                           Toast.makeText(context, "algo deu errado" , Toast.LENGTH_SHORT).show()
+                          if(save == false && errorMessage == true){
+                              println("\nalgo deu errado $er \n")
+                              Toast.makeText(context, "algo deu errado: $er" , Toast.LENGTH_LONG).show()
+                          } else Toast.makeText(context, "tente novamente... $er" , Toast.LENGTH_SHORT).show()
                        }
                     }
                 })
@@ -456,6 +473,10 @@ fun LoginFormTeacher(navController: NavController){
         mutableStateOf(false)
     }
 
+    var i = 0
+
+    var er = ""
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -463,7 +484,7 @@ fun LoginFormTeacher(navController: NavController){
             .verticalScroll(rememberScrollState()) //barra de rolagem
             .background(MaterialTheme.colorScheme.background)
     ){
-        MyAppBarTop(title = "entrar no app")
+        MyAppBarTop(title = "entrar no app prof")
         //Rows -> corpo do app
         Row (
             modifier = Modifier
@@ -535,50 +556,24 @@ fun LoginFormTeacher(navController: NavController){
                         if(userState.isEmpty() || password.value.isEmpty()){
                             //email.isEmpty() || pass.isEmpty()
                             save = false
+                            er = "preencha todos os campos!"
                         } else if(userState.isNotEmpty() && password.value.isNotEmpty()){
                             var pass = password.value.toString()
                             teacherRepository.verifyTeacherLogin(userState, pass)
                             if(auth.currentUser != null) save = true
-
-                            /*
-                            auth.signInWithEmailAndPassword(userState, pass).addOnCompleteListener{
-                                //resultado do cadastro
-                                    crud ->
-                                if(crud.isSuccessful){
-                                    save = true
-                                    var name = auth.currentUser.toString()
-                                } else {
-                                    save = false
-                                }
-                            }.addOnFailureListener{
-                                //tratamento de exceções -> mensagens de erro
-                                    exception ->
-                                val errorMensage = when(exception) {
-                                    is FirebaseAuthEmailException -> "digite um email válido"
-                                    is FirebaseAuthInvalidCredentialsException -> "digite um email válido"
-                                    is FirebaseAuthWeakPasswordException -> "senha inválida"
-                                    is FirebaseAuthUserCollisionException -> "essa conta não existe"
-                                    is FirebaseNetworkException -> "problemas com a internet"
-                                    else -> "erro ao cadastrar usuário"
-                                }
-                                save = false
-                                Toast.makeText(context, " $errorMensage", Toast.LENGTH_SHORT).show()
-                            }
-
-                             */
-
                         }
                     }
 
                     //mostrar mensagem usando o escopo do app -> context Main
                     scope.launch(Dispatchers.Main){
-                        if(save){
-                            println("\nsalvo com sucesso, save = $save \n")
+                        println(" count $i -> ${auth.currentUser}")
+                        if(save  && (auth.currentUser!!.email.toString() == userState)){
+                            println("\n teacher login feito com sucesso, save = $save \n")
                             Toast.makeText(context, "tudo ok", Toast.LENGTH_SHORT).show()
                             navController.navigate("teacher")
                         } else {
-                            println("\nalgo deu errado, save = false $save \n")
-                            Toast.makeText(context, "algo deu errado ao fazer login, tente novamente" , Toast.LENGTH_SHORT).show()
+                            println("\nalgo deu errado, save = false $save , $er \n")
+                            Toast.makeText(context, "algo deu errado ao fazer login, $er tente novamente ..." , Toast.LENGTH_LONG).show()
                         }
                     }
                 })

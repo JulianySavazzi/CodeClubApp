@@ -71,6 +71,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.lang.reflect.Array
+import java.util.Arrays
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -124,6 +126,9 @@ fun ManageTeams(navController: NavController){
 
     //adicionar estudante selecionado nessa lista para salvar no banco
     val myMembers: MutableList<Student> = mutableListOf()
+
+    //var i: Int = myMembers!!.size
+    //var j: Int = myProjects!!.size
 
     Column(
         modifier = Modifier
@@ -306,6 +311,9 @@ fun ManageTeams(navController: NavController){
 
         var idTeam = teamRepository.getTeamByName(nameState).id
 
+        var nameProjects: MutableList<String> = mutableListOf()
+        var nameMembers: MutableList<String> = mutableListOf()
+
         Row (
             modifier = Modifier
                 .fillMaxWidth()
@@ -331,6 +339,19 @@ fun ManageTeams(navController: NavController){
                             if(teamRepository.getTeamByName(nameState).id != model.id){
                                 teamRepository.saveTeam(model.id, nameState, myMembers, myProjects, model.vote)
                                 println("team is not null, id: $idTeam != ${model.id}, $myMembers , $myProjects")
+
+                                for (j in myProjects.indices) {
+                                    nameProjects.add(myProjects[j].name.toString())
+                                }
+
+                                for(i in myMembers.indices){
+                                    nameMembers.add(myMembers[i].name.toString())
+                                }
+
+                                feedRepository.saveFeed(
+                                    feedModel.id,
+                                    "nova equipe cadastrada: $nameState - id ${model.id}", "nova equipe cadastrada: \n nome: $nameState \n projetos: ${listOf(nameProjects.toString())} ...\n membros: ${listOf(nameMembers.toString())}"
+                                )
                                 save = true
                                 isNull = false
                             } else {
@@ -345,12 +366,16 @@ fun ManageTeams(navController: NavController){
                     scope.launch(Dispatchers.Main){
                         if(save == true && isNull == false){
                             println("\nequipe salva com sucesso \n")
+<<<<<<< HEAD
                             feedRepository.saveFeed(feedModel.id, "nova equipe cadastrada: $nameState ", "nova equipe cadastrada: $nameState \n, projetos: ${myProjects[0].name} ...\n, membros: ${myMembers[0].name}...")
+=======
+>>>>>>> refs/remotes/origin/master
                             navController.navigate("teacher")
                             Toast.makeText(context, "salvo com sucesso ", Toast.LENGTH_SHORT).show()
                         } else {
                             println("\nalgo deu errado \n")
                             Toast.makeText(context, "algo deu errado, preencha todos os campos!" , Toast.LENGTH_SHORT).show()
+                            navController.navigate("teacher")
                         }
                     }
                 })
@@ -429,8 +454,11 @@ fun mySelectedProjects(mutableListProjects: MutableList<Project>): StateFlow<Mut
     return  listProjects
 }
  */
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> refs/remotes/origin/master
 
 //CHECKBOX PROJECTS
 @Composable
@@ -670,6 +698,12 @@ fun MyListTeams(
     val projectsTeam = listItem[position].projects
     val membersTeam = listItem[position].members
 
+    var nameProjects: MutableList<String> = mutableListOf()
+    var nameMembers: MutableList<String> = mutableListOf()
+
+    var i: Int = membersTeam!!.size
+    var j: Int = projectsTeam!!.size
+
     fun deleteDialog(){
         //deletar estudante
         val alertDialog = AlertDialog.Builder(context)
@@ -692,6 +726,15 @@ fun MyListTeams(
                     _, _, ->
             }
             .show()
+    }
+
+    for (j in projectsTeam.indices) {
+        nameProjects.add(projectsTeam[j].name.toString())
+    }
+
+    for(i in membersTeam.indices){
+     //selectedItem.add(listItem[position])
+        nameMembers.add(membersTeam[i].name.toString())
     }
 
     Divider(
@@ -724,7 +767,8 @@ fun MyListTeams(
             )
 
             Text(
-                text = "projetos: ${projectsTeam!![0].name.toString()} ...",
+                //text = "projetos: ${projectsTeam!![0].name.toString()} ...",
+                text = "projetos: ${listOf(nameProjects.toString())} ",
                 modifier = Modifier.constrainAs(txtProjects) {
                     top.linkTo(txtTitle.bottom, margin = 15.dp)
                     start.linkTo(parent.start, margin = 15.dp)
@@ -732,16 +776,20 @@ fun MyListTeams(
             )
 
             Text(
-                text = "membros: ${membersTeam!![0].name.toString()} ...",
+                //Arrays.toString(arrayName)
+                text = "membros: ${listOf(nameMembers.toString())} ",
                 modifier = Modifier.constrainAs(txtMembers) {
                     top.linkTo(txtProjects.bottom, margin = 15.dp)
                     start.linkTo(parent.start, margin = 15.dp)
                 }
             )
 
-
             IconButton(
-                onClick = { /*TODO*/ },
+                onClick = {
+                    /*TODO*/
+                    println(" * testando funcao de atualizar votos * ")
+                    //repository.updateVoteTeamByName(titleTeam.toString(), 10)
+                          },
                 modifier = Modifier.constrainAs(navBarItemEdit) {
                     top.linkTo(txtMembers.bottom, margin = 15.dp)
                     start.linkTo(parent.start, margin = 15.dp)

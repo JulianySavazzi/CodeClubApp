@@ -96,7 +96,8 @@ fun MyAppBarBottom(navController: NavController,
                             //passar variavel com a rota para mudar de tela
                             selectedItem.value = item
                             if(loginStudent.value == true) navController.navigate(route = "notifications")
-                            if(loginTeacher.value == true) navController.navigate(route = "notifications_teacher")
+                            //if(loginTeacher.value == true) navController.navigate(route = "notifications_teacher")
+                            if(loginTeacher.value == true) navController.navigate(route = "logsPoll")
 
                         }
                     )

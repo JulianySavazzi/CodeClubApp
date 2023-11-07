@@ -51,6 +51,10 @@ import com.example.codeclubapp.components.MyAppBarBottom
 import com.example.codeclubapp.components.MyAppBarTop
 import com.example.codeclubapp.components.MyLoginButton
 import com.example.codeclubapp.model.Feed
+<<<<<<< HEAD
+=======
+import com.example.codeclubapp.model.LogPoll
+>>>>>>> refs/remotes/origin/master
 import com.example.codeclubapp.model.Poll
 import com.example.codeclubapp.model.Team
 import com.example.codeclubapp.repository.FeedRepository
@@ -63,7 +67,14 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+<<<<<<< HEAD
 
+=======
+import kotlin.random.Random.Default.nextLong
+
+//fun nextLong(until: Long): Long
+
+>>>>>>> refs/remotes/origin/master
 //EXAMPLE FOR DATETIME
 /*
 import java.time.LocalDateTime
@@ -142,9 +153,22 @@ fun ManagePolls(navController: NavController){
         mutableStateOf(false)
     }
 
+<<<<<<< HEAD
     fun startPoll(){
         val refPoll = FirebaseFirestore.getInstance().collection("poll")
         val query = refPoll.whereEqualTo("endPoll", false)
+=======
+    val idLogPoll = LogPoll().id
+
+    fun startPoll(){
+        //add methodo para verificar se existe alguma votacao encerrada antes de iniciar uma nova
+        //se existir uma votacao encerrada -> excluir ela antes de iniciar a nova votacao
+        //todos os dados dela serao salvos no log
+
+        val refPoll = FirebaseFirestore.getInstance().collection("poll")
+        val query = refPoll.whereEqualTo("endPoll", false)
+        //val query2 = refPoll.whereEqualTo("endPoll", true)
+>>>>>>> refs/remotes/origin/master
 
         query!!.addSnapshotListener { snapshot, e ->
             if (e != null) error = true
@@ -153,6 +177,10 @@ fun ManagePolls(navController: NavController){
                 if (snapshot != null && snapshot.documents.isNotEmpty()) {
                     newPoll = false
                 } else {
+<<<<<<< HEAD
+=======
+
+>>>>>>> refs/remotes/origin/master
                     repository.savePoll(
                         model.id, /*model.codeVal*/
                         codeVal,
@@ -166,7 +194,40 @@ fun ManagePolls(navController: NavController){
                         "votação iniciada em $dateTime",
                         "a votação está acontecendo, quando terminar, vamos publicar o resultado!"
                     )
+<<<<<<< HEAD
                 }
+=======
+                    repository.saveLog(idLogPoll, "votação ${model.id} iniciada ", "votação iniciada em $dateTime, quantidade de votos: ${model.qtdTotalVotes}, integrantes: ${teamsVoted.size}")
+
+                    /*
+                    query2!!.addSnapshotListener { snapshot, e ->
+                        if(e != null) error = true
+                        else {
+                            error = false
+                            if(snapshot != null && snapshot.documents.isNotEmpty()){
+                                query2!!.get().addOnCompleteListener{
+                                        querySnapshot ->
+                                    if(querySnapshot.isSuccessful){
+                                        //se existem votacoes finalizadas
+                                        for(document in querySnapshot.result){
+                                            //se a colecao existe e tem documentos
+                                            //vamos recuperar cada documento e adicionar no nosso objeto da model
+                                            val poll = document.toObject(Poll::class.java)
+                                            val idPollEnd = poll.id
+                                            repository.saveLog(idLogPoll, "votação $idPollEnd finalizada e excluída", "votação excluída em $dateTime, quantidade de votos: ${model.qtdTotalVotes}, integrantes: ${teamsVoted.size}")
+                                            repository.deletePoll(idPollEnd)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    */
+
+                }
+
+
+>>>>>>> refs/remotes/origin/master
                 print("*** VOTAÇÃO INICIADA ***")
                 newPoll = true
 
@@ -175,6 +236,33 @@ fun ManagePolls(navController: NavController){
 
     }
 
+<<<<<<< HEAD
+=======
+    /*
+    //add dialog para iniciar votacao
+    fun startPollDialog(){
+        val alertDialog = AlertDialog.Builder(context)
+        alertDialog.setTitle("INICIAR VOTAÇÃO")
+            .setMessage("tem certeza que quer iniciar uma nova VOTAÇÃO ?")
+            .setPositiveButton("Sim"){
+                    _, _, ->
+
+                scope.launch(Dispatchers.IO){
+                    //verificar se não tem nenhuma outra votação acontecendo
+                    //se tiver, nao vai deixar criar uma nova antes da atual ser encerrada
+                    //if(this.isActive) {
+                    //}
+                    startPoll()
+                }
+            }
+            .setNegativeButton("Não"){
+                    _, _, ->
+            }
+            .show()
+    }
+     */
+
+>>>>>>> refs/remotes/origin/master
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -182,7 +270,7 @@ fun ManagePolls(navController: NavController){
             .verticalScroll(rememberScrollState()) //barra de rolagem
             .background(MaterialTheme.colorScheme.background)
     ){
-        MyAppBarTop(title = "criar votação")
+        MyAppBarTop(title = "gerenciar votação")
         //Rows -> corpo do app\
         Row (
             modifier = Modifier
@@ -216,6 +304,10 @@ fun ManagePolls(navController: NavController){
                     //click = true
                     //println(" verifyStatusPoll = $verifyStatusPoll; existPoll.id = ${existPoll.id}; model.id = ${model.id}; empty? ${getPoll.isEmpty()}")
                     //verificações usando coroutines scope -> iniciar votacao
+<<<<<<< HEAD
+=======
+                    //startPollDialog()
+>>>>>>> refs/remotes/origin/master
                     scope.launch(Dispatchers.IO){
                         //verificar se não tem nenhuma outra votação acontecendo
                         //se tiver, nao vai deixar criar uma nova antes da atual ser encerrada
@@ -243,6 +335,7 @@ fun ManagePolls(navController: NavController){
             )
 
         }
+
         Row (
             modifier = Modifier
                 .fillMaxWidth()
@@ -250,22 +343,34 @@ fun ManagePolls(navController: NavController){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Bottom
         ){
+
+        }
+        Row (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp, 30.dp, 20.dp, 20.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.Bottom
+        ){
+<<<<<<< HEAD
             /*
+=======
+
+>>>>>>> refs/remotes/origin/master
             MyLoginButton(
-                text = "gerar código de validação",
+                text = "exibir log das votações",
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
                     .background(MaterialTheme.colorScheme.secondary),
                 onClick = {
-                    //atualiza atributo codVal do documento da votação -> insere o codigo na lista
-                    //esse codigo vai verificar se o usuario pode votar ou não
-                    //o codigo so pode ser gerado se a votacao ja foi iniciada
+                    navController.navigate("logsPoll")
                 }
             )
              */
 
         }
+<<<<<<< HEAD
         Row (
             modifier = Modifier
                 .fillMaxWidth()
@@ -334,6 +439,8 @@ fun ManagePolls(navController: NavController){
             )
              */
         }
+=======
+>>>>>>> refs/remotes/origin/master
 
         Divider(
             thickness = 1.dp,
@@ -397,7 +504,15 @@ fun ManagePolls(navController: NavController){
 
 }
 
+<<<<<<< HEAD
 //mostrar as votações cadastradas
+=======
+/*
+* mostrar as votações cadastradas:
+* listar todas as votações que estao no bd
+ */
+
+>>>>>>> refs/remotes/origin/master
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MyListPolls(
@@ -407,6 +522,7 @@ fun MyListPolls(
     navController: NavController
 ){
     //ligar a view com a model
+<<<<<<< HEAD
     //var id: Int = identifier++,
     //var codeVal: MutableList<Long> = listCodeVal,
     //var qtdTotalVotes: Int = qtdTotal,
@@ -417,23 +533,43 @@ fun MyListPolls(
     val qtdVotesPoll = listItem[position].qtdTotalVotes
     //val teamsPoll = listItem[position].teamsVoted
     val statusPoll = listItem[position].endPoll
+=======
+    val idPoll = listItem[position].id
+    val qtdVotesPoll = listItem[position].qtdTotalVotes
+    val statusPoll = listItem[position].endPoll
+    val idLogPoll = LogPoll().id
+    val idFeed = Feed().id
+>>>>>>> refs/remotes/origin/master
 
     val repository = PollRepository()
 
     //coroutines trabalham com threads
     val scope = rememberCoroutineScope()
+<<<<<<< HEAD
     val scopeCodVal = rememberCoroutineScope()
+=======
+>>>>>>> refs/remotes/origin/master
 
     val feedRepository = FeedRepository()
     val dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMM dd yyyy, hh:mm:ss a"))
     val feedModel = Feed()
 
+<<<<<<< HEAD
+=======
+    val teamRepo = TeamRepository()
+
+    var codeList: MutableList<Long> = mutableListOf()
+
+    var teamsList: MutableList<Team> = mutableListOf()
+
+>>>>>>> refs/remotes/origin/master
     var updatePoll = false
 
     var endPoll = false
 
     var error = false
 
+<<<<<<< HEAD
     val refPoll = FirebaseFirestore.getInstance().collection("poll")
     val query = refPoll.whereEqualTo("endPoll", false)
 
@@ -441,6 +577,60 @@ fun MyListPolls(
         mutableStateOf(false)
     }
 
+=======
+    var saveCode by remember {
+        mutableStateOf(false)
+    }
+
+    var getTeams: MutableList<Team> = mutableListOf()
+
+    val refPoll = FirebaseFirestore.getInstance().collection("poll")
+    val query = refPoll.whereEqualTo("endPoll", false).whereEqualTo("id", idPoll)
+
+    val refTeam = FirebaseFirestore.getInstance().collection("team")
+
+    var resultList: MutableList<String> = mutableListOf()
+
+    //limitar codigo a numeros positivos de 6 digitos de 100000 até 999999
+    val code = nextLong(100000, 999999)
+
+    fun countVotesPollByTeam(myTeamstList: MutableList<Team>): String{
+        //pegar todas as votações salvas no banco
+
+        if(myTeamstList.isNotEmpty()){
+            for(i in myTeamstList!!.indices){
+                teamsList.add(myTeamstList[i])
+                resultList.add("\n | equipe: ${teamsList[i].name} - votos: ${teamsList[i].vote} |  \n")
+            }
+            repository.saveLog(idLogPoll, "resultado da votação $idPoll", " $dateTime \n resultado: ${listOf(resultList.toString())}")
+        } else {
+            refTeam!!.get().addOnCompleteListener {
+                    querySnapshot ->
+                if(querySnapshot.isSuccessful){
+                    for(document in querySnapshot.result){
+                        //se a colecao existe e tem documentos
+                        //vamos recuperar cada documento e adicionar no nosso objeto da model
+                        val team = document.toObject(Team::class.java)
+                        getTeams.add(team)
+                        return@addOnCompleteListener
+                    }
+                    if(getTeams.isNotEmpty()){
+                        for(i in getTeams!!.indices){
+                            teamsList.add(getTeams[i])
+                            resultList.add(" \n | equipe: ${teamsList[i].name} - votos: ${teamsList[i].vote} |  \n")
+                        }
+                        repository.saveLog(idLogPoll, "resultado da votação $idPoll", " $dateTime \n resultado: ${listOf(resultList.toString())}")
+                    }
+                    println(" ***** ${listOf(teamsList.toString())} - ${listOf(resultList.toString())}  ***** ")
+                }
+            }
+        }
+        println(" ***** ${listOf(teamsList.toString())} - ${listOf(resultList.toString())}  ***** ")
+
+        return "${listOf(resultList.toString())}"
+    }
+
+>>>>>>> refs/remotes/origin/master
     fun deleteDialog(){
         //deletar estudante
         val alertDialog = AlertDialog.Builder(context)
@@ -449,6 +639,10 @@ fun MyListPolls(
             .setPositiveButton("Sim"){
                     _, _, ->
                 repository.deletePoll(idPoll)
+<<<<<<< HEAD
+=======
+                repository.saveLog(idLogPoll, "votação $idPoll excluída ", "votação excluída em $dateTime, quantidade de votos: $qtdVotesPoll")
+>>>>>>> refs/remotes/origin/master
 
                 scope.launch(Dispatchers.Main){
                     //remover equipe excluido da lista
@@ -477,13 +671,27 @@ fun MyListPolls(
                         print(" updatePoll = $updatePoll ")
                         if(updatePoll){
                             repository.updatePoll(idPoll, true)
+<<<<<<< HEAD
+=======
+                            //countVotesPollByTeam(myTeamstList)
+                            /*
+>>>>>>> refs/remotes/origin/master
                             feedRepository.saveFeed(
                                 feedModel.id,
                                 "votação finalizada em $dateTime",
                                 "a votação foi encerrada!"
                             )
+<<<<<<< HEAD
                             endPoll = true
                             print("*** VOTAÇÃO FINALIZADA ***")
+=======
+                             */
+                            repository.saveLog(idLogPoll, "votação $idPoll encerrada ", "votação finalizada em $dateTime, quantidade de votos: $qtdVotesPoll")
+                            endPoll = true
+                            print("*** VOTAÇÃO FINALIZADA ***")
+                            //repository.saveLog(idLogPoll, "votação $idPoll finalizada e excluída", "votação excluída em $dateTime, quantidade de votos: $qtdVotesPoll")
+                            //repository.deletePoll(idPoll)
+>>>>>>> refs/remotes/origin/master
                         } else print("*** VOTAÇÃO NÃO PODE SER FINALIZADA ***")
                     }
                 } else {
@@ -493,6 +701,54 @@ fun MyListPolls(
         }
     }
 
+<<<<<<< HEAD
+=======
+    fun alertCode(){
+        val alertDialog = AlertDialog.Builder(context)
+        alertDialog.setTitle("CÓDIGO PARA VALIDAR VOTAÇÃO!")
+            .setMessage("copie esse código e insira na tela de votação para confirmar seu voto: $code")
+            .setPositiveButton("OK"){
+                    _, _, ->
+                scope.launch(Dispatchers.Main){
+                    //repository.saveLog(idLogPoll, "votação $idPoll -> novo codigo de validação foi adicionado em $dateTime: ", "$code")
+                    Toast.makeText(context, "código salvo!", Toast.LENGTH_SHORT).show()
+                    navController.navigate("teacher")
+                }
+
+            }.show()
+    }
+
+    fun saveCode(){
+        refPoll.whereEqualTo("codVal", code).whereEqualTo("endPoll", false).whereEqualTo("id", idPoll)!!.addSnapshotListener {
+                snapshot, e ->
+                if (e != null) error = true
+                else {
+                    error = false
+                    if (snapshot != null && snapshot.documents.isNotEmpty()) {
+                        query.get().addOnCompleteListener { querySnapshot ->
+                            //se existe um documento com essas caracteristicas
+                            if(querySnapshot.isSuccessful) {
+                                saveCode = false
+                                println(" isSuccessful , saveCode = $saveCode")
+                            }
+                        }
+                    } else {
+                        codeList.add(code)
+                        repository.updateCodValPoll(idPoll, codeList)
+                        //gerar log com o codigo e a votacao
+                        repository.saveLog(idLogPoll, "$code", "código $code criado com sucesso!")
+                        alertCode()
+                        saveCode = true
+                        println(" bad snapshot1 saveCode = $saveCode")
+                    }
+
+                }
+            }
+
+        println(" fun saveCode = $saveCode ")
+    }
+
+>>>>>>> refs/remotes/origin/master
     Divider(
         thickness = 15.dp,
         modifier = Modifier.fillMaxWidth(),
@@ -517,6 +773,16 @@ fun MyListPolls(
                 navBarCod
             ) = createRefs()
 
+<<<<<<< HEAD
+=======
+            //preencher a lista
+            val myTeamstList: MutableList<Team> = teamRepo.getTeam().collectAsState(
+                //se o estado da lista for vazio vai retornar uma mutableListOf
+                //se a lista tiver preenchida vai retornar os valores dos documentos
+                mutableListOf()
+            ).value
+
+>>>>>>> refs/remotes/origin/master
             Text(
                 text = "id da votação: $idPoll",
                 modifier = Modifier.constrainAs(txtId) {
@@ -525,6 +791,7 @@ fun MyListPolls(
                 }
             )
 
+<<<<<<< HEAD
             /*
             Text(
                 text = "códigos de validação: ${codValPoll!![0]} ...",
@@ -536,6 +803,8 @@ fun MyListPolls(
 
              */
 
+=======
+>>>>>>> refs/remotes/origin/master
             Text(
                 text = "quantidade de votos: $qtdVotesPoll ...",
                 modifier = Modifier.constrainAs(txtQtdVotes) {
@@ -544,6 +813,7 @@ fun MyListPolls(
                 }
             )
 
+<<<<<<< HEAD
             /*
             Text(
                 text = "equipes elegíveis: ${teamsPoll!![0]} ...",
@@ -554,6 +824,8 @@ fun MyListPolls(
             )
              */
 
+=======
+>>>>>>> refs/remotes/origin/master
             Text(
                 text = "status da votação: encerrada -> $statusPoll ...",
                 modifier = Modifier.constrainAs(txtStatus) {
@@ -582,13 +854,26 @@ fun MyListPolls(
                     //atualiza atributo endPoll do documento da votação para true
                     //contabiliza o resultado da votação e salva uma publicação com o resultado
                     //colocar data e hora no titulo da publicacao
+<<<<<<< HEAD
                     updateStatusPoll()
+=======
+                    println(" resultado da votação -> ${listOf(resultList.toString())} ")
+                    countVotesPollByTeam(myTeamstList)
+                    updateStatusPoll()
+                    feedRepository.saveFeed(idFeed, "ATENÇÃO, VOTAÇÃO $idPoll ENCERRADA!", "votação finalizada em $dateTime, \n quantidade de votos: $qtdVotesPoll \n RESULTADO: ${listOf(resultList.toString())} ")
+>>>>>>> refs/remotes/origin/master
 
                     println("\nupdatePoll = $updatePoll, endPoll = $endPoll")
                     scope.launch(Dispatchers.Main){
                         if (error) Toast.makeText(context, "aconteceu um problema!", Toast.LENGTH_SHORT).show()
                         if(updatePoll == true || endPoll == true){
                             navController.navigate("teacher")
+<<<<<<< HEAD
+=======
+                            //savar resultado da votação em log e no feed
+                            repository.saveLog(idLogPoll, "votação $idPoll encerrada e excluída", "votação excluída em $dateTime, quantidade de votos: $qtdVotesPoll")
+                            repository.deletePoll(idPoll)
+>>>>>>> refs/remotes/origin/master
                             Toast.makeText(context, "votação finalizada!", Toast.LENGTH_SHORT).show()
                         } else {
                             Toast.makeText(context, "não foi possível encerrar a votação.", Toast.LENGTH_SHORT).show()
@@ -616,7 +901,20 @@ fun MyListPolls(
                     //atualiza atributo codVal do documento da votação -> insere o codigo na lista
                     //esse codigo vai verificar se o usuario pode votar ou não
                     //o codigo so pode ser gerado se a votacao ja foi iniciada  e nao foi finalizada
+<<<<<<< HEAD
                           println("tentando cadastrar código...")
+=======
+                    println(" tentando cadastrar código... ")
+
+                    saveCode()
+
+                    println(" saveCode = $saveCode ")
+                    scope.launch(Dispatchers.Main){
+                        //atualizar codigo
+                        //println(" scope main -> saveCode = $saveCode ")
+                        if (error) Toast.makeText(context, "aconteceu um problema!", Toast.LENGTH_SHORT).show()
+                    }
+>>>>>>> refs/remotes/origin/master
 
                 },
                 modifier = Modifier.constrainAs(navBarCod) {

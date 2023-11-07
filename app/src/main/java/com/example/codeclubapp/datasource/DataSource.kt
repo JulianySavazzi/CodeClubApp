@@ -4,7 +4,13 @@ import android.os.Build
 import android.service.controls.ControlsProviderService.TAG
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.example.codeclubapp.model.Feed
+import com.example.codeclubapp.model.LogPoll
+import com.example.codeclubapp.model.NotificationFeed
 import com.example.codeclubapp.model.Poll
 import com.example.codeclubapp.model.Project
 import com.example.codeclubapp.model.Student
@@ -58,6 +64,21 @@ class DataSource {
     //allFeeds -> observa todos os dados que foram atribuidos para ela
     private val allFeeds: StateFlow<MutableList<Feed>> = _allFeeds
 
+<<<<<<< HEAD
+=======
+    //flow -> recuperar todo fluxo de tarefas NOTIFICATIONFEED
+    //_allMessages -> estado de fluxo assincrono
+    private val _allMessages = MutableStateFlow<MutableList<NotificationFeed>>(mutableListOf())
+    //allMessages -> observa todos os dados que foram atribuidos para ela
+    private val allMessages: StateFlow<MutableList<NotificationFeed>> = _allMessages
+
+    //flow -> recuperar todo fluxo de tarefas LOGPOLL
+    //_allLogs -> estado de fluxo assincrono
+    private val _allLogs = MutableStateFlow<MutableList<LogPoll>>(mutableListOf())
+    //allLogs -> observa todos os dados que foram atribuidos para ela
+    private val allLogs: StateFlow<MutableList<LogPoll>> = _allLogs
+
+>>>>>>> refs/remotes/origin/master
     //flow -> recuperar todo fluxo de tarefas POLL
     //_allPolls -> estado de fluxo assincrono
     private val _allPolls = MutableStateFlow<MutableList<Poll>>(mutableListOf())
@@ -150,6 +171,7 @@ class DataSource {
                     val student = document.toObject(Student::class.java)
                     listStudent.add(student)
                     _allStudents.value = listStudent
+<<<<<<< HEAD
 
                 }
             }
@@ -165,33 +187,14 @@ class DataSource {
                 Log.w(TAG, "Listen failed.", e)
                 return@addSnapshotListener
             }
+=======
+>>>>>>> refs/remotes/origin/master
 
-            if (snapshot != null && snapshot.exists()) {
-                Log.d(TAG, "Current data: ${snapshot.data}")
-            } else {
-                Log.d(TAG, "Current data: null")
+                }
             }
         }
-
-
-
-
-        val docRef = db.collection("cities").document("SF")
-        docRef.addSnapshotListener { snapshot, e ->
-            if (e != null) {
-                Log.w(TAG, "Listen failed.", e)
-                return@addSnapshotListener
-            }
-
-            if (snapshot != null && snapshot.exists()) {
-                Log.d(TAG, "Current data: ${snapshot.data}")
-            } else {
-                Log.d(TAG, "Current data: null")
-            }
-        }
-
-    * */
-
+        return allStudents.value
+    }
 
     fun getSudentByName(name: String): Student {
         db.collection("student")
@@ -205,6 +208,14 @@ class DataSource {
                         Log.d(TAG, "student by name: $querySnapshot, $student")
                         return@addOnCompleteListener
                     }
+                }else {
+                    db.collection("student")
+                        .document(name).get().addOnSuccessListener {
+                                documentSnapshot ->
+                            val myStudent = documentSnapshot.toObject<Student>()
+                            student = myStudent!!
+                        }
+
                 }
             }
         return student
@@ -222,6 +233,13 @@ class DataSource {
                         Log.d(TAG, "student by email: $querySnapshot, ${student.name}")
                         return@addOnCompleteListener
                     }
+                } else {
+                    db.collection("student").whereEqualTo("email", email).get()
+                        .addOnCompleteListener {
+                                documentSnapshot ->
+                            val myStudent = documentSnapshot.result.toObjects(Student::class.java)
+                            student = myStudent[myStudent.size - 1]
+                        }
                 }
             }
         return student
@@ -336,6 +354,94 @@ class DataSource {
             }
     }
 
+    //*************************************************** LOG_POLL ***************************************************
+    //save logs -> logPoll_screen ->
+    //use poll repository
+    fun saveLog(
+        id: Int,
+        name: String,
+        description: String
+    ){
+
+        //mapeamento para salvar todos os campos
+        val feedMap = hashMapOf(
+            "id" to id,
+            "name" to name,
+            "description" to description
+        )
+
+        db.collection("log").document(name).set(feedMap).addOnCompleteListener {
+            //salvo com sucesso
+            Log.d(TAG, " save log success ")
+            print("success save log")
+        }.addOnFailureListener {
+            //erro ao salvar
+            Log.d(TAG, " save log fail ")
+            print("fail save log")
+        }
+
+    }
+
+    //get feed -> recuperar dados da publicacao
+    fun getLogs(): Flow<MutableList<LogPoll>>{
+        val listLogs: MutableList<LogPoll> = mutableListOf()
+        //listar todos os logs cadastrados
+        db.collection("log").get().addOnCompleteListener{
+                querySnapshot ->
+            if(querySnapshot.isSuccessful){
+                for(document in querySnapshot.result){
+                    //se a colecao existe e tem documentos
+                    //vamos recuperar cada documento e adicionar no nosso objeto da model
+                    val log = document.toObject(LogPoll::class.java)
+                    listLogs.add(log)
+                    _allLogs.value = listLogs
+
+                }
+            }
+        }
+        return allLogs
+    }
+
+    //*************************************************** NOTIFICATION_FEED ***************************************************
+    //save message -> content: String
+    //use feed repository
+    fun saveMessage(
+        id: Int,
+        content: String
+    ){
+        //mapeamento para salvar todos os campos
+        val messageMap = hashMapOf(
+            "id" to id,
+            "content" to content
+        )
+
+        db.collection("message").document(id.toString()).set(messageMap).addOnCompleteListener {
+            //salvo com sucesso
+            print("success save notification feed")
+        }.addOnFailureListener {
+            //erro ao salvar
+            print("fail save notification feed")
+        }
+    }
+
+    fun getMessage(): Flow<MutableList<NotificationFeed>>{
+        val listMessages: MutableList<NotificationFeed> = mutableListOf()
+        //listar todas as mensagens cadastradas
+        db.collection("message").get().addOnCompleteListener{
+                querySnapshot ->
+            if(querySnapshot.isSuccessful){
+                for(document in querySnapshot.result){
+                    //se a colecao existe e tem documentos
+                    //vamos recuperar cada documento e adicionar no nosso objeto da model
+                    val message = document.toObject(NotificationFeed::class.java)
+                    listMessages.add(message)
+                    _allMessages.value = listMessages
+                }
+            }
+        }
+        return allMessages
+    }
+
     //*************************************************** FEED ***************************************************
     //save publication -> crud_feed -> name: String, description: String
     fun saveFeed(
@@ -370,8 +476,8 @@ class DataSource {
                 for(document in querySnapshot.result){
                     //se a colecao existe e tem documentos
                     //vamos recuperar cada documento e adicionar no nosso objeto da model
-                    val project = document.toObject(Feed::class.java)
-                    listFeed.add(project)
+                    val feed = document.toObject(Feed::class.java)
+                    listFeed.add(feed)
                     _allFeeds.value = listFeed
 
                 }
@@ -602,6 +708,27 @@ class DataSource {
         return allTeams.value
     }
 
+<<<<<<< HEAD
+=======
+    fun getStudentTeam(members: String): MutableList<Team>{
+        val listTeam: MutableList<Team> = mutableListOf()
+        //listar todos os projetos cadastrados
+        db.collection("team").whereIn("members", listOf(members)).get().addOnCompleteListener{
+                querySnapshot ->
+            if(querySnapshot.isSuccessful){
+                for(document in querySnapshot.result){
+                    //se a colecao existe e tem documentos
+                    //vamos recuperar cada documento e adicionar no nosso objeto da model
+                    val team = document.toObject(Team::class.java)
+                    listTeam.add(team)
+                    _allTeams.value = listTeam
+                }
+            }
+        }
+        return allTeams.value
+    }
+
+>>>>>>> refs/remotes/origin/master
     fun getTeamByName(name: String): Team{
         db.collection("team")
             .whereIn("name", listOf(name))
@@ -640,23 +767,15 @@ class DataSource {
     }
 
     fun updateVoteTeamByName(
-        name: String,
-        members: MutableList<Student>,
-        projects: MutableList<Project>,
+        title: String,
         vote: Int
     ){
-        //mapeamento para salvar todos os campos
-        val teamUpMap = hashMapOf(
-            "name" to name,
-            "members" to members,
-            "projects" to projects,
-            "vote" to vote
-        )
-
-        if(members == members && projects == projects && name == name){
-            db.collection("team").document(name).update( "members", members)
-            db.collection("team").document(name).update( "projects", projects)
-            db.collection("team").document(name).update(teamUpMap)
+        //update team votes
+        db.collection("team").document(title).update("vote", vote).
+        addOnCompleteListener{
+            Log.d(TAG, " save vote for team ${team.name} votes: ${team.vote} ")
+        }.addOnFailureListener{
+            Log.d(TAG, " error: team ${team.name} votes: ${team.vote} ")
         }
 
     }
@@ -739,6 +858,35 @@ class DataSource {
         return allPolls.value
     }
 
+<<<<<<< HEAD
+=======
+    fun getPollById(id: Int): Poll{
+        db.collection("poll").whereEqualTo("id", id)
+            .get().addOnCompleteListener { querySnapshot ->
+                if (querySnapshot.isSuccessful) {
+                    for (document in querySnapshot.result) {
+                        currentPoll = document.toObject(Poll::class.java)
+                        Log.d(
+                            TAG,
+                            "team by name: ${querySnapshot.result}, $currentPoll by name: ${currentPoll.id.toString()}, ${currentPoll.qtdTotalVotes.toString()} "
+                        )
+                        return@addOnCompleteListener
+                    }
+                } else {
+                    db.collection("team")
+                        .document(id.toString()).get().addOnSuccessListener { documentSnapshot ->
+                            val myPoll = documentSnapshot.toObject<Poll>()
+                            currentPoll = myPoll!!
+                            Log.d(TAG, "poll by name: ${currentPoll.id.toString()}, ${currentPoll.qtdTotalVotes.toString()} ")
+                            //Log.d(TAG, "project by name: $team")
+                        }
+                }
+            }
+
+        return currentPoll
+    }
+
+>>>>>>> refs/remotes/origin/master
     fun verifyStatusPoll(
         id: Int,
         codeVal: MutableList<Long>,
@@ -775,9 +923,243 @@ class DataSource {
                 }
     }
 
+<<<<<<< HEAD
     fun updateCodValPoll(){
 
     }
+=======
+    fun updateCodValPoll(
+        id: Int,
+        codeVal: MutableList<Long>
+    ){
+        /*
+        val codeMap = hashMapOf(
+            "codeVal" to codeVal
+        )
+         */
+
+        //update poll codeVal
+        db.collection("poll").document(id.toString()).update("codeVal", codeVal).
+        //db.collection("poll").document(id.toString()).set(codeMap).
+        addOnCompleteListener{
+            Log.d(TAG, "endPoll: ${currentPoll.codeVal}, add code to this poll")
+        }
+
+    }
+
+    //"qtdTotalVotes" to qtdTotalVotes,
+    // "teamsVoted" to teamsVoted,
+    fun updateVotesPoll(
+        id: Int,
+        qtdTotalVotes: Int,
+        teamsVoted: MutableList<Team>
+    ){
+        db.collection("poll").document(id.toString()).update("qtdTotalVotes", qtdTotalVotes).
+        addOnCompleteListener{
+            Log.d(TAG, "qtdTotalVotes: ${currentPoll.qtdTotalVotes}, updated")
+        }.addOnFailureListener {
+            Log.d(TAG, "fail to update votes in this poll")
+        }
+
+        db.collection("poll").document(id.toString()).update("teamsVoted", teamsVoted).
+        addOnCompleteListener{
+            Log.d(TAG, "teamsVoted: ${currentPoll.teamsVoted}, updated")
+        }.addOnFailureListener {
+            Log.d(TAG, "fail to update teams voted in this poll")
+        }
+
+    }
+
+
+    fun returnOnPoll(): MutableList<Poll> {
+        val listPoll: MutableList<Poll> = mutableListOf()
+        //listar todas as votacoes cadastradas
+        db.collection("poll").whereEqualTo("endPoll", false).get().addOnCompleteListener{
+                querySnapshot ->
+            if(querySnapshot.isSuccessful){
+                for(document in querySnapshot.result){
+                    //se a colecao existe e tem documentos
+                    //vamos recuperar cada documento e adicionar no nosso objeto da model
+                    val poll = document.toObject(Poll::class.java)
+                    listPoll.add(poll)
+                    _allPolls.value = listPoll
+                }
+            }
+        }
+        return allPolls.value
+    }
+
+/*
+    //verify poll
+
+    /*
+    private var listPollEnd: MutableList<Poll> = mutableListOf()
+    private var listPollNull: MutableList<Poll> = mutableListOf()
+    */
+    private var ListPollOn: MutableList<Poll> = mutableListOf()
+
+    //private var existPoll = false
+
+    private var error = false
+
+    private val refPoll = FirebaseFirestore.getInstance().collection("poll")
+    private val query = refPoll.whereEqualTo("endPoll", true)
+    private val queryNull = refPoll.whereEqualTo("endPoll", null)
+    private val queryPollOn = refPoll.whereEqualTo("endPoll", false)
+
+    fun verifyPoll():Boolean{
+        var existPoll = false
+        println(" Datasource: start verify poll -> init existPoll = $existPoll ")
+        //se a votacao foi encerrada
+        query!!.addSnapshotListener { snapshot, e ->
+            //se retornou um erro
+            if (e != null) error = true
+            else {
+                if (snapshot != null && snapshot.documents.isNotEmpty()) {
+                    query.get().addOnCompleteListener {
+                            querySnapshot ->
+                        if(querySnapshot.isSuccessful){
+                            //se a votacao foi encerrada
+                            /*
+                            for(document in querySnapshot.result){
+                                //se a colecao existe e tem documentos
+                                //vamos recuperar cada documento e adicionar no nosso objeto da model
+                                val poll = document.toObject(com.example.codeclubapp.model.Poll::class.java)
+
+                                //listPollEnd.add(poll)
+                            }
+                             */
+                            existPoll = false
+                            println(" votação foi encerrada: $existPoll ")
+                            return@addOnCompleteListener
+                        }
+
+                    }
+                }
+
+            }
+        }
+
+        //se a votacao nao foi iniciada -> null
+        queryNull!!.addSnapshotListener { snapshot, e ->
+            //se retornou um erro
+            if (e != null) error = true
+            else {
+                if (snapshot != null && snapshot.documents.isNotEmpty()) {
+                    queryNull.get().addOnCompleteListener{
+                            querySnapshot ->
+                        if(querySnapshot.isSuccessful){
+                            //se nenhuma votacao foi iniciada
+                            /*
+                            for(document in querySnapshot.result){
+                                //se a colecao existe e tem documentos
+                                //vamos recuperar cada documento e adicionar no nosso objeto da model
+                                val poll = document.toObject(com.example.codeclubapp.model.Poll::class.java)
+                                //listPollNull.add(poll)
+                            }
+                             */
+                            existPoll = false
+                            println(" nenhuma votação foi iniciada: $existPoll ")
+                            return@addOnCompleteListener
+                        }
+                    }
+                }
+            }
+        }
+
+        //if((queryNull.get().isSuccessful || query.get().isSuccessful) /*&& ListPollOn.isEmpty()*/ /*!queryPollOn.get().isSuccessful*/) existPoll = false
+
+        //se existe uma votacao em andamento
+        queryPollOn!!.addSnapshotListener { snapshot, e ->
+            //se retornou um erro
+            if (e != null) error = true
+            else {
+                if (snapshot != null && snapshot.documents.isNotEmpty()) {
+                    queryPollOn.get().addOnCompleteListener {
+                            querySnapshot ->
+                        if(querySnapshot.isSuccessful){
+
+                            for(document in querySnapshot.result){
+                                //se a colecao existe e tem documentos
+                                //vamos recuperar cada documento e adicionar no nosso objeto da model
+                                val poll = document.toObject(com.example.codeclubapp.model.Poll::class.java)
+                                ListPollOn.add(poll)
+                            }
+
+                            existPoll = true
+                            println(" votação está em andamento: $existPoll ")
+                            return@addOnCompleteListener
+                        }
+                    }
+                }
+            }
+        }
+
+        println("\n DataSource: existPoll = $existPoll ")
+
+        /*
+        if(queryPollOn.get().isSuccessful || queryPollOn.get().isComplete){
+            return true
+        } else {
+            if(ListPollOn.isNotEmpty()){
+                return true
+            }
+            return false
+        }
+
+         */
+        //if(/*ListPollOn.isNotEmpty() &&*/ queryPollOn.get().isSuccessful) existPoll = true
+        //else existPoll = true
+
+        /*
+        val refPoll = FirebaseFirestore.getInstance().collection("poll")
+        val query = refPoll.whereEqualTo("endPoll", true).get().addOnCompleteListener{
+                querySnapshot ->
+            if(querySnapshot.isSuccessful){
+                //se a votacao foi encerrada
+                for(document in querySnapshot.result){
+                    //se a colecao existe e tem documentos
+                    //vamos recuperar cada documento e adicionar no nosso objeto da model
+                    val poll = document.toObject(com.example.codeclubapp.model.Poll::class.java)
+                    listPoll.add(poll)
+                }
+                existPoll = false
+            }
+        }
+
+        val queryNull = refPoll.whereEqualTo("endPoll", null).get().addOnCompleteListener{
+                querySnapshot ->
+            if(querySnapshot.isSuccessful){
+                //se a votacao nao foi iniciada
+                for(document in querySnapshot.result){
+                    //se a colecao existe e tem documentos
+                    //vamos recuperar cada documento e adicionar no nosso objeto da model
+                    val poll = document.toObject(com.example.codeclubapp.model.Poll::class.java)
+                    listPoll.add(poll)
+                }
+                existPoll = false
+            }
+        }
+         */
+
+        /*
+                if(pollRepository.getPoll().toList().isNullOrEmpty() ||  (listPoll.isNotEmpty() && query.isSuccessful) ) {
+                    //pollDialog()
+                    existPoll = false
+                } else {
+                    existPoll = true
+                }
+
+         */
+        println("\n Datasource: existPoll = ${queryPollOn.get().isSuccessful}")
+       // return existPoll
+        return queryPollOn.get().isSuccessful
+    }
+
+ */
+
+
+>>>>>>> refs/remotes/origin/master
 } //DataSource
 
 

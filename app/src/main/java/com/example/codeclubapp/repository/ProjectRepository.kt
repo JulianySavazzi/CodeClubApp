@@ -17,7 +17,7 @@ class ProjectRepository() {
         //team: MutableList<Team>
     ){
         //vamos receber os atributos da view a enviar ao banco de dados
-        dataSource.saveProject(id, name, description)
+        return dataSource.saveProject(id, name, description)
     }
 
     fun getProject(): Flow<MutableList<Project>> {

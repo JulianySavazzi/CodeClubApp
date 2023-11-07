@@ -92,7 +92,7 @@ fun Feed(navController: NavController){
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight()
+            .fillMaxHeight(1f)
             .background(MaterialTheme.colorScheme.background)
     ){
         MyAppBarTop(title = "feed de notícias")
@@ -116,7 +116,7 @@ fun Feed(navController: NavController){
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.85f)
+                .fillMaxHeight(0.90f)
                 .padding(10.dp)
             //.background(MaterialTheme.colorScheme.tertiary)
         ){
@@ -156,7 +156,7 @@ fun Feed(navController: NavController){
     }
 }
 
-//moatrar lista de publicações
+//mostrar lista de publicações
 @Composable
 fun MyListFeed(
     position: Int,
@@ -204,30 +204,6 @@ fun MyListFeed(
                 }
             )
 
-            /*
-            IconButton(
-                onClick = { /*TODO*/ },
-                modifier = Modifier.constrainAs(navBarItemEdit) {
-                    top.linkTo(txtDescription.bottom, margin = 15.dp)
-                    start.linkTo(parent.start, margin = 15.dp)
-                },
-            ) {
-                //Text(text = "editar"),
-                Image(imageVector = ImageVector.vectorResource(id = R.drawable.icon_edit_24), contentDescription ="editar")
-            }
-
-            IconButton(
-                onClick = { /*TODO*/ },
-                modifier = Modifier.constrainAs(navBarItemDelete) {
-                    top.linkTo(txtDescription.bottom, margin = 15.dp)
-                    start.linkTo(navBarItemEdit.end, margin = 15.dp)
-                    end.linkTo(parent.end, margin = 15.dp)
-                }
-            ) {
-                //Text(text = "excluir")
-                Image(imageVector = ImageVector.vectorResource(id = R.drawable.icon_delete_24), contentDescription ="excluir")
-            }
-             */
         }
     }
     Divider(
@@ -258,7 +234,7 @@ fun FeedTeacher(navController: NavController){
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight()
+            .fillMaxHeight(1f)
             .background(MaterialTheme.colorScheme.background)
     ){
         MyAppBarTop(title = "feed de notícias")
@@ -283,7 +259,7 @@ fun FeedTeacher(navController: NavController){
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.85f)
+                    .fillMaxHeight(0.90f)
                     .padding(10.dp)
                 //.background(MaterialTheme.colorScheme.tertiary)
             ){

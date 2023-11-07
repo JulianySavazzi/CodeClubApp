@@ -1,5 +1,6 @@
 package com.example.codeclubapp.view
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -27,12 +28,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.work.Worker
+import androidx.work.WorkerParameters
+import com.example.codeclubapp.MainActivity
+import com.example.codeclubapp.MyFirebaseMessagingService
+import com.example.codeclubapp.NotificationWorkManager
 import com.example.codeclubapp.components.MyAppBarBottom
 import com.example.codeclubapp.components.MyAppBarTop
 import com.example.codeclubapp.components.MyButton
 import com.example.codeclubapp.components.MyLoginButton
 import com.example.codeclubapp.components.MyTextBoxInput
 import com.example.codeclubapp.model.Feed
+import com.example.codeclubapp.model.NotificationFeed
 import com.example.codeclubapp.repository.FeedRepository
 import com.example.codeclubapp.repository.TeacherRepository
 import com.google.firebase.FirebaseNetworkException
@@ -41,9 +48,11 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.FirebaseMessagingService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
+import okhttp3.internal.notify
 import okhttp3.internal.wait
 
 //cadastrar noticias
@@ -75,10 +84,15 @@ fun ManageFeed(navController: NavController){
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
+    //val notificationWorkManager = NotificationWorkManager()
+    //val myFirebaseMessagingService = MyFirebaseMessagingService()
+    val firebaseMessagingService = FirebaseMessagingService()
+
     //iniciar repositorio para salvar os dados no bd
     val feedRepository = FeedRepository()
 
     val model = Feed()
+    val messageModel = NotificationFeed()
 
     //se salvou ou nao
     var save = false
@@ -87,63 +101,80 @@ fun ManageFeed(navController: NavController){
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight()
+            .fillMaxHeight(1f)
             .verticalScroll(rememberScrollState()) //barra de rolagem
             .background(MaterialTheme.colorScheme.background)
     ){
         MyAppBarTop(title = "publicações")
         //Rows -> corpo do app
-        Row (
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp, 30.dp, 20.dp, 20.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom
+                .fillMaxHeight(0.9f)
+                .padding(10.dp)
         ){
-            Text(
-                text = "nova publicação: ",
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 18.sp
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp, 30.dp, 20.dp, 20.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Bottom
+            ){
+                Text(
+                    text = "nova publicação: ",
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 18.sp
 
+                )
+            }
+            Divider(
+                thickness = 56.dp,
+                modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                color = MaterialTheme.colorScheme.background
             )
-        }
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(0.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            MyTextBoxInput(
-                value = titleState,
-                onValueChange = {
-                                titleState = it
-                },
+            Row (
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp),
-                label = "título",
-                maxLines = 1
-            )
-        }
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(0.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            MyTextBoxInput(
-                value = contentState,
-                onValueChange = {
-                                contentState = it
-                },
+                    .padding(0.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                MyTextBoxInput(
+                    value = titleState,
+                    onValueChange = {
+                                    titleState = it
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    label = "título",
+                    maxLines = 1
+                )
+            }
+            Row (
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp),
-                label = "conteúdo",
-                maxLines = 10
+                    .padding(0.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                MyTextBoxInput(
+                    value = contentState,
+                    onValueChange = {
+                                    contentState = it
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    label = "conteúdo",
+                    maxLines = 20
+                )
+            }
+            Divider(
+                thickness = 56.dp,
+                modifier = Modifier.fillMaxWidth().fillMaxHeight(1f),
+                color = MaterialTheme.colorScheme.background
             )
         }
         Row (
@@ -151,14 +182,14 @@ fun ManageFeed(navController: NavController){
                 .fillMaxWidth()
                 .padding(20.dp),
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Bottom
         ){
             MyLoginButton(
                 text = "salvar publicação",
                 modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .padding(10.dp)
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .padding(10.dp)
             ) {
 
                 //verificações usando coroutines scope
@@ -167,8 +198,9 @@ fun ManageFeed(navController: NavController){
                     if (titleState.isEmpty() || contentState.isEmpty()) {
                         save = false
                     } else if (titleState.isNotEmpty() && contentState.isNotEmpty()) {
-                        save = true
                         feedRepository.saveFeed(model.id, titleState, contentState)
+                        feedRepository.saveMessage(messageModel.id, "$titleState \n $contentState")
+                        save = true
                         //fazer verificacao no dataSource
                         if (feedRepository.getFeedByName(titleState, contentState).id == model.id){
                             println("feed is not null")
@@ -186,9 +218,13 @@ fun ManageFeed(navController: NavController){
                         println("\nsalvo com sucesso \n")
                         titleState = ""
                         contentState = ""
+                        //show notification
+                        //firebaseMessagingService.notify()
+                        //myFirebaseMessagingService.generateNotification("nova publicação","${titleState} \n ${contentState}")
                         // mostra publicacao -> feed_teacher
                         Toast.makeText(context, "salvo com sucesso ", Toast.LENGTH_SHORT).show()
                         navController.navigate("feed_teacher")
+
                     } else {
                         println("\nalgo deu errado \n")
                         Toast.makeText(
@@ -196,11 +232,21 @@ fun ManageFeed(navController: NavController){
                             "algo deu errado, preencha todos os campos!",
                             Toast.LENGTH_SHORT
                         ).show()
+                        navController.navigate("feed_teacher")
                     }
                 }
 
             }
         }
-        MyAppBarBottom(navController = navController, loginStudent=loginStudent, loginTeacher=loginTeacher)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.Bottom
+        ) {
+            MyAppBarBottom(navController = navController, loginStudent=loginStudent, loginTeacher=loginTeacher)
+        }
     }
 }
+
