@@ -15,3 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Code Club App"
 include(":app")
+include(":app")

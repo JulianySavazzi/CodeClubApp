@@ -58,22 +58,24 @@ class DataSource {
     //allFeeds -> observa todos os dados que foram atribuidos para ela
     private val allFeeds: StateFlow<MutableList<Feed>> = _allFeeds
 
-    //flow -> recuperar todo fluxo de tarefas FEED
-    //_allFeeds -> estado de fluxo assincrono
+    //flow -> recuperar todo fluxo de tarefas POLL
+    //_allPolls -> estado de fluxo assincrono
     private val _allPolls = MutableStateFlow<MutableList<Poll>>(mutableListOf())
-    //allFeeds -> observa todos os dados que foram atribuidos para ela
+    //allPolls -> observa todos os dados que foram atribuidos para ela
     private val allPolls: StateFlow<MutableList<Poll>> = _allPolls
 
     //utilizar firebase auth
-    val auth = FirebaseAuth.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
-    var student = Student()
+    private var student = Student()
 
-    var feed = Feed()
+    private var feed = Feed()
 
-    var project = Project()
+    private var project = Project()
 
-    var team = Team()
+    private var team = Team()
+
+    private var currentPoll: Poll = Poll()
 
     //var isTrue = false
     //criar estado para a variável:
@@ -134,6 +136,25 @@ class DataSource {
             }
         }
         return allStudents
+    }
+
+    fun returnSudent(): MutableList<Student>{
+        val listStudent: MutableList<Student> = mutableListOf()
+        //listar todos os alunos cadastrados
+        db.collection("student").whereIn("isStudent", listOf(true)).get().addOnCompleteListener{
+                querySnapshot ->
+            if(querySnapshot.isSuccessful){
+                for(document in querySnapshot.result){
+                    //se a colecao existe e tem documentos
+                    //vamos recuperar cada documento e adicionar no nosso objeto da model
+                    val student = document.toObject(Student::class.java)
+                    listStudent.add(student)
+                    _allStudents.value = listStudent
+
+                }
+            }
+        }
+        return allStudents.value
     }
 
     //exemplo:
@@ -198,7 +219,7 @@ class DataSource {
                 if(querySnapshot.isSuccessful){
                     for(document in querySnapshot.result){
                         student = document.toObject(Student::class.java)
-                        Log.d(TAG, "student by email: $querySnapshot, $student")
+                        Log.d(TAG, "student by email: $querySnapshot, ${student.name}")
                         return@addOnCompleteListener
                     }
                 }
@@ -279,7 +300,7 @@ class DataSource {
         val listTeacher: MutableList<Teacher> = mutableListOf()
         //listar todos os professores cadastrados
         db.collection("teacher").whereIn("isTeacher", listOf(true)).get().addOnCompleteListener{
-            querySnapshot ->
+                querySnapshot ->
             if(querySnapshot.isSuccessful){
                 for(document in querySnapshot.result){
                     //se a colecao existe e tem documentos
@@ -305,7 +326,7 @@ class DataSource {
             .whereIn("email", listOf(email))
             .whereIn("pass", listOf(pass))
             .get().addOnCompleteListener{
-                querySnapshot ->
+                    querySnapshot ->
                 if(querySnapshot.isSuccessful){
                     for(document in querySnapshot.result){
                         auth.signInWithEmailAndPassword(email, pass)
@@ -498,8 +519,8 @@ class DataSource {
                 } else {
                     team = Team()
                 }
-        }
-        return team
+            }
+        return this.team
     }
 
     fun deleteProject(title: String, description: String){
@@ -531,7 +552,7 @@ class DataSource {
             "projects" to projects,
             "vote" to vote
 
-            )
+        )
 
         //salvar colecao de team em um documento -> como se fosse a tabela team
         db.collection("team").document(name).set(teamMap).addOnCompleteListener {
@@ -561,6 +582,24 @@ class DataSource {
             }
         }
         return allTeams
+    }
+
+    fun returnTeam(): MutableList<Team>{
+        val listTeam: MutableList<Team> = mutableListOf()
+        //listar todos os projetos cadastrados
+        db.collection("team").get().addOnCompleteListener{
+                querySnapshot ->
+            if(querySnapshot.isSuccessful){
+                for(document in querySnapshot.result){
+                    //se a colecao existe e tem documentos
+                    //vamos recuperar cada documento e adicionar no nosso objeto da model
+                    val team = document.toObject(Team::class.java)
+                    listTeam.add(team)
+                    _allTeams.value = listTeam
+                }
+            }
+        }
+        return allTeams.value
     }
 
     fun getTeamByName(name: String): Team{
@@ -631,7 +670,7 @@ class DataSource {
         id: Int,
         codeVal: MutableList<Long>,
         qtdTotalVotes: Int,
-        teamsForVotes: MutableList<Team>,
+        teamsVoted: List<Team>,
         endPoll: Boolean
 
     ){
@@ -640,13 +679,13 @@ class DataSource {
             "id" to id,
             "codeVal" to codeVal,
             "qtdTotalVotes" to qtdTotalVotes,
-            "teamsForVotes" to teamsForVotes,
+            "teamsVoted" to teamsVoted,
             "endPoll" to endPoll
 
         )
 
         //salvar colecao de team em um documento -> como se fosse a tabela team
-        db.collection("team").document(teamsForVotes.toString()).set(teamMap).addOnCompleteListener {
+        db.collection("poll").document(id.toString()).set(teamMap).addOnCompleteListener {
             //salvo com sucesso
             print("success save poll")
         }.addOnFailureListener {
@@ -655,12 +694,91 @@ class DataSource {
         }
     }
 
-    fun getPoll(): Flow<MutableList<Poll>>{
+    fun deletePoll(id: Int){
+        db.collection("poll")
+            .document(id.toString()).delete().addOnCompleteListener {
+                Log.d(TAG, "poll is deleted!")
+            }.addOnFailureListener {
+                Log.d(TAG, "poll not deleted!")
+            }
+    }
 
+    fun getPoll(): Flow<MutableList<Poll>>{
+        val listPoll: MutableList<Poll> = mutableListOf()
+        //listar todas as votacoes cadastradas
+        db.collection("poll").get().addOnCompleteListener{
+                querySnapshot ->
+            if(querySnapshot.isSuccessful){
+                for(document in querySnapshot.result){
+                    //se a colecao existe e tem documentos
+                    //vamos recuperar cada documento e adicionar no nosso objeto da model
+                    val poll = document.toObject(Poll::class.java)
+                    listPoll.add(poll)
+                    _allPolls.value = listPoll
+                }
+            }
+        }
         return allPolls
     }
 
-}
+    fun returnPoll(): MutableList<Poll> {
+        val listPoll: MutableList<Poll> = mutableListOf()
+        //listar todas as votacoes cadastradas
+        db.collection("poll").get().addOnCompleteListener{
+                querySnapshot ->
+            if(querySnapshot.isSuccessful){
+                for(document in querySnapshot.result){
+                    //se a colecao existe e tem documentos
+                    //vamos recuperar cada documento e adicionar no nosso objeto da model
+                    val poll = document.toObject(Poll::class.java)
+                    listPoll.add(poll)
+                    _allPolls.value = listPoll
+                }
+            }
+        }
+        return allPolls.value
+    }
+
+    fun verifyStatusPoll(
+        id: Int,
+        codeVal: MutableList<Long>,
+        qtdTotalVotes: Int,
+        teamsVoted: List<Team>,
+        endPoll: Boolean
+    ){
+        db.collection("poll")
+            .whereIn("endPoll", listOf(false))
+            .get().addOnCompleteListener{
+                    querySnapshot ->
+                if(querySnapshot.isSuccessful){
+                    for(document in querySnapshot.result){
+                        currentPoll = document.toObject(Poll::class.java)
+                        Log.d(TAG, "endPoll: ${currentPoll.endPoll}, await current poll end for start other poll!")
+                        return@addOnCompleteListener
+                    }
+                } else {
+                    Log.d(TAG, "endPoll: ${currentPoll.endPoll}, you can start poll")
+                    savePoll(id, codeVal, qtdTotalVotes, teamsVoted, endPoll)
+                }
+            }
+    }
+
+
+    fun updatePoll(
+        id: Int,
+        endPoll: Boolean
+    ){
+        //update poll status
+        db.collection("poll").document(id.toString()).update("endPoll", endPoll).
+                addOnCompleteListener{
+                    Log.d(TAG, "endPoll: ${currentPoll.endPoll}, this poll is finished!")
+                }
+    }
+
+    fun updateCodValPoll(){
+
+    }
+} //DataSource
 
 
 

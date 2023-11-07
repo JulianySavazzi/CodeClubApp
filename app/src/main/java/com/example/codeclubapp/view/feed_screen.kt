@@ -321,7 +321,6 @@ fun FeedTeacher(navController: NavController){
              MyAppBarBottom(navController = navController, loginStudent = loginStudent, loginTeacher = loginTeacher)
          }
 
-
         //MyAppBarBottom(navController = navController, loginStudent = loginStudent, loginTeacher = loginTeacher)
     }
 }

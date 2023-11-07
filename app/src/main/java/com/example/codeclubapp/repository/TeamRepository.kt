@@ -25,6 +25,10 @@ class TeamRepository() {
         return dataSource.getTeam()
     }
 
+    fun returnTeam(): MutableList<Team>{
+        return dataSource.returnTeam()
+    }
+
     fun getTeamByName(name: String): Team{
         return dataSource.getTeamByName(name)
     }
