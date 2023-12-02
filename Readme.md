@@ -15,6 +15,7 @@ Algumas melhorias nas próximas atualizações do APP, são:
 * corrigir bugs das notificações;
 * corrigir bugs do carregamento dos dados vindos do firebase nas listagens;
 * adicionar mais alguns atributos para validação de usuários teacher;
-* implementar as funcionalidades de atualizar dados dos usuários e editar publicações; 
+* implementar as funcionalidades de atualizar dados dos usuários e editar publicações;
+* implementar a funcionalidade de login com google;
 * deixar o projeto multiplataforma.
  
