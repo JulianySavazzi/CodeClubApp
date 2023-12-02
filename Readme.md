@@ -9,12 +9,12 @@ O aplicativo vai contribuir com o projeto, sendo um meio dos alunos participante
 #### O desenvolvimento do aplicativo para dispositivos Android, está utilizando as tecnologias Kotlin, Jetpack Compose (para desenvolvimento nativo) e Firebase (autenticação de usuários e banco de dados);
 
 Algumas melhorias nas próximas atualizações do APP, são: 
-[] refatorar o código utilizando melhor alguns recursos do kotlin (como corroutines) para melhorar o desempenho; 
-[] refatorar a estrutura do projeto (principios de Clean Code, Solid, padrão MVVM); 
-[] colocar criptografia para salvar alguns dados confidenciais no banco de dados;
-[] corrigir bugs das notificações;
-[] corrigir bugs do carregamento dos dados vindos do firebase nas listagens;
-[] adicionar mais alguns atributos para validação de usuários teacher;
-[] implementar as funcionalidades de atualizar dados dos usuários e editar publicações; 
-[] deixar o projeto multiplataforma.
+* refatorar o código utilizando melhor alguns recursos do kotlin (como corroutines) para melhorar o desempenho; 
+* refatorar a estrutura do projeto (principios de Clean Code, Solid, padrão MVVM); 
+* colocar criptografia para salvar alguns dados confidenciais no banco de dados;
+* corrigir bugs das notificações;
+* corrigir bugs do carregamento dos dados vindos do firebase nas listagens;
+* adicionar mais alguns atributos para validação de usuários teacher;
+* implementar as funcionalidades de atualizar dados dos usuários e editar publicações; 
+* deixar o projeto multiplataforma.
  
