@@ -1,6 +1,6 @@
 # Code Club App
 
-## Aplicativo móvel em desenvolvimento para o projeto Code Club, fundado pela professora Dr. Luciene Cavalcanti Rodrigues;
+## Aplicativo móvel em desenvolvimento para o projeto Code Club, fundado pela professora Dr. Luciene Cavalcanti Rodrigues
 
 O projeto Code Club conta com a colaboração de alunos, professores e voluntários, é destinado a contribuir com a formação de crianças e adolescentes por meio da tecnologia, contando com campeonatos de desenvolvimentos de jogos (Game Challenge). [Saiba mais aqui.](http://codeclube.inf.br)
 
