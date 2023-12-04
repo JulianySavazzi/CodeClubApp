@@ -17,5 +17,6 @@ Algumas melhorias nas próximas atualizações do APP, são:
 * adicionar mais alguns atributos para validação de usuários teacher;
 * implementar as funcionalidades de atualizar dados dos usuários e editar publicações;
 * implementar a funcionalidade de login com google;
+* melhorar o tratamento de erros;
 * deixar o projeto multiplataforma.
  
